@@ -1,7 +1,7 @@
 Source: cache901
 Section: net
 Priority: extra
-Maintainer: marvin <m.pedersen@icelus.org>
+Maintainer: Michael J. Pedersen <m.pedersen@icelus.org>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.7.3
 Homepage: http://www.cache901.org/
