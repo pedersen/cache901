@@ -66,6 +66,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
 
         isinstance(self.splitLists, wx.SplitterWindow)
         isinstance(self.splitListsAndDetails, wx.SplitterWindow)
+        isinstance(self.splitLogsandLog, wx.SplitterWindow)
+        isinstance(self.splitLogsAndBugs, wx.SplitterWindow)
         isinstance(self.caches, wx.ListCtrl)
         isinstance(self.points, wx.ListCtrl)
         isinstance(self.cacheInfo, wx.Notebook)
@@ -97,6 +99,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.cacheUrl, wx.HyperlinkCtrl)
         isinstance(self.waypointId, wx.StaticText)
         isinstance(self.statusBar, wx.StatusBar)
+        isinstance(self.cacheNotes, wx.Panel)
+        isinstance(self.cachePics, wx.Panel)
+        isinstance(self.currNotes, wx.TextCtrl)
+        isinstance(self.saveNotes, wx.Button)
+        isinstance(self.undoNotes, wx.Button)
+        isinstance(self.currPhoto, wx.StaticBitmap)
+        isinstance(self.photoList, wx.ListCtrl)
 
         self.Bind(wx.EVT_CLOSE,  self.OnClose)
 
@@ -116,9 +125,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         cfg=wx.Config.Get()
         isinstance(cfg, wx.Config)
         cfg.SetPath("/MainWin")
+        if cfg.HasEntry("Width") and cfg.HasEntry("Height"):
+            self.SetSize((cfg.ReadInt("Width"), cfg.ReadInt("Height")))
         if cfg.HasEntry("DetailSplitPos"):
             self.splitListsAndDetails.SetSashPosition(cfg.ReadInt("DetailSplitPos"))
         self.splitLists.SetSashPosition(cfg.ReadInt("ListSplitPos"), 370)
+        self.splitLogsAndBugs.SetSashPosition(cfg.ReadInt("BugLogSplitPos"), 200)
+        self.splitLogsandLog.SetSashPosition(cfg.ReadInt("LogDateLogSplitPos"), 200)
+        
         self.logList.DeleteAllColumns()
         w,h = self.GetTextExtent("QQQQ/QQ/QQQQQ")
         self.logList.InsertColumn(0, "Log Date", width=w)
@@ -171,6 +185,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             cfg.SetPath("/MainWin")
             cfg.WriteInt("ListSplitPos", self.splitLists.GetSashPosition())
             cfg.WriteInt("DetailSplitPos", self.splitListsAndDetails.GetSashPosition())
+            cfg.WriteInt("BugLogSplitPos", self.splitLogsAndBugs.GetSashPosition())
+            cfg.WriteInt("LogDateLogSplitPos", self.splitLogsandLog.GetSashPosition())
+            (w, h) = self.GetSize()
+            cfg.WriteInt("Width", w)
+            cfg.WriteInt("Height", h)
             self.geoicons.Destroy()
             self.Destroy()
         else:
@@ -191,7 +210,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def clearAllGui(self):
         self.ld_cache = None
         # Set up travel bug listings
+        self.travelbugs.DeleteAllColumns()
         self.travelbugs.DeleteAllItems()
+        w,h = self.GetTextExtent("QQQQQQQQQQQQQQ")
+        self.travelbugs.InsertColumn(0, "Travel Bug Name", width=w)
         # set up log listings
         self.logList.DeleteAllItems()
         self.logEntry.SetValue("")

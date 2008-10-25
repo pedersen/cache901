@@ -63,7 +63,6 @@ class xrcCache901UI(wx.Frame):
         self.country = xrc.XRCCTRL(self, "country")
         self.hints = xrc.XRCCTRL(self, "hints")
         self.hintsCoding = xrc.XRCCTRL(self, "hintsCoding")
-        self.travelbugs = xrc.XRCCTRL(self, "travelbugs")
         self.cacheDescription = xrc.XRCCTRL(self, "cacheDescription")
         self.cacheDescShort = xrc.XRCCTRL(self, "cacheDescShort")
         self.cacheDescLong = xrc.XRCCTRL(self, "cacheDescLong")
@@ -72,9 +71,19 @@ class xrcCache901UI(wx.Frame):
         self.logType = xrc.XRCCTRL(self, "logType")
         self.logMine = xrc.XRCCTRL(self, "logMine")
         self.logMineFound = xrc.XRCCTRL(self, "logMineFound")
+        self.splitLogsandLog = xrc.XRCCTRL(self, "splitLogsandLog")
+        self.splitLogsAndBugs = xrc.XRCCTRL(self, "splitLogsAndBugs")
         self.logList = xrc.XRCCTRL(self, "logList")
+        self.travelbugs = xrc.XRCCTRL(self, "travelbugs")
         self.logEntry = xrc.XRCCTRL(self, "logEntry")
         self.encText = xrc.XRCCTRL(self, "encText")
+        self.cacheNotes = xrc.XRCCTRL(self, "cacheNotes")
+        self.currNotes = xrc.XRCCTRL(self, "currNotes")
+        self.saveNotes = xrc.XRCCTRL(self, "saveNotes")
+        self.undoNotes = xrc.XRCCTRL(self, "undoNotes")
+        self.cachePics = xrc.XRCCTRL(self, "cachePics")
+        self.currPhoto = xrc.XRCCTRL(self, "currPhoto")
+        self.photoList = xrc.XRCCTRL(self, "photoList")
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
         self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
@@ -661,31 +670,27 @@ def __init_resources():
                     </object>
                     <object class="sizeritem">
                       <object class="wxBoxSizer">
-                        <object class="spacer">
-                          <size>2,2</size>
-                        </object>
                         <object class="sizeritem">
-                          <object class="wxStaticLine">
-                            <size>400,1</size>
-                            <style>wxSIMPLE_BORDER|wxLI_HORIZONTAL</style>
-                          </object>
-                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-                        </object>
-                        <object class="spacer">
-                          <size>2,2</size>
-                        </object>
-                        <object class="sizeritem">
-                          <object class="wxStaticText">
-                            <label>Hints</label>
-                          </object>
-                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-                        </object>
-                        <object class="sizeritem">
-                          <object class="wxTextCtrl" name="hints">
-                            <style>wxTE_AUTO_SCROLL|wxTE_MULTILINE</style>
-                            <XRCED>
-                              <assign_var>1</assign_var>
-                            </XRCED>
+                          <object class="wxBoxSizer">
+                            <orient>wxHORIZONTAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxStaticText">
+                                <label>Hints</label>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>3,3</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxTextCtrl" name="hints">
+                                <style>wxTE_AUTO_SCROLL|wxTE_MULTILINE</style>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <option>1</option>
+                              <flag>wxEXPAND|wxGROW</flag>
+                            </object>
                           </object>
                           <option>1</option>
                           <flag>wxEXPAND|wxGROW</flag>
@@ -699,49 +704,11 @@ def __init_resources():
                           </object>
                           <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                         </object>
-                        <object class="spacer">
-                          <size>2,2</size>
-                        </object>
-                        <object class="sizeritem">
-                          <object class="wxStaticLine">
-                            <size>400,1</size>
-                            <style>wxSIMPLE_BORDER|wxLI_HORIZONTAL</style>
-                          </object>
-                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-                        </object>
                         <orient>wxVERTICAL</orient>
-                        <object class="spacer">
-                          <size>2,2</size>
-                        </object>
                       </object>
                       <option>1</option>
                       <flag>wxEXPAND|wxGROW</flag>
                       <cellpos>9,0</cellpos>
-                      <cellspan>1,3</cellspan>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxBoxSizer">
-                        <object class="sizeritem">
-                          <object class="wxStaticText">
-                            <label>Travelbugs:</label>
-                          </object>
-                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-                        </object>
-                        <object class="sizeritem">
-                          <object class="wxListCtrl" name="travelbugs">
-                            <style>wxLC_LIST</style>
-                            <XRCED>
-                              <assign_var>1</assign_var>
-                            </XRCED>
-                          </object>
-                          <option>1</option>
-                          <flag>wxEXPAND|wxGROW</flag>
-                        </object>
-                        <orient>wxVERTICAL</orient>
-                      </object>
-                      <option>1</option>
-                      <flag>wxEXPAND|wxGROW</flag>
-                      <cellpos>10,0</cellpos>
                       <cellspan>1,3</cellspan>
                     </object>
                     <vgap>2</vgap>
@@ -857,40 +824,85 @@ def __init_resources():
                       <flag>wxEXPAND|wxGROW</flag>
                     </object>
                     <object class="sizeritem">
-                      <object class="wxBoxSizer">
-                        <object class="sizeritem">
-                          <object class="wxListCtrl" name="logList">
-                            <style>wxLC_REPORT</style>
-                            <XRCED>
-                              <assign_var>1</assign_var>
-                            </XRCED>
+                      <object class="wxSplitterWindow" name="splitLogsandLog">
+                        <object class="wxPanel">
+                          <object class="wxBoxSizer">
+                            <orient>wxVERTICAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxSplitterWindow" name="splitLogsAndBugs">
+                                <object class="wxPanel">
+                                  <object class="wxStaticBoxSizer">
+                                    <object class="sizeritem">
+                                      <object class="wxListCtrl" name="logList">
+                                        <style>wxLC_REPORT</style>
+                                        <XRCED>
+                                          <assign_var>1</assign_var>
+                                        </XRCED>
+                                      </object>
+                                      <option>1</option>
+                                      <flag>wxEXPAND|wxGROW</flag>
+                                    </object>
+                                    <label>Log Entries</label>
+                                    <orient>wxVERTICAL</orient>
+                                  </object>
+                                </object>
+                                <object class="wxPanel">
+                                  <object class="wxStaticBoxSizer">
+                                    <object class="sizeritem">
+                                      <object class="wxListCtrl" name="travelbugs">
+                                        <style>wxLC_REPORT</style>
+                                        <XRCED>
+                                          <assign_var>1</assign_var>
+                                        </XRCED>
+                                      </object>
+                                      <option>1</option>
+                                      <flag>wxEXPAND|wxGROW</flag>
+                                    </object>
+                                    <label>Travel Bugs</label>
+                                    <orient>wxVERTICAL</orient>
+                                  </object>
+                                </object>
+                                <orientation>horizontal</orientation>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <option>1</option>
+                              <flag>wxEXPAND|wxGROW</flag>
+                            </object>
                           </object>
-                          <option>1</option>
-                          <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                         </object>
-                        <object class="sizeritem">
-                          <object class="wxTextCtrl" name="logEntry">
-                            <style>wxSIMPLE_BORDER|wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_RICH2|wxTE_LINEWRAP|wxTE_WORDWRAP</style>
-                            <XRCED>
-                              <assign_var>1</assign_var>
-                            </XRCED>
+                        <object class="wxPanel">
+                          <object class="wxBoxSizer">
+                            <object class="sizeritem">
+                              <object class="wxTextCtrl" name="logEntry">
+                                <style>wxSIMPLE_BORDER|wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_RICH2|wxTE_LINEWRAP|wxTE_WORDWRAP</style>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <option>1</option>
+                              <flag>wxEXPAND|wxGROW</flag>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton" name="encText">
+                                <label>Encode / Decode Text</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                            </object>
+                            <orient>wxVERTICAL</orient>
                           </object>
-                          <option>4</option>
-                          <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                         </object>
-                        <orient>wxHORIZONTAL</orient>
-                      </object>
-                      <option>1</option>
-                      <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxButton" name="encText">
-                        <label>Encode / Decode Text</label>
+                        <orientation>vertical</orientation>
                         <XRCED>
                           <assign_var>1</assign_var>
                         </XRCED>
                       </object>
-                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                      <option>1</option>
+                      <flag>wxEXPAND|wxGROW</flag>
                     </object>
                   </object>
                   <XRCED>
@@ -902,6 +914,81 @@ def __init_resources():
               <XRCED>
                 <assign_var>1</assign_var>
               </XRCED>
+              <object class="notebookpage">
+                <object class="wxPanel" name="cacheNotes">
+                  <object class="wxBoxSizer">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="currNotes">
+                        <style>wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_RICH2|wxTE_WORDWRAP</style>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <option>1</option>
+                      <flag>wxEXPAND|wxGROW</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxButton" name="saveNotes">
+                            <label>&amp;Save Notes</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="undoNotes">
+                            <label>&amp;Undo Changes</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                    </object>
+                  </object>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <label>Notes</label>
+              </object>
+              <object class="notebookpage">
+                <object class="wxPanel" name="cachePics">
+                  <object class="wxBoxSizer">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxStaticBitmap" name="currPhoto">
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <option>1</option>
+                      <flag>wxEXPAND|wxGROW</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxListCtrl" name="photoList">
+                        <style>wxLC_ICON|wxLC_AUTOARRANGE|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <flag>wxEXPAND</flag>
+                    </object>
+                  </object>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <label>Photos</label>
+              </object>
             </object>
             <option>1</option>
             <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
@@ -955,7 +1042,7 @@ def __init_resources():
         <assign_var>1</assign_var>
       </XRCED>
     </object>
-    <size>1016,570</size>
+    <size>792,450</size>
     <title>Cache 901 - Caching At The Upper Levels</title>
     <style>wxDEFAULT_FRAME_STYLE</style>
   </object>
@@ -13856,7 +13943,6 @@ def __gettext_strings():
     _("Country:")
     _("Hints")
     _("Encode/Decode")
-    _("Travelbugs:")
     _("The Basics")
     _("Short Description")
     _("Long Description")
@@ -13865,8 +13951,14 @@ def __gettext_strings():
     _("Type:")
     _("My Log?")
     _("Found It?")
+    _("Log Entries")
+    _("Travel Bugs")
     _("Encode / Decode Text")
     _("Logs")
+    _("&Save Notes")
+    _("&Undo Changes")
+    _("Notes")
+    _("Photos")
     _("&File")
     _("&Import GPX File")
     _("E&xit")
