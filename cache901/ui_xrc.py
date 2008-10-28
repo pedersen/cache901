@@ -181,6 +181,37 @@ class xrcsplash(wx.Frame):
 
 
 
+class xrcOptionsUI(wx.Dialog):
+#!XRCED:begin-block:xrcOptionsUI.PreCreate
+    def PreCreate(self, pre):
+        """ This function is called during the class's initialization.
+        
+        Override it for custom setup before the window is created usually to
+        set additional window styles using SetWindowStyle() and SetExtraStyle().
+        """
+        pass
+        
+#!XRCED:end-block:xrcOptionsUI.PreCreate
+
+    def __init__(self, parent):
+        # Two stage creation (see http://wiki.wxpython.org/index.cgi/TwoStageCreation)
+        pre = wx.PreDialog()
+        self.PreCreate(pre)
+        get_resources().LoadOnDialog(pre, parent, "OptionsUI")
+        self.PostCreate(pre)
+
+        # Define variables for the controls, bind event handlers
+        self.tabs = xrc.XRCCTRL(self, "tabs")
+        self.general = xrc.XRCCTRL(self, "general")
+        self.search = xrc.XRCCTRL(self, "search")
+        self.locSplit = xrc.XRCCTRL(self, "locSplit")
+        self.locations = xrc.XRCCTRL(self, "locations")
+        self.remLoc = xrc.XRCCTRL(self, "remLoc")
+        self.locationName = xrc.XRCCTRL(self, "locationName")
+        self.addLoc = xrc.XRCCTRL(self, "addLoc")
+
+
+
 
 
 # ------------------------ Resource data ----------------------
@@ -876,7 +907,7 @@ def __init_resources():
                           <object class="wxBoxSizer">
                             <object class="sizeritem">
                               <object class="wxTextCtrl" name="logEntry">
-                                <style>wxSIMPLE_BORDER|wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_RICH2|wxTE_LINEWRAP|wxTE_WORDWRAP</style>
+                                <style>wxSIMPLE_BORDER|wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_RICH2|wxTE_WORDWRAP</style>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -1257,6 +1288,224 @@ http://www.justwill.com/</value>
         </object>
       </object>
     </object>
+  </object>
+  <object class="wxDialog" name="OptionsUI">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxNotebook" name="tabs">
+          <object class="notebookpage">
+            <object class="wxPanel" name="general">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+              <object class="wxGridBagSizer">
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>Coordinate\nDisplay</label>
+                  </object>
+                  <flag>wxALIGN_RIGHT</flag>
+                  <cellpos>0,0</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxChoice" name="coordDisplay">
+                    <content>
+                      <item>Deg Min Sec</item>
+                      <item>Deg Min</item>
+                      <item>Dec Deg</item>
+                    </content>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                  <cellpos>0,1</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>GPS Type:</label>
+                  </object>
+                  <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                  <cellpos>1,0</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxChoice" name="gpsType">
+                    <content>
+                      <item>Garmin</item>
+                      <item>NMEA</item>
+                    </content>
+                    <selection>0</selection>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                  <cellpos>1,1</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>GPS Port:</label>
+                  </object>
+                  <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                  <cellpos>2,0</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxChoice" name="gpsPort"/>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                  <cellpos>2,1</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>GPSBabel Location:</label>
+                  </object>
+                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  <cellpos>0,3</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxFilePickerCtrl">
+                    <value>gpsbabel</value>
+                    <message>Location of gpsbabel</message>
+                    <wildcard>All Files (*)|*</wildcard>
+                    <style>wxFLP_OPEN|wxFLP_FILE_MUST_EXIST</style>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                  <cellpos>0,4</cellpos>
+                </object>
+                <vgap>2</vgap>
+                <hgap>2</hgap>
+                <growablecols>4</growablecols>
+              </object>
+            </object>
+            <label>&amp;General</label>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="search">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow" name="locSplit">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Locations:</label>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl" name="locations">
+                            <style>wxLC_LIST</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="remLoc">
+                            <label>&amp;Remove</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                      <size>200,410</size>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxGridBagSizer">
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Location Name:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="locName"/>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                          <cellpos>0,1</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Location:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                          <cellpos>1,0</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="locationName">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                          <cellpos>1,1</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="addLoc">
+                            <label>&amp;Add / Replace</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <cellpos>1,2</cellpos>
+                        </object>
+                        <vgap>2</vgap>
+                        <hgap>2</hgap>
+                        <growablecols>1</growablecols>
+                        <growablerows/>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                    <sashpos>225</sashpos>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+              </object>
+            </object>
+            <label>&amp;Search</label>
+          </object>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <option>1</option>
+        <flag>wxEXPAND|wxGROW</flag>
+        <minsize>792,400</minsize>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_OK">
+              <label>&amp;Okay</label>
+            </object>
+          </object>
+          <object class="spacer">
+            <size>20,5</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_CANCEL">
+              <label>&amp;Cancel</label>
+            </object>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+      </object>
+    </object>
+    <size>750,400</size>
+    <title>Cache901 Options</title>
+    <centered>1</centered>
+    <style>wxDEFAULT_DIALOG_STYLE</style>
   </object>
 </resource>'''
 
@@ -13972,4 +14221,24 @@ def __gettext_strings():
     _("Credits")
     _("&Okay")
     _("Cache 901 Is Loading")
+    _("Coordinate\nDisplay")
+    _("Deg Min Sec")
+    _("Deg Min")
+    _("Dec Deg")
+    _("GPS Type:")
+    _("Garmin")
+    _("NMEA")
+    _("GPS Port:")
+    _("GPSBabel Location:")
+    _("gpsbabel")
+    _("&General")
+    _("Locations:")
+    _("&Remove")
+    _("Location Name:")
+    _("Location:")
+    _("&Add / Replace")
+    _("&Search")
+    _("&Okay")
+    _("&Cancel")
+    _("Cache901 Options")
 
