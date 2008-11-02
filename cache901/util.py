@@ -20,6 +20,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 
+from decimal import Decimal, InvalidOperation
+
+degsym = u'\u00B0'
+
 def distance_exact(lat1, lon1, lat2, lon2):
     return 3958.75 * math.acos(math.sin(lat1/57.2958) *
           math.sin(lat2/57.2958) + 
@@ -35,7 +39,62 @@ def decToDMS(decDegree):
     m = int(r)
     r = r - m
     s = "%3.04f" % (r*60)
-    return (plus, "%3d° %2d' %s%s" % (d, m, s, '"'))
+    return (plus, "%3d%s %2d' %s%s" % (d, degsym, m, s, '"'))
+
+def dmsToDec(dmsstr):
+    dmsstr = dmsstr.strip()
+    localdmsstr = dmsstr
+    if localdmsstr[0].lower() not in ['n', 's', 'e', 'w']:
+        try:
+            deg = Decimal(localdmsstr)
+            return deg
+        except InvalidOperation:
+            raise InvalidDegFormat("Invalid direction (not NSEW): %s" % dmsstr)
+    mult = 1 if localdmsstr[0].lower() in ['n', 'e'] else -1
+    loc = localdmsstr.find(degsym)
+    if loc >= 0: # found degree symbol
+        try:
+            deg = Decimal(localdmsstr[1:loc].strip())
+            localdmsstr = localdmsstr[loc+1:].strip()
+        except InvalidOperation:
+            raise InvalidDegFormat("Invalid degree specification in %s (%s)" % (dmsstr, localdmsstr[1:loc]))
+    else: # no degree symbol found, assuming spaces
+        loc = localdmsstr.find(' ')
+        if loc >= 0: # found space, proceed
+            try:
+                deg = Decimal(localdmsstr[1:loc].strip())
+                localdmsstr = localdmsstr[loc:].strip()
+            except InvalidOperation:
+                raise InvalidDegFormat("Invalid degrees specification in %s (%s)" % (dmsstr, localdmsstr[1:loc].strip()))
+        else:
+            try:
+                deg = Decimal(localdmsstr)
+                return deg
+            except InvalidOperation:
+                raise InvalidDegFormat("No spaces, no degree symbol, or invalid symbol in %s" % dmsstr)
+    loc = localdmsstr.find("'")
+    if loc >= 0: # minutes mark found
+        try:
+            mins = Decimal(localdmsstr[:loc].strip()) / Decimal("60.0")
+            localdmsstr = localdmsstr[loc+1:].strip()
+        except InvalidOperation:
+            raise InvalidDegFormat("Invalid minutes specification in %s (%s)" % (dmsstr, localdmsstr[:loc]))
+    else:
+        loc = localdmsstr.find(' ')
+        if loc >= 0: # space found, up to space is minutes
+            mins = Decimal(localdmsstr[:loc].strip()) / Decimal("60.0")
+            localdmsstr = localdmsstr[loc:].strip()
+        else:
+            try:
+                mins = Decimal(localdmsstr) / Decimal("60.0")
+                return deg+mins
+            except InvalidOperation:
+                raise InvalidDegFormat("Invalid minutes specification in %s" % dmsstr)
+    loc = localdmsstr.find('"')
+    if loc >= 0: # seconds mark found, remove it
+        localdmsstr = localdmsstr[:loc].strip()
+    secs = Decimal(localdmsstr) / Decimal("3600.0")
+    return deg + mins + secs
 
 def latToDMS(decDegree):
     plus, val = decToDMS(decDegree)
@@ -51,3 +110,6 @@ def lonToDMS(decDegree):
 
 def forceAscii(s):
     return filter(lambda x: ord(x) < 128 and ord(x) > 26, s)
+
+class InvalidDegFormat(Exception):
+    pass
