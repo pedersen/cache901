@@ -19,6 +19,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 """
 
 import math
+import os
+import os.path
+import serial
+import sys
 
 from decimal import Decimal, InvalidOperation
 
@@ -110,6 +114,44 @@ def lonToDMS(decDegree):
 
 def forceAscii(s):
     return filter(lambda x: ord(x) < 128 and ord(x) > 26, s)
+
+def which(cmd):
+    if sys.platform == 'win32':
+        for d in os.environ['PATH'].split(';'):
+            t = os.sep.join([d, cmd])
+            for ext in ['exe', 'bat', 'com']:
+                f = "%s.%s" % (t, ext)
+                if os.path.exists(f) and os.access(f, os.X_OK):
+                    return f
+    else:
+        for d in os.environ['PATH'].split(':'):
+            f = os.sep.join([d, cmd])
+            if os.path.exists(f) and os.access(f, os.X_OK):
+                return f
+    return None
+
+def scanForSerial():
+    if sys.platform == "win32":
+        # @todo: Fix the scanning on Windows
+        pass
+    else:
+        available = []
+        for i in range(256):
+            try:
+                s = serial.Serial(i)
+                available.append(s.portstr)
+                s.close()   #explicit close 'cause of delayed GC in java
+            except serial.SerialException:
+                pass
+        for i in range(256):
+            try:
+                s = serial.Serial('/dev/ttyUSB%d' % i)
+                available.append(s.portstr)
+                s.close()   #explicit close 'cause of delayed GC in java
+            except serial.SerialException:
+                pass
+    return available
+ 
 
 class InvalidDegFormat(Exception):
     pass

@@ -86,6 +86,8 @@ class xrcCache901UI(wx.Frame):
         self.photoList = xrc.XRCCTRL(self, "photoList")
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
+        self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
+        self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
         self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
         self.statusBar = xrc.XRCCTRL(self, "statusBar")
@@ -203,11 +205,17 @@ class xrcOptionsUI(wx.Dialog):
         # Define variables for the controls, bind event handlers
         self.tabs = xrc.XRCCTRL(self, "tabs")
         self.general = xrc.XRCCTRL(self, "general")
+        self.coordDisplay = xrc.XRCCTRL(self, "coordDisplay")
+        self.gpsType = xrc.XRCCTRL(self, "gpsType")
+        self.gpsPort = xrc.XRCCTRL(self, "gpsPort")
+        self.gpsbabelLoc = xrc.XRCCTRL(self, "gpsbabelLoc")
         self.search = xrc.XRCCTRL(self, "search")
         self.locSplit = xrc.XRCCTRL(self, "locSplit")
         self.locations = xrc.XRCCTRL(self, "locations")
         self.remLoc = xrc.XRCCTRL(self, "remLoc")
-        self.locationName = xrc.XRCCTRL(self, "locationName")
+        self.locName = xrc.XRCCTRL(self, "locName")
+        self.latitude = xrc.XRCCTRL(self, "latitude")
+        self.longitude = xrc.XRCCTRL(self, "longitude")
         self.addLoc = xrc.XRCCTRL(self, "addLoc")
 
 
@@ -1045,6 +1053,18 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuFilePrefs">
+          <label>&amp;Preferences</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuFileLocs">
+          <label>&amp;Search Locations</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <object class="wxMenuItem" name="mnuFileExit">
           <label>E&amp;xit</label>
           <accel>Ctrl-Q</accel>
@@ -1314,6 +1334,9 @@ http://www.justwill.com/</value>
                       <item>Deg Min</item>
                       <item>Dec Deg</item>
                     </content>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
                   </object>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
@@ -1333,6 +1356,9 @@ http://www.justwill.com/</value>
                       <item>NMEA</item>
                     </content>
                     <selection>0</selection>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
                   </object>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
@@ -1346,7 +1372,11 @@ http://www.justwill.com/</value>
                   <cellpos>2,0</cellpos>
                 </object>
                 <object class="sizeritem">
-                  <object class="wxChoice" name="gpsPort"/>
+                  <object class="wxChoice" name="gpsPort">
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
                   <cellpos>2,1</cellpos>
@@ -1359,11 +1389,14 @@ http://www.justwill.com/</value>
                   <cellpos>0,3</cellpos>
                 </object>
                 <object class="sizeritem">
-                  <object class="wxFilePickerCtrl">
+                  <object class="wxFilePickerCtrl" name="gpsbabelLoc">
                     <value>gpsbabel</value>
                     <message>Location of gpsbabel</message>
                     <wildcard>All Files (*)|*</wildcard>
                     <style>wxFLP_OPEN|wxFLP_FILE_MUST_EXIST</style>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
                   </object>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
@@ -1395,7 +1428,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="locations">
-                            <style>wxLC_LIST</style>
+                            <style>wxLC_REPORT|wxLC_NO_HEADER|wxLC_SORT_ASCENDING</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1413,7 +1446,6 @@ http://www.justwill.com/</value>
                           <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                         </object>
                       </object>
-                      <size>200,410</size>
                     </object>
                     <object class="wxPanel">
                       <object class="wxGridBagSizer">
@@ -1424,20 +1456,24 @@ http://www.justwill.com/</value>
                           <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxTextCtrl" name="locName"/>
+                          <object class="wxTextCtrl" name="locName">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
                           <option>1</option>
                           <flag>wxEXPAND|wxGROW</flag>
                           <cellpos>0,1</cellpos>
                         </object>
                         <object class="sizeritem">
                           <object class="wxStaticText">
-                            <label>Location:</label>
+                            <label>Latitude:</label>
                           </object>
                           <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
                           <cellpos>1,0</cellpos>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxTextCtrl" name="locationName">
+                          <object class="wxTextCtrl" name="latitude">
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1447,13 +1483,30 @@ http://www.justwill.com/</value>
                           <cellpos>1,1</cellpos>
                         </object>
                         <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Longitude:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                          <cellpos>2,0</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="longitude">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                          <cellpos>2,1</cellpos>
+                        </object>
+                        <object class="sizeritem">
                           <object class="wxButton" name="addLoc">
                             <label>&amp;Add / Replace</label>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
-                          <cellpos>1,2</cellpos>
+                          <cellpos>3,1</cellpos>
                         </object>
                         <vgap>2</vgap>
                         <hgap>2</hgap>
@@ -1480,7 +1533,7 @@ http://www.justwill.com/</value>
         </object>
         <option>1</option>
         <flag>wxEXPAND|wxGROW</flag>
-        <minsize>792,400</minsize>
+        <minsize>740,350</minsize>
       </object>
       <object class="sizeritem">
         <object class="wxBoxSizer">
@@ -1506,6 +1559,7 @@ http://www.justwill.com/</value>
     <title>Cache901 Options</title>
     <centered>1</centered>
     <style>wxDEFAULT_DIALOG_STYLE</style>
+    <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
   </object>
 </resource>'''
 
@@ -14210,6 +14264,8 @@ def __gettext_strings():
     _("Photos")
     _("&File")
     _("&Import GPX File")
+    _("&Preferences")
+    _("&Search Locations")
     _("E&xit")
     _("&Help")
     _("&About")
@@ -14235,7 +14291,8 @@ def __gettext_strings():
     _("Locations:")
     _("&Remove")
     _("Location Name:")
-    _("Location:")
+    _("Latitude:")
+    _("Longitude:")
     _("&Add / Replace")
     _("&Search")
     _("&Okay")

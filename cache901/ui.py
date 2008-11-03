@@ -32,6 +32,7 @@ import cache901.dbobjects
 import cache901.util as util
 import cache901.xml901
 import cache901.dbm
+import cache901.options
 
 class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def __init__(self, parent=None):
@@ -112,6 +113,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnClose,      self.mnuFileExit)
         self.Bind(wx.EVT_MENU,   self.OnImportFile, self.mnuFileImport)
         self.Bind(wx.EVT_MENU,   self.OnAbout,      self.mnuHelpAbout)
+        self.Bind(wx.EVT_MENU,   self.OnSearchLocs, self.mnuFileLocs)
+        self.Bind(wx.EVT_MENU,   self.OnPrefs,      self.mnuFilePrefs)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle, self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,   self.encText)
@@ -349,6 +352,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         abt.version.SetLabel("Version: %s" % cache901.version)
         abt.SetIcon(self.geoicons["appicon"])
         abt.ShowModal()
+    
+    def OnSearchLocs(self, evt):
+        opts = cache901.options.OptionsUI(self)
+        opts.showSearch()
+    
+    def OnPrefs(self, evt):
+        opts = cache901.options.OptionsUI(self)
+        opts.showGeneral()
 
 class geoicons(cache901.ui_xrc.xrcgeoIcons):
     def __init__(self):

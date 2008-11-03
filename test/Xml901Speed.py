@@ -98,7 +98,7 @@ class XmlTest(unittest.TestCase):
 
     def testParseFullFile(self):
         path = cache901.__path__[0].split(os.sep)[:-3]
-        path.extend(['docs', 'gpx', 'samples', '746247.gpx'])
+        path.extend(['trunk', 'docs', 'gpx', 'samples', '746247.gpx'])
         path = os.sep.join(path)
         fullfile = open(path).read()
 
