@@ -1099,7 +1099,7 @@ http://www.justwill.com/</value>
                     <content>
                       <item>Deg Min Sec</item>
                       <item>Deg Min</item>
-                      <item>Dec Deg</item>
+                      <item>Deg</item>
                     </content>
                     <XRCED>
                       <assign_var>1</assign_var>

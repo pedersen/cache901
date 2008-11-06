@@ -231,8 +231,7 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?>
-<resource>
+<?xml version="1.0" ?><resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -1332,7 +1331,7 @@ http://www.justwill.com/</value>
                     <content>
                       <item>Deg Min Sec</item>
                       <item>Deg Min</item>
-                      <item>Dec Deg</item>
+                      <item>Deg</item>
                     </content>
                     <XRCED>
                       <assign_var>1</assign_var>
@@ -14280,7 +14279,7 @@ def __gettext_strings():
     _("Coordinate\nDisplay")
     _("Deg Min Sec")
     _("Deg Min")
-    _("Dec Deg")
+    _("Deg")
     _("GPS Type:")
     _("Garmin")
     _("NMEA")

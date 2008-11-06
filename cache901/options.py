@@ -32,6 +32,8 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.locations.InsertColumn(0, 'Location Name')
         self.gpsbabelLoc.SetValidator(cmdValidator())
         self.gpsPort.SetValidator(portValidator())
+        self.gpsType.SetValidator(gpsTypeValidator())
+        self.coordDisplay.SetValidator(degDisplayValidator())
         
     def showGeneral(self):
         self.tabs.ChangeSelection(0)
@@ -126,7 +128,10 @@ class portValidator(wx.PyValidator):
         choice.Clear()
         choice.Append('USB')
         choice.AppendItems(cache901.util.scanForSerial())
-        choice.SetSelection(choice.GetItems().index(cfg.Read('GPSPort', 'USB')))
+        try:
+            choice.SetSelection(choice.GetItems().index(cfg.Read('GPSPort', 'USB')))
+        except:
+            choice.SetSelection(0)
             
     def TransferFromWindow(self):
         choice = self.GetWindow()
@@ -135,3 +140,64 @@ class portValidator(wx.PyValidator):
         isinstance(cfg, wx.Config)
         cfg.SetPath('/PerMachine')
         cfg.Write('GPSPort', choice.GetItems()[choice.GetSelection()])
+        
+class gpsTypeValidator(wx.PyValidator):
+    def Clone(self):
+        return gpsTypeValidator()
+    
+    def Validate(self, win):
+        choice = self.GetWindow()
+        isinstance(choice, wx.Choice)
+        items = map(lambda x: x.lower(), choice.GetItems())
+        return items[choice.GetSelection()] in ['garmin', 'nmea']
+    
+    def TransferToWindow(self):
+        choice = self.GetWindow()
+        cfg = wx.Config.Get()
+        isinstance(cfg, wx.Config)
+        isinstance(choice, wx.Choice)
+        cfg.SetPath('/PerMachine')
+        items = map(lambda x: x.lower(), choice.GetItems())
+        try:
+            choice.SetSelection(['garmin', 'nmea'].index(cfg.Read('GPSType', 'nmea')))
+        except:
+            choice.SetSelection(0)
+
+    def TransferFromWindow(self):
+        choice = self.GetWindow()
+        cfg = wx.Config.Get()
+        isinstance(cfg, wx.Config)
+        isinstance(choice, wx.Choice)
+        cfg.SetPath('/PerMachine')
+        cfg.Write('GPSType', choice.GetItems()[choice.GetSelection()].lower())
+        
+class degDisplayValidator(wx.PyValidator):
+    def Clone(self):
+        return degDisplayValidator()
+    
+    def Validate(self, win):
+        choice = self.GetWindow()
+        isinstance(self, wx.Choice)
+        items = map(lambda x: x.lower(), choice.GetItems())
+        return items[choice.GetSelection()] in ['deg min sec', 'deg min', 'deg']
+    
+    def TransferToWindow(self):
+        choice = self.GetWindow()
+        cfg = wx.Config.Get()
+        isinstance(cfg, wx.Config)
+        isinstance(choice, wx.Choice)
+        cfg.SetPath('/PerMachine')
+        items = map(lambda x: x.lower(), choice.GetItems())
+        try:
+            choice.SetSelection(['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min sec')))
+        except:
+            choice.SetSelection(0)
+
+    def TransferFromWindow(self):
+        choice = self.GetWindow()
+        cfg = wx.Config.Get()
+        isinstance(cfg, wx.Config)
+        isinstance(choice, wx.Choice)
+        cfg.SetPath('/PerMachine')
+        cfg.Write('degDisplay', choice.GetItems()[choice.GetSelection()].lower())
+        
