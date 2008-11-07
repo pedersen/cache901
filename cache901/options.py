@@ -23,17 +23,38 @@ import os.path
 import serial
 import wx
 
+import cache901
+import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
 
 class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcOptionsUI.__init__(self, parent)
-        self.locations.InsertColumn(0, 'Location Name')
         self.gpsbabelLoc.SetValidator(cmdValidator())
         self.gpsPort.SetValidator(portValidator())
         self.gpsType.SetValidator(gpsTypeValidator())
         self.coordDisplay.SetValidator(degDisplayValidator())
+        
+        self.loadOrigins()
+        
+        self.Bind(wx.EVT_BUTTON, self.OnRemoveOrigin,   self.remLoc)
+        self.Bind(wx.EVT_BUTTON, self.OnAddOrigin,      self.addLoc)
+        self.Bind(wx.EVT_BUTTON, self.OnClearSelection, self.clearSel)
+        
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadOrigin, self.locations)
+        
+    def loadOrigins(self):
+        self.locations.DeleteAllItems()
+        self.locations.DeleteAllColumns()
+        w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
+        self.locations.InsertColumn(0, 'Location Name', width=w)
+        db = cache901.db()
+        cur = db.cursor()
+        cur.execute("select wpt_id, name from locations where loc_type=2 order by name")
+        for row in cur:
+            sid = self.locations.Append((row[1],))
+            self.locations.SetItemData(sid, row[0])
         
     def showGeneral(self):
         self.tabs.ChangeSelection(0)
@@ -43,6 +64,64 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.tabs.ChangeSelection(1)
         self.ShowModal()
         
+    def OnRemoveOrigin(self, evt):
+        sel = self.locations.GetFirstSelected()
+        wptid = self.locations.GetItemData(sel)
+        cur = cache901.db().cursor()
+        cur.execute('delete from locations where loc_type=2 and wpt_id=?', (wptid, ))
+        self.loadOrigins()
+        cache901.db().commit()
+    
+    def OnAddOrigin(self, evt):
+        lid = self.locations.GetFirstSelected()
+        if lid != -1:
+            lid = self.locations.GetItemData(lid)
+        else:
+            lid = -999999
+        wpt = cache901.dbobjects.Waypoint(lid)
+        wpt.name = self.locName.GetValue()
+        wpt.loc_type = 2
+        if len(wpt.name) != 0:
+            failed = False
+            try:
+                wpt.lat = str(cache901.util.dmsToDec(self.latitude.GetValue()))
+                self.latitude.SetValue(wpt.lat)
+            except cache901.util.InvalidDegFormat, msg:
+                wx.MessageBox(str(msg), "Invalid Latitude", parent=self)
+                failed = True
+            try:
+                wpt.lon = str(cache901.util.dmsToDec(self.longitude.GetValue()))
+                self.longitude.SetValue(wpt.lon)
+            except cache901.util.InvalidDegFormat, msg:
+                wx.MessageBox(str(msg), "Invalid Longitude", parent=self)
+                failed = True
+            if not failed:
+                wpt.Save()
+                cache901.db().commit()
+                self.loadOrigins()
+                wpt_id = self.locations.FindItemData(0, wpt.wpt_id)
+                if wpt_id >= 0:
+                    self.locations.Select(wpt_id)
+                else:
+                    self.locName.SetValue("")
+                    self.latitude.SetValue("")
+                    self.longitude.SetValue("")
+        else:
+            wx.MessageBox("Empty names cannot be saved", "Empty Name Error")
+    
+    def OnLoadOrigin(self, evt):
+        wptid = evt.GetData()
+        wpt = cache901.dbobjects.Waypoint(wptid)
+        self.locName.SetValue(wpt.name)
+        self.latitude.SetValue(cache901.util.latToDMS(wpt.lat))
+        self.longitude.SetValue(cache901.util.lonToDMS(wpt.lon))
+    
+    def OnClearSelection(self, evt):
+        lid = self.locations.GetFirstSelected()
+        while lid != -1:
+            self.locations.Select(lid, False)
+            lid = self.locations.GetFirstSelected()
+    
     def forWingIde(self):
         """
         This method shouldn't ever be called, since it's a do nothing
@@ -68,6 +147,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.longitude, wx.TextCtrl)
         isinstance(self.addLoc,    wx.Button)
         isinstance(self.remLoc,    wx.Button)
+        isinstance(self.clearSel,  wx.Button)
 
 class cmdValidator(wx.PyValidator):
     def Clone(self):

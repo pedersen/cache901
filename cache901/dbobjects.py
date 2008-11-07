@@ -92,13 +92,16 @@ class Waypoint(object):
     def __init__(self, cid):
         if cid < 0:
             cur=cache901.db().cursor()
-            cur.execute('select min(wpt_id) from locations')
+            cur.execute('select wpt_id from locations where wpt_id=?', (cid, ))
             row = cur.fetchone()
-            if row[0] is None:
-                cid = -1
-            else:
-                cid = row[0]-1
-            cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,0,-1,'','','',0.0,0.0)", (cid, ))
+            if row is None or row[0] is None:
+                cur.execute('select min(wpt_id) from locations')
+                row = cur.fetchone()
+                if row is None or row[0] is None:
+                    cid = -1
+                else:
+                    cid = row[0]-1
+                cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,0,-1,'','','',0.0,0.0)", (cid, ))
         cur = cache901.db().cursor()
         cur.execute('select loc_type, refers_to, name, desc, comment, lat, lon from locations where wpt_id=?', (cid, ))
         row = cur.fetchone()

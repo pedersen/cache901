@@ -23,6 +23,7 @@ import os
 import os.path
 import serial
 import sys
+import wx
 
 from decimal import Decimal, InvalidOperation
 
@@ -35,6 +36,18 @@ def distance_exact(lat1, lon1, lat2, lon2):
           math.cos(lat2/57.2958) * 
           math.cos(lon2/57.2958 - lon1/57.2958))
 
+def decToD(decDegree):
+    plus = (decDegree >= 0)
+    decDegree = abs(decDegree)
+    return (plus, "%s%s" % (decDegree, degsym))
+
+def decToDM(decDegree):
+    plus = (decDegree >= 0)
+    decDegree = abs(decDegree)
+    d = int(decDegree)
+    m = (decDegree - d) * 60
+    return (plus, "%3d%s %2d'" % (d, degsym, m,))
+
 def decToDMS(decDegree):
     plus = (decDegree >= 0)
     decDegree = abs(decDegree)
@@ -46,6 +59,9 @@ def decToDMS(decDegree):
     return (plus, "%3d%s %2d' %s%s" % (d, degsym, m, s, '"'))
 
 def dmsToDec(dmsstr):
+    deg = Decimal("0.00")
+    mins = Decimal("0.00")
+    secs = Decimal("0.00")
     dmsstr = dmsstr.strip()
     localdmsstr = dmsstr
     if localdmsstr[0].lower() not in ['n', 's', 'e', 'w']:
@@ -76,38 +92,52 @@ def dmsToDec(dmsstr):
                 return deg
             except InvalidOperation:
                 raise InvalidDegFormat("No spaces, no degree symbol, or invalid symbol in %s" % dmsstr)
-    loc = localdmsstr.find("'")
-    if loc >= 0: # minutes mark found
-        try:
-            mins = Decimal(localdmsstr[:loc].strip()) / Decimal("60.0")
-            localdmsstr = localdmsstr[loc+1:].strip()
-        except InvalidOperation:
-            raise InvalidDegFormat("Invalid minutes specification in %s (%s)" % (dmsstr, localdmsstr[:loc]))
-    else:
-        loc = localdmsstr.find(' ')
-        if loc >= 0: # space found, up to space is minutes
-            mins = Decimal(localdmsstr[:loc].strip()) / Decimal("60.0")
-            localdmsstr = localdmsstr[loc:].strip()
-        else:
+    if len(localdmsstr) > 0:
+        loc = localdmsstr.find("'")
+        if loc >= 0: # minutes mark found
             try:
-                mins = Decimal(localdmsstr) / Decimal("60.0")
-                return deg+mins
+                mins = Decimal(localdmsstr[:loc].strip()) / Decimal("60.0")
+                localdmsstr = localdmsstr[loc+1:].strip()
             except InvalidOperation:
-                raise InvalidDegFormat("Invalid minutes specification in %s" % dmsstr)
-    loc = localdmsstr.find('"')
-    if loc >= 0: # seconds mark found, remove it
-        localdmsstr = localdmsstr[:loc].strip()
-    secs = Decimal(localdmsstr) / Decimal("3600.0")
-    return deg + mins + secs
+                raise InvalidDegFormat("Invalid minutes specification in %s (%s)" % (dmsstr, localdmsstr[:loc]))
+        else:
+            loc = localdmsstr.find(' ')
+            if loc >= 0: # space found, up to space is minutes
+                mins = Decimal(localdmsstr[:loc].strip()) / Decimal("60.0")
+                localdmsstr = localdmsstr[loc:].strip()
+            else:
+                try:
+                    mins = Decimal(localdmsstr) / Decimal("60.0")
+                    return deg+mins
+                except InvalidOperation:
+                    raise InvalidDegFormat("Invalid minutes specification in %s" % dmsstr)
+    if len(localdmsstr) > 0:
+        loc = localdmsstr.find('"')
+        if loc >= 0: # seconds mark found, remove it
+            localdmsstr = localdmsstr[:loc].strip()
+        secs = Decimal(localdmsstr) / Decimal("3600.0")
+    return mult * (deg + mins + secs)
+
+def displayDMS(dec):
+    cfg = wx.Config.Get()
+    isinstance(cfg, wx.Config)
+    cfg.SetPath('/PerMachine')
+    idx = ['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min sec'))
+    if idx == 0:
+        return decToDMS(dec)
+    elif idx == 1:
+        return decToDM(dec)
+    else:
+        return decToD(dec)
 
 def latToDMS(decDegree):
-    plus, val = decToDMS(decDegree)
+    plus, val = displayDMS(decDegree)
     if plus: lat="N"
     else: lat = "S"
     return "%s%s" % (lat, val)
 
 def lonToDMS(decDegree):
-    plus, val = decToDMS(decDegree)
+    plus, val = displayDMS(decDegree)
     if plus: lat="E"
     else: lat = "W"
     return "%s%s" % (lat, val)
@@ -151,7 +181,6 @@ def scanForSerial():
             except serial.SerialException:
                 pass
     return available
- 
 
 class InvalidDegFormat(Exception):
     pass

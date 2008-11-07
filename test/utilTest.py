@@ -22,6 +22,8 @@ import unittest
 import cache901.util
 from decimal import Decimal
 
+import wx
+
 # Oxford, NJ
 lat1 =  40.8130
 lon1 = -75.0047
@@ -90,3 +92,5 @@ class utilTest(unittest.TestCase):
 
     def testForceAscii(self):
         self.failUnless(cache901.util.forceAscii('abc' + u'\u1234' + '123') == 'abc123')
+
+app = wx.PySimpleApp()

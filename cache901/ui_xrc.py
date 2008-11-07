@@ -213,6 +213,7 @@ class xrcOptionsUI(wx.Dialog):
         self.locSplit = xrc.XRCCTRL(self, "locSplit")
         self.locations = xrc.XRCCTRL(self, "locations")
         self.remLoc = xrc.XRCCTRL(self, "remLoc")
+        self.clearSel = xrc.XRCCTRL(self, "clearSel")
         self.locName = xrc.XRCCTRL(self, "locName")
         self.latitude = xrc.XRCCTRL(self, "latitude")
         self.longitude = xrc.XRCCTRL(self, "longitude")
@@ -1427,7 +1428,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="locations">
-                            <style>wxLC_REPORT|wxLC_NO_HEADER|wxLC_SORT_ASCENDING</style>
+                            <style>wxLC_REPORT|wxLC_SORT_ASCENDING</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1436,14 +1437,27 @@ http://www.justwill.com/</value>
                           <flag>wxEXPAND|wxGROW</flag>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxButton" name="remLoc">
-                            <label>&amp;Remove</label>
-                            <XRCED>
-                              <assign_var>1</assign_var>
-                            </XRCED>
+                          <object class="wxBoxSizer">
+                            <orient>wxHORIZONTAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxButton" name="remLoc">
+                                <label>&amp;Remove</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton" name="clearSel">
+                                <label>&amp;Clear Selection</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
                           </object>
-                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                         </object>
+                      
                       </object>
                     </object>
                     <object class="wxPanel">
@@ -14289,6 +14303,7 @@ def __gettext_strings():
     _("&General")
     _("Locations:")
     _("&Remove")
+    _("&Clear Selection")
     _("Location Name:")
     _("Latitude:")
     _("Longitude:")
