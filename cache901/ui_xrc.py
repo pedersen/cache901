@@ -221,6 +221,29 @@ class xrcOptionsUI(wx.Dialog):
 
 
 
+class xrcSearchUI(wx.Dialog):
+#!XRCED:begin-block:xrcSearchUI.PreCreate
+    def PreCreate(self, pre):
+        """ This function is called during the class's initialization.
+        
+        Override it for custom setup before the window is created usually to
+        set additional window styles using SetWindowStyle() and SetExtraStyle().
+        """
+        pass
+        
+#!XRCED:end-block:xrcSearchUI.PreCreate
+
+    def __init__(self, parent):
+        # Two stage creation (see http://wiki.wxpython.org/index.cgi/TwoStageCreation)
+        pre = wx.PreDialog()
+        self.PreCreate(pre)
+        get_resources().LoadOnDialog(pre, parent, "SearchUI")
+        self.PostCreate(pre)
+
+        # Define variables for the controls, bind event handlers
+
+
+
 
 
 # ------------------------ Resource data ----------------------
@@ -1457,7 +1480,6 @@ http://www.justwill.com/</value>
                             </object>
                           </object>
                         </object>
-                      
                       </object>
                     </object>
                     <object class="wxPanel">
@@ -1573,6 +1595,66 @@ http://www.justwill.com/</value>
     <centered>1</centered>
     <style>wxDEFAULT_DIALOG_STYLE</style>
     <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+  </object>
+  <object class="wxDialog" name="SearchUI">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxNotebook" name="tabs">
+          <object class="notebookpage">
+            <object class="wxPanel" name="basics"/>
+            <label>Basics</label>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="cacheType"/>
+            <label>Cache Type</label>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="conditions"/>
+            <label>Conditions</label>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="region"/>
+            <label>Region</label>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="placementDates"/>
+            <label>Placement Dates</label>
+          </object>
+        </object>
+        <option>1</option>
+        <flag>wxEXPAND|wxGROW</flag>
+        <minsize>740,350</minsize>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxButton" name="saveSearch">
+              <label>&amp;Save</label>
+              <enabled>0</enabled>
+            </object>
+          </object>
+          <object class="spacer">
+            <size>5,5</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_OK">
+              <label>&amp;Ok</label>
+            </object>
+          </object>
+          <object class="spacer">
+            <size>5,5</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_CANCEL">
+              <label>&amp;Cancel</label>
+            </object>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+      </object>
+    </object>
   </object>
 </resource>'''
 
@@ -14312,4 +14394,12 @@ def __gettext_strings():
     _("&Okay")
     _("&Cancel")
     _("Cache901 Options")
+    _("Basics")
+    _("Cache Type")
+    _("Conditions")
+    _("Region")
+    _("Placement Dates")
+    _("&Save")
+    _("&Ok")
+    _("&Cancel")
 
