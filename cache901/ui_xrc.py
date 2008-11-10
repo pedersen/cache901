@@ -218,6 +218,7 @@ class xrcOptionsUI(wx.Dialog):
         self.latitude = xrc.XRCCTRL(self, "latitude")
         self.longitude = xrc.XRCCTRL(self, "longitude")
         self.addLoc = xrc.XRCCTRL(self, "addLoc")
+        self.getFromGPS = xrc.XRCCTRL(self, "getFromGPS")
 
 
 
@@ -1578,6 +1579,15 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxButton" name="addLoc">
                             <label>&amp;Add / Replace</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <cellpos>4,1</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="getFromGPS">
+                            <label>Get From GPS</label>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -14967,6 +14977,7 @@ def __gettext_strings():
     _("Latitude:")
     _("Longitude:")
     _("&Add / Replace")
+    _("Get From GPS")
     _("&Search")
     _("&Okay")
     _("&Cancel")

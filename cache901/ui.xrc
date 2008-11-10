@@ -1285,6 +1285,15 @@ http://www.justwill.com/</value>
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
+                          <cellpos>4,1</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="getFromGPS">
+                            <label>Get From GPS</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
                           <cellpos>3,1</cellpos>
                         </object>
                         <vgap>2</vgap>

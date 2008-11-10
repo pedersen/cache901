@@ -28,6 +28,8 @@ import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
 
+import gpsbabel
+
 class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcOptionsUI.__init__(self, parent)
@@ -41,6 +43,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.Bind(wx.EVT_BUTTON, self.OnRemoveOrigin,   self.remLoc)
         self.Bind(wx.EVT_BUTTON, self.OnAddOrigin,      self.addLoc)
         self.Bind(wx.EVT_BUTTON, self.OnClearSelection, self.clearSel)
+        self.Bind(wx.EVT_BUTTON, self.OnGetFromGPS,     self.getFromGPS)
         
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadOrigin, self.locations)
         
@@ -122,6 +125,36 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             self.locations.Select(lid, False)
             lid = self.locations.GetFirstSelected()
     
+    def OnGetFromGPS(self, evt):
+        # Get the path for GPSBabel, and make sure it's in use.
+        fp = self.gpsbabelLoc.GetPath()
+        gpsbabel.gps = gpsbabel.GPSBabel(fp)
+        # Get the port the GPS is attached to
+        selnum = self.gpsPort.GetSelection()
+        if selnum == wx.NOT_FOUND:
+            wx.MessageBox('Please select the GPS Port on the "General" page', 'Invalid GPS Port')
+        items = self.gpsPort.GetItems()
+        if selnum < 0 or selnum >= len(items):
+            wx.MessageBox('Please select the GPS Port on the "General" page', 'Invalid GPS Port')
+        else:
+            port = items[selnum]
+        if port == 'USB': port = 'usb:'
+        # Get the type of GPS
+        selnum = self.gpsType.GetSelection()
+        if selnum == wx.NOT_FOUND:
+            wx.MessageBox('Please select the GPS Type on the "General" page', 'Invalid GPS Type')
+        items = self.gpsType.GetItems()
+        if selnum < 0 or selnum >= len(items):
+            wx.MessageBox('Please select the GPS Type on the "General" page', 'Invalid GPS Type')
+        else:
+            gpstype = items[selnum].lower()
+        try:
+            wpt = gpsbabel.gps.getCurrentGpsLocation(port, gpstype)
+            self.latitude.SetValue(cache901.util.latToDMS(wpt.lat))
+            self.longitude.SetValue(cache901.util.lonToDMS(wpt.lon))
+        except Exception, e:
+            wx.MessageBox(str(e), "An Error Occured")
+    
     def forWingIde(self):
         """
         This method shouldn't ever be called, since it's a do nothing
@@ -138,6 +171,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.gpsType,      wx.Choice)
         isinstance(self.gpsPort,      wx.Choice)
         isinstance(self.gpsbabelLoc,  wx.FilePickerCtrl)
+        isinstance(self.getFromGPS,   wx.Button)
         
         # Search Tab
         isinstance(self.search,    wx.Panel)
