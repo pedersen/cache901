@@ -241,6 +241,47 @@ class xrcSearchUI(wx.Dialog):
         self.PostCreate(pre)
 
         # Define variables for the controls, bind event handlers
+        self.splitterSave = xrc.XRCCTRL(self, "splitterSave")
+        self.savedSearches = xrc.XRCCTRL(self, "savedSearches")
+        self.searchName = xrc.XRCCTRL(self, "searchName")
+        self.maxResults = xrc.XRCCTRL(self, "maxResults")
+        self.terrainCond = xrc.XRCCTRL(self, "terrainCond")
+        self.terrainRating = xrc.XRCCTRL(self, "terrainRating")
+        self.difficultyCond = xrc.XRCCTRL(self, "difficultyCond")
+        self.difficultyRating = xrc.XRCCTRL(self, "difficultyRating")
+        self.searchOrigin = xrc.XRCCTRL(self, "searchOrigin")
+        self.distance = xrc.XRCCTRL(self, "distance")
+        self.distanceScake = xrc.XRCCTRL(self, "distanceScake")
+        self.splitterType = xrc.XRCCTRL(self, "splitterType")
+        self.cacheTypes = xrc.XRCCTRL(self, "cacheTypes")
+        self.clearTypes = xrc.XRCCTRL(self, "clearTypes")
+        self.cacheContainers = xrc.XRCCTRL(self, "cacheContainers")
+        self.btnClearContainers = xrc.XRCCTRL(self, "btnClearContainers")
+        self.notFound = xrc.XRCCTRL(self, "notFound")
+        self.found = xrc.XRCCTRL(self, "found")
+        self.notOwned = xrc.XRCCTRL(self, "notOwned")
+        self.owned = xrc.XRCCTRL(self, "owned")
+        self.genAvail = xrc.XRCCTRL(self, "genAvail")
+        self.memAvail = xrc.XRCCTRL(self, "memAvail")
+        self.notIgnored = xrc.XRCCTRL(self, "notIgnored")
+        self.ignored = xrc.XRCCTRL(self, "ignored")
+        self.foundLast7 = xrc.XRCCTRL(self, "foundLast7")
+        self.notFound = xrc.XRCCTRL(self, "notFound")
+        self.hasBugs = xrc.XRCCTRL(self, "hasBugs")
+        self.updatedLast7 = xrc.XRCCTRL(self, "updatedLast7")
+        self.notActive = xrc.XRCCTRL(self, "notActive")
+        self.active = xrc.XRCCTRL(self, "active")
+        self.splitRegions = xrc.XRCCTRL(self, "splitRegions")
+        self.countriesCheck = xrc.XRCCTRL(self, "countriesCheck")
+        self.countriesList = xrc.XRCCTRL(self, "countriesList")
+        self.clearCountries = xrc.XRCCTRL(self, "clearCountries")
+        self.statesCheck = xrc.XRCCTRL(self, "statesCheck")
+        self.statesList = xrc.XRCCTRL(self, "statesList")
+        self.clearStates = xrc.XRCCTRL(self, "clearStates")
+        self.rangeChoice = xrc.XRCCTRL(self, "rangeChoice")
+        self.beginDate = xrc.XRCCTRL(self, "beginDate")
+        self.endDate = xrc.XRCCTRL(self, "endDate")
+        self.saveSearch = xrc.XRCCTRL(self, "saveSearch")
 
 
 
@@ -1602,23 +1643,556 @@ http://www.justwill.com/</value>
       <object class="sizeritem">
         <object class="wxNotebook" name="tabs">
           <object class="notebookpage">
-            <object class="wxPanel" name="basics"/>
+            <object class="wxPanel" name="basics">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow" name="splitterSave">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl" name="savedSearches">
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxFlexGridSizer">
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Search Name:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="searchName">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Max # Results:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxChoice" name="maxResults">
+                            <content>
+                              <item>No Limit</item>
+                              <item>10</item>
+                              <item>25</item>
+                              <item>50</item>
+                              <item>100</item>
+                              <item>250</item>
+                              <item>500</item>
+                            </content>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Terrain:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <orient>wxHORIZONTAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="terrainCond">
+                                <content>
+                                  <item>&gt;=</item>
+                                  <item>=</item>
+                                  <item>&lt;=</item>
+                                </content>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="terrainRating">
+                                <content>
+                                  <item>1.0</item>
+                                  <item>1.5</item>
+                                  <item>2.0</item>
+                                  <item>2.5</item>
+                                  <item>3.0</item>
+                                  <item>3.5</item>
+                                  <item>4.0</item>
+                                  <item>4.5</item>
+                                  <item>5.0</item>
+                                </content>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Difficulty:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="difficultyCond">
+                                <content>
+                                  <item>&gt;=</item>
+                                  <item>=</item>
+                                  <item>&lt;=</item>
+                                </content>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="difficultyRating">
+                                <content>
+                                  <item>1.0</item>
+                                  <item>1.5</item>
+                                  <item>2.0</item>
+                                  <item>2.5</item>
+                                  <item>3.0</item>
+                                  <item>3.5</item>
+                                  <item>4.0</item>
+                                  <item>4.5</item>
+                                  <item>5.0</item>
+                                </content>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                            <orient>wxHORIZONTAL</orient>
+                          </object>
+                        </object>
+                        <cols>2</cols>
+                        <rows>2</rows>
+                        <vgap>3</vgap>
+                        <hgap>3</hgap>
+                        <growablecols>1</growablecols>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Search Origin:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxChoice" name="searchOrigin">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Distance From Origin:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <orient>wxHORIZONTAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxTextCtrl" name="distance">
+                                <tooltip>Numeric only</tooltip>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="distanceScake">
+                                <content>
+                                  <item>mi</item>
+                                  <item>km</item>
+                                </content>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                    <sashpos>225</sashpos>
+                    <minsize>150</minsize>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+              </object>
+            </object>
             <label>Basics</label>
           </object>
           <object class="notebookpage">
-            <object class="wxPanel" name="cacheType"/>
+            <object class="wxPanel" name="cacheType">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow" name="splitterType">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Cache Type</label>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl" name="cacheTypes">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="clearTypes">
+                            <label>Clear Selections</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Cache Container</label>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl" name="cacheContainers">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnClearContainers">
+                            <label>Clear Selections</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                    <minsize>200</minsize>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+              </object>
+            </object>
             <label>Cache Type</label>
           </object>
           <object class="notebookpage">
-            <object class="wxPanel" name="conditions"/>
+            <object class="wxPanel" name="conditions">
+              <object class="wxFlexGridSizer">
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="notFound">
+                    <label>I haven't found</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="found">
+                    <label>I have found</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="notOwned">
+                    <label>I don't own</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="owned">
+                    <label>I own</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="genAvail">
+                    <label>Are available to all users</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="memAvail">
+                    <label>Are for members only</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="notIgnored">
+                    <label>Are not on my ignore list</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="ignored">
+                    <label>Are on my watch list</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="foundLast7">
+                    <label>Found in the last 7 days</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="notFound">
+                    <label>Have not been found</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="hasBugs">
+                    <label>Have travel bugs</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="updatedLast7">
+                    <label>Updated in the last 7 days</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="notActive">
+                    <label>Is not active</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="active">
+                    <label>Is active</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <cols>2</cols>
+                <rows>2</rows>
+                <hgap>3</hgap>
+              </object>
+            </object>
             <label>Conditions</label>
           </object>
           <object class="notebookpage">
-            <object class="wxPanel" name="region"/>
+            <object class="wxPanel" name="regions">
+              <object class="wxBoxSizer">
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow" name="splitRegions">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxCheckBox" name="countriesCheck">
+                            <label>Countries</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl" name="countriesList">
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="clearCountries">
+                            <label>Clear Selections</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxCheckBox" name="statesCheck">
+                            <label>States / Provinces</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl" name="statesList">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="clearStates">
+                            <label>Clear Selections</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+                <orient>wxHORIZONTAL</orient>
+              </object>
+            </object>
             <label>Region</label>
           </object>
+          
           <object class="notebookpage">
-            <object class="wxPanel" name="placementDates"/>
+            <object class="wxPanel" name="placementDates">
+              <object class="wxFlexGridSizer">
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>Placed Within:</label>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxChoice" name="rangeChoice">
+                    <content>
+                      <item>Any Dates</item>
+                      <item>Last Week</item>
+                      <item>Last Month</item>
+                      <item>Last Year</item>
+                      <item>Date Range</item>
+                    </content>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+                <object class="spacer"/>
+                <object class="spacer"/>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>Start:</label>
+                  </object>
+                  <flag>wxALIGN_RIGHT</flag>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCalendarCtrl" name="beginDate">
+                    <enabled>0</enabled>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>End:</label>
+                  </object>
+                  <flag>wxALIGN_RIGHT</flag>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCalendarCtrl" name="endDate">
+                    <enabled>0</enabled>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <cols>4</cols>
+                <rows>2</rows>
+              </object>
+            </object>
             <label>Placement Dates</label>
           </object>
         </object>
@@ -1632,6 +2206,9 @@ http://www.justwill.com/</value>
             <object class="wxButton" name="saveSearch">
               <label>&amp;Save</label>
               <enabled>0</enabled>
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
             </object>
           </object>
           <object class="spacer">
@@ -14394,10 +14971,80 @@ def __gettext_strings():
     _("&Okay")
     _("&Cancel")
     _("Cache901 Options")
+    _("Search Name:")
+    _("Max # Results:")
+    _("No Limit")
+    _("10")
+    _("25")
+    _("50")
+    _("100")
+    _("250")
+    _("500")
+    _("Terrain:")
+    _(">=")
+    _("=")
+    _("<=")
+    _("1.0")
+    _("1.5")
+    _("2.0")
+    _("2.5")
+    _("3.0")
+    _("3.5")
+    _("4.0")
+    _("4.5")
+    _("5.0")
+    _("Difficulty:")
+    _(">=")
+    _("=")
+    _("<=")
+    _("1.0")
+    _("1.5")
+    _("2.0")
+    _("2.5")
+    _("3.0")
+    _("3.5")
+    _("4.0")
+    _("4.5")
+    _("5.0")
+    _("Search Origin:")
+    _("Distance From Origin:")
+    _("Numeric only")
+    _("mi")
+    _("km")
     _("Basics")
     _("Cache Type")
+    _("Clear Selections")
+    _("Cache Container")
+    _("Clear Selections")
+    _("Cache Type")
+    _("I haven't found")
+    _("I have found")
+    _("I don't own")
+    _("I own")
+    _("Are available to all users")
+    _("Are for members only")
+    _("Are not on my ignore list")
+    _("Are on my watch list")
+    _("Found in the last 7 days")
+    _("Have not been found")
+    _("Have travel bugs")
+    _("Updated in the last 7 days")
+    _("Is not active")
+    _("Is active")
     _("Conditions")
+    _("Countries")
+    _("Clear Selections")
+    _("States / Provinces")
+    _("Clear Selections")
     _("Region")
+    _("Placed Within:")
+    _("Any Dates")
+    _("Last Week")
+    _("Last Month")
+    _("Last Year")
+    _("Date Range")
+    _("Start:")
+    _("End:")
     _("Placement Dates")
     _("&Save")
     _("&Ok")
