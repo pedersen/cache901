@@ -86,9 +86,10 @@ class xrcCache901UI(wx.Frame):
         self.photoList = xrc.XRCCTRL(self, "photoList")
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
+        self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
+        self.mnuCachesSearch = self.GetMenuBar().FindItemById(xrc.XRCID("mnuCachesSearch"))
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
-        self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
         self.statusBar = xrc.XRCCTRL(self, "statusBar")
 
@@ -252,7 +253,7 @@ class xrcSearchUI(wx.Dialog):
         self.difficultyRating = xrc.XRCCTRL(self, "difficultyRating")
         self.searchOrigin = xrc.XRCCTRL(self, "searchOrigin")
         self.distance = xrc.XRCCTRL(self, "distance")
-        self.distanceScake = xrc.XRCCTRL(self, "distanceScake")
+        self.distanceScale = xrc.XRCCTRL(self, "distanceScale")
         self.splitterType = xrc.XRCCTRL(self, "splitterType")
         self.cacheTypes = xrc.XRCCTRL(self, "cacheTypes")
         self.clearTypes = xrc.XRCCTRL(self, "clearTypes")
@@ -1118,6 +1119,27 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        
+        
+        <object class="wxMenuItem" name="mnuFileExit">
+          <label>E&amp;xit</label>
+          <accel>Ctrl-Q</accel>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+      </object>
+      <object class="wxMenu">
+        <label>&amp;Caches</label>
+        <object class="wxMenuItem" name="mnuCachesSearch">
+          <label>&amp;Search</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+      </object>
+      <object class="wxMenu">
+        <label>&amp;Preferences</label>
         <object class="wxMenuItem" name="mnuFilePrefs">
           <label>&amp;Preferences</label>
           <XRCED>
@@ -1126,13 +1148,6 @@ def __init_resources():
         </object>
         <object class="wxMenuItem" name="mnuFileLocs">
           <label>&amp;Search Locations</label>
-          <XRCED>
-            <assign_var>1</assign_var>
-          </XRCED>
-        </object>
-        <object class="wxMenuItem" name="mnuFileExit">
-          <label>E&amp;xit</label>
-          <accel>Ctrl-Q</accel>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -1828,17 +1843,19 @@ http://www.justwill.com/</value>
                             <object class="sizeritem">
                               <object class="wxTextCtrl" name="distance">
                                 <tooltip>Numeric only</tooltip>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
                               </object>
                             </object>
                             <object class="sizeritem">
-                              <object class="wxChoice" name="distanceScake">
+                              <object class="wxChoice" name="distanceScale">
                                 <content>
                                   <item>mi</item>
                                   <item>km</item>
                                 </content>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -1945,6 +1962,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notFound">
                     <label>I haven't found</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1953,6 +1971,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="found">
                     <label>I have found</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1961,6 +1980,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notOwned">
                     <label>I don't own</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1969,6 +1989,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="owned">
                     <label>I own</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1977,6 +1998,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="genAvail">
                     <label>Are available to all users</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1985,6 +2007,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="memAvail">
                     <label>Are for members only</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1993,6 +2016,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notIgnored">
                     <label>Are not on my ignore list</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2001,6 +2025,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="ignored">
                     <label>Are on my watch list</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2080,6 +2105,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="countriesList">
+                            <enabled>0</enabled>
                             <style>wxLC_REPORT|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -2113,6 +2139,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="statesList">
+                            <enabled>0</enabled>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2144,7 +2171,6 @@ http://www.justwill.com/</value>
             </object>
             <label>Region</label>
           </object>
-          
           <object class="notebookpage">
             <object class="wxPanel" name="placementDates">
               <object class="wxFlexGridSizer">
@@ -2169,8 +2195,6 @@ http://www.justwill.com/</value>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
                 </object>
-                <object class="spacer"/>
-                <object class="spacer"/>
                 <object class="sizeritem">
                   <object class="wxStaticText">
                     <label>Start:</label>
@@ -2178,12 +2202,15 @@ http://www.justwill.com/</value>
                   <flag>wxALIGN_RIGHT</flag>
                 </object>
                 <object class="sizeritem">
-                  <object class="wxCalendarCtrl" name="beginDate">
+                  <object class="wxDatePickerCtrl" name="beginDate">
                     <enabled>0</enabled>
+                    <style>wxDP_SHOWCENTURY</style>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
                   </object>
+                  <option>1</option>
+                  <flag>wxEXPAND</flag>
                 </object>
                 <object class="sizeritem">
                   <object class="wxStaticText">
@@ -2192,14 +2219,17 @@ http://www.justwill.com/</value>
                   <flag>wxALIGN_RIGHT</flag>
                 </object>
                 <object class="sizeritem">
-                  <object class="wxCalendarCtrl" name="endDate">
+                  <object class="wxDatePickerCtrl" name="endDate">
                     <enabled>0</enabled>
+                    <style>wxDP_SHOWCENTURY</style>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
                   </object>
+                  <option>1</option>
+                  <flag>wxEXPAND</flag>
                 </object>
-                <cols>4</cols>
+                <cols>2</cols>
                 <rows>2</rows>
               </object>
             </object>
@@ -2242,6 +2272,7 @@ http://www.justwill.com/</value>
         <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
       </object>
     </object>
+    <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
   </object>
 </resource>'''
 
@@ -14946,9 +14977,12 @@ def __gettext_strings():
     _("Photos")
     _("&File")
     _("&Import GPX File")
+    _("E&xit")
+    _("&Caches")
+    _("&Search")
+    _("&Preferences")
     _("&Preferences")
     _("&Search Locations")
-    _("E&xit")
     _("&Help")
     _("&About")
     _("Cache 901 - Caching At The Upper Levels")

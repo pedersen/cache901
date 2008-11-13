@@ -52,10 +52,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.locations.DeleteAllColumns()
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.locations.InsertColumn(0, 'Location Name', width=w)
-        db = cache901.db()
-        cur = db.cursor()
-        cur.execute("select wpt_id, name from locations where loc_type=2 order by name")
-        for row in cur:
+        for row in cache901.util.getSearchLocs():
             sid = self.locations.Append((row[1],))
             self.locations.SetItemData(sid, row[0])
         

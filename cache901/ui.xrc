@@ -820,6 +820,27 @@
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        
+        
+        <object class="wxMenuItem" name="mnuFileExit">
+          <label>E&amp;xit</label>
+          <accel>Ctrl-Q</accel>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+      </object>
+      <object class="wxMenu">
+        <label>&amp;Caches</label>
+        <object class="wxMenuItem" name="mnuCachesSearch">
+          <label>&amp;Search</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+      </object>
+      <object class="wxMenu">
+        <label>&amp;Preferences</label>
         <object class="wxMenuItem" name="mnuFilePrefs">
           <label>&amp;Preferences</label>
           <XRCED>
@@ -828,13 +849,6 @@
         </object>
         <object class="wxMenuItem" name="mnuFileLocs">
           <label>&amp;Search Locations</label>
-          <XRCED>
-            <assign_var>1</assign_var>
-          </XRCED>
-        </object>
-        <object class="wxMenuItem" name="mnuFileExit">
-          <label>E&amp;xit</label>
-          <accel>Ctrl-Q</accel>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -1530,17 +1544,19 @@ http://www.justwill.com/</value>
                             <object class="sizeritem">
                               <object class="wxTextCtrl" name="distance">
                                 <tooltip>Numeric only</tooltip>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
                               </object>
                             </object>
                             <object class="sizeritem">
-                              <object class="wxChoice" name="distanceScake">
+                              <object class="wxChoice" name="distanceScale">
                                 <content>
                                   <item>mi</item>
                                   <item>km</item>
                                 </content>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -1647,6 +1663,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notFound">
                     <label>I haven't found</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1655,6 +1672,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="found">
                     <label>I have found</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1663,6 +1681,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notOwned">
                     <label>I don't own</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1671,6 +1690,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="owned">
                     <label>I own</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1679,6 +1699,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="genAvail">
                     <label>Are available to all users</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1687,6 +1708,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="memAvail">
                     <label>Are for members only</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1695,6 +1717,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notIgnored">
                     <label>Are not on my ignore list</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1703,6 +1726,7 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="ignored">
                     <label>Are on my watch list</label>
+                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -1782,6 +1806,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="countriesList">
+                            <enabled>0</enabled>
                             <style>wxLC_REPORT|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -1815,6 +1840,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="statesList">
+                            <enabled>0</enabled>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1846,7 +1872,6 @@ http://www.justwill.com/</value>
             </object>
             <label>Region</label>
           </object>
-          
           <object class="notebookpage">
             <object class="wxPanel" name="placementDates">
               <object class="wxFlexGridSizer">
@@ -1871,8 +1896,6 @@ http://www.justwill.com/</value>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
                 </object>
-                <object class="spacer"/>
-                <object class="spacer"/>
                 <object class="sizeritem">
                   <object class="wxStaticText">
                     <label>Start:</label>
@@ -1880,12 +1903,15 @@ http://www.justwill.com/</value>
                   <flag>wxALIGN_RIGHT</flag>
                 </object>
                 <object class="sizeritem">
-                  <object class="wxCalendarCtrl" name="beginDate">
+                  <object class="wxDatePickerCtrl" name="beginDate">
                     <enabled>0</enabled>
+                    <style>wxDP_SHOWCENTURY</style>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
                   </object>
+                  <option>1</option>
+                  <flag>wxEXPAND</flag>
                 </object>
                 <object class="sizeritem">
                   <object class="wxStaticText">
@@ -1894,14 +1920,17 @@ http://www.justwill.com/</value>
                   <flag>wxALIGN_RIGHT</flag>
                 </object>
                 <object class="sizeritem">
-                  <object class="wxCalendarCtrl" name="endDate">
+                  <object class="wxDatePickerCtrl" name="endDate">
                     <enabled>0</enabled>
+                    <style>wxDP_SHOWCENTURY</style>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
                   </object>
+                  <option>1</option>
+                  <flag>wxEXPAND</flag>
                 </object>
-                <cols>4</cols>
+                <cols>2</cols>
                 <rows>2</rows>
               </object>
             </object>
@@ -1944,5 +1973,6 @@ http://www.justwill.com/</value>
         <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
       </object>
     </object>
+    <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
   </object>
 </resource>

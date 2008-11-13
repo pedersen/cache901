@@ -27,6 +27,8 @@ import wx
 
 from decimal import Decimal, InvalidOperation
 
+import cache901
+
 degsym = u'\u00B0'
 
 def distance_exact(lat1, lon1, lat2, lon2):
@@ -181,6 +183,32 @@ def scanForSerial():
             except serial.SerialException:
                 pass
     return available
+
+def getWaypoints(searchpat=None):
+    if searchpat in (None, "", "*") or len(searchpat) < 2:
+        where = "where loc_type = 1"
+        params = ()
+    else:
+        where = "where loc_type = 1 and (lower(name) like ? or lower(desc) like ?)"
+        params = (searchpat, searchpat)
+    query = "%s %s %s" % ("select wpt_id, name, desc from locations", where, "order by name")
+    cur = cache901.db().cursor()
+    cur.execute(query, params)
+    for row in cur:
+        yield row
+
+def getSearchLocs(searchpat=None):
+    if searchpat in (None, "", "*") or len(searchpat) < 2:
+        where = "where loc_type = 2"
+        params = ()
+    else:
+        where = "where loc_type = 2 and (lower(name) like ? or lower(desc) like ?)"
+        params = (searchpat, searchpat)
+    query = "%s %s %s" % ("select wpt_id, name, desc from locations", where, "order by name")
+    cur = cache901.db().cursor()
+    cur.execute(query, params)
+    for row in cur:
+        yield row
 
 class InvalidDegFormat(Exception):
     pass

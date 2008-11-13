@@ -33,6 +33,7 @@ import cache901.util as util
 import cache901.xml901
 import cache901.dbm
 import cache901.options
+import cache901.search
 
 class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def __init__(self, parent=None):
@@ -115,6 +116,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnAbout,      self.mnuHelpAbout)
         self.Bind(wx.EVT_MENU,   self.OnSearchLocs, self.mnuFileLocs)
         self.Bind(wx.EVT_MENU,   self.OnPrefs,      self.mnuFilePrefs)
+        self.Bind(wx.EVT_MENU,   self.OnSearch,     self.mnuCachesSearch)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle, self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,   self.encText)
@@ -167,11 +169,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             cache_id = self.caches.Append((row[1], row[2], row[3]))
             self.caches.SetItemData(cache_id, row[0])
 
-        if len(self.search.GetValue()) < 2 or self.search.GetValue() in ("", "*"):
-            cur.execute("select wpt_id, name, desc from locations order by name")
-        else:
-            cur.execute("select wpt_id, name, desc from locations where lower(name) like ? or lower(desc) like ? order by name", (search, search))
-        for row in cur:
+        for row in cache901.util.getWaypoints(self.search.GetValue()):
             wpt_id = self.points.Append((row[1], row[2]))
             self.points.SetItemData(wpt_id, row[0])
 
@@ -360,6 +358,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self)
         opts.showGeneral()
+    
+    def OnSearch(self, evt):
+        dlg = cache901.search.SearchBox(self)
+        dlg.ShowModal()
 
 class geoicons(cache901.ui_xrc.xrcgeoIcons):
     def __init__(self):
