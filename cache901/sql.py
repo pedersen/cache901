@@ -23,8 +23,9 @@ except ImportError, e:
     import sqlite3 as sqlite
 
 import cache901.util
+import cache901.sql
 
-statements_v1 = [
+statements_v001 = [
     "CREATE TABLE version (version integer)",
     "INSERT INTO version(version) values(1)",
     """
@@ -143,9 +144,24 @@ statements_v1 = [
     """
     ]
 
+statements_v002 = [
+    """
+    CREATE TABLE searches (
+        name  text,
+        param text,
+        value text
+        )
+    """,
+    "CREATE INDEX searches_name ON searches(name)",
+    "DELETE FROM version",
+    "INSERT INTO version(version) values(2)"
+    ]
+
+allstatements = sorted(filter(lambda x: x.startswith("statements_v"), globals()))
+
 def sqlexec(con, statements, debug=False):
     cur = con.cursor()
-    for stmt in statements_v1:
+    for stmt in statements:
         if debug:
             print "---------------------------------"
             print stmt
@@ -158,11 +174,14 @@ def prepdb(dbname, debug=False):
     cur = con.cursor()
     try:
         cur.execute("select version from version")
-        # When the database changes, we need to compare the version found
-        # on disk with the version we're expecting, and upgrade it if
-        # necessary
+        row = cur.fetchone()
+        vname = 'statements_v%03d' % row[0]
+        for stgrp in allstatements[allstatements.index(vname)+1:]:
+            stmts = globals()[stgrp]
+            sqlexec(con, stmts, debug)
     except sqlite.OperationalError:
-        sqlexec(con, statements_v1, debug)
-        cur.execute("vacuum")
-        cur.execute("analyze")
+        for stgrp in allstatements:
+            sqlexec(con, stgrp, debug)
+    cur.execute("vacuum")
+    cur.execute("analyze")
     return con

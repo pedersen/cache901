@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import datetime
+import time
+
 import wx
 
 import cache901
@@ -36,6 +39,11 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.loadStates()
         self.loadSearchLocs()
         self.loadSavedSearches()
+        
+        begin = wx.DateTime.Now()
+        self.endDate.SetValue(begin)
+        begin = begin - wx.DateSpan(30, 0, 0, 0)
+        self.beginDate.SetValue(begin)
         
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadSavedSearch, self.savedSearches)
         
@@ -98,16 +106,169 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
             self.statesList.Append((row[0], ))
         
     def loadSavedSearches(self):
-        pass
+        self.savedSearches.DeleteAllItems()
+        self.savedSearches.DeleteAllColumns()
+        self.savedSearches.InsertColumn(0, "Search Name", width = self.w)
+        self.cur.execute("SELECT DISTINCT name FROM searches ORDER BY name")
+        for row in self.cur:
+            self.savedSearches.Append((row[0], ))
     
     def OnLoadSavedSearch(self, evt):
-        pass
+        item = self.savedSearches.GetNextSelected(-1)
+        if item != -1:
+            sname = self.savedSearches.GetItemText(item)
+            self.searchName.SetValue(sname)
+            self.saveSearch.Enable()
+            self.maxResults.SetSelection(0)
+            self.distance.Disable()
+            self.distanceScale.Disable()
+            self.distance.SetValue("")
+            self.distanceScale.SetSelection(0)
+            self.rangeChoice.SetSelection(0)
+            begin = wx.DateTime.Now()
+            self.endDate.SetValue(begin)
+            begin = begin - wx.DateSpan(30, 0, 0, 0)
+            self.beginDate.SetValue(begin)
+            self.deselectList(self.countriesList)
+            self.deselectList(self.statesList)
+            self.statesCheck.SetValue(False)
+            self.countriesCheck.SetValue(False)
+            self.deselectList(self.cacheContainers)
+            self.deselectList(self.cacheTypes)
+            for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
+                      'memAvail', 'notIgnored', 'ignored', 'foundLast7',
+                      'notFound', 'hasBugs', 'updatedLast7', 'notActive',
+                      'active']:
+                getattr(self, i).SetValue(False)
+            self.cur.execute("SELECT name, param, value FROM searches WHERE name = ?", (sname, ))
+            for row in self.cur:
+                if row[1] == 'maxresults':
+                    self.maxResults.SetSelection(self.maxResults.GetItems().index(row[2]))
+                elif row[1] == 'terrain':
+                    cond, rating = row[2].split(" ")
+                    self.terrainCond.SetSelection(self.terrainCond.GetItems().index(cond))
+                    self.terrainRating.SetSelection(self.terrainRating.GetItems().index(rating))
+                elif row[1] == 'difficulty':
+                    cond, rating = row[2].split(" ")
+                    self.difficultyCond.SetSelection(self.difficultyCond.GetItems().index(cond))
+                    self.difficultyRating.SetSelection(self.difficultyRating.GetItems().index(rating))
+                elif row[1] == 'searchOrigin':
+                    self.searchOrigin.SetSelection(self.searchOrigin.GetItems().index(row[2]))
+                    self.distance.Enable()
+                    self.distanceScale.Enable()
+                elif row[1] == 'searchDist':
+                    self.distance.SetValue(row[2])
+                elif row[1] == 'searchScale':
+                    self.distanceScale.SetSelection(self.distanceScale.GetItems().index(row[2]))
+                elif row[1] == 'daterange':
+                    self.rangeChoice.SetSelection(self.rangeChoice.GetItems().index(row[2]))
+                    val = (self.rangeChoice.GetSelection() == 4)
+                    self.beginDate.Enable(val)
+                    self.endDate.Enable(val)
+                elif row[1] == 'begindate':
+                    dt = datetime.datetime.fromtimestamp(int(row[2]))
+                    time_t = time.mktime(dt.timetuple())
+                    self.beginDate.SetValue(wx.DateTimeFromTimeT(time_t))
+                elif row[1] == 'enddate':
+                    dt = datetime.datetime.fromtimestamp(int(row[2]))
+                    time_t = time.mktime(dt.timetuple())
+                    self.endDate.SetValue(wx.DateTimeFromTimeT(time_t))
+                elif row[1] == 'countries':
+                    self.deselectList(self.countriesList)
+                    self.deselectList(self.statesList)
+                    self.countriesCheck.SetValue(True)
+                    self.statesCheck.SetValue(False)
+                    for country in row[2].split(","):
+                        idx = self.countriesList.FindItem(-1, country)
+                        if idx != -1: self.countriesList.Select(idx)
+                elif row[1] == 'states':
+                    self.deselectList(self.countriesList)
+                    self.deselectList(self.statesList)
+                    self.countriesCheck.SetValue(False)
+                    self.statesCheck.SetValue(True)
+                    for state in row[2].split(","):
+                        idx = self.statesList.FindItem(-1, state)
+                        if idx != -1: self.statesList.Select(idx)
+                elif row[1] == 'types':
+                    self.deselectList(self.cacheTypes)
+                    for ctype in row[2].split(","):
+                        idx = self.cacheTypes.FindItem(-1, ctype)
+                        if idx != -1: self.cacheTypes.Select(idx)
+                elif row[1] == 'containers':
+                    self.deselectList(self.cacheContainers)
+                    for ctype in row[2].split(","):
+                        idx = self.cacheContainers.FindItem(-1, ctype)
+                        if idx != -1: self.cacheContainers.Select(idx)
+                else:
+                    for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
+                              'memAvail', 'notIgnored', 'ignored', 'foundLast7',
+                              'notFound', 'hasBugs', 'updatedLast7', 'notActive',
+                              'active']:
+                        if row[1] == i.lower():
+                            getattr(self, i).SetValue(1 == int(row[2]))
     
     def OnSaveSearch(self, evt):
-        pass
+        sname = self.searchName.GetValue()
+        self.cur.execute("DELETE FROM searches WHERE name=?", (sname, ))
+        sparams = self.getSearchParams()
+        for sparam in sparams.keys():
+            self.cur.execute("INSERT INTO searches(name, param, value) VALUES(?, ?, ?)", (sname, sparam, sparams[sparam]))
+        cache901.db().commit()
+        self.loadSavedSearches()
     
     def getSearchParams(self):
-        pass
+        params = {}
+        mridx = self.maxResults.GetSelection()
+        if mridx != 0:
+            params['maxresults'] = int(self.maxResults.GetItems()[mridx])
+        params['terrain'] = '%s %s' % (self.terrainCond.GetItems()[self.terrainCond.GetSelection()],
+                                       self.terrainRating.GetItems()[self.terrainRating.GetSelection()])
+        params['difficulty'] = '%s %s' % (self.difficultyCond.GetItems()[self.difficultyCond.GetSelection()],
+                                       self.difficultyRating.GetItems()[self.difficultyRating.GetSelection()])
+        params['searchOrigin'] = self.searchOrigin.GetItems()[self.searchOrigin.GetSelection()]
+        if params['searchOrigin'] == 'None':
+            del params['searchOrigin']
+        else:
+            params['searchDist'] = self.distance.GetValue()
+            params['searchScale'] = self.distanceScale.GetItems()[self.distanceScale.GetSelection()]
+        params['daterange'] = self.rangeChoice.GetItems()[self.rangeChoice.GetSelection()]
+        params['begindate'] = self.beginDate.GetValue().GetTicks()
+        params['enddate'] = self.endDate.GetValue().GetTicks()
+        for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
+                  'memAvail', 'notIgnored', 'ignored', 'foundLast7',
+                  'notFound', 'hasBugs', 'updatedLast7', 'notActive',
+                  'active']:
+            if getattr(self, i).GetValue(): params[i.lower()] = 1
+        countries = []
+        item = self.countriesList.GetNextSelected(-1)
+        while item != -1:
+            countries.append(self.countriesList.GetItemText(item))
+            item = self.countriesList.GetNextSelected(item)
+        if len(countries) > 0:
+            params['countries'] = ",".join(countries)
+        states = []
+        item = self.statesList.GetNextSelected(-1)
+        while item != -1:
+            states.append(self.statesList.GetItemText(item))
+            item = self.statesList.GetNextSelected(item)
+        if len(states) > 0:
+            params['states'] = ",".join(states)
+        types = []
+        item = self.cacheTypes.GetNextSelected(-1)
+        while item != -1:
+            types.append(self.cacheTypes.GetItemText(item))
+            item = self.cacheTypes.GetNextSelected(item)
+        if len(types) > 0:
+            params['types'] = ",".join(types)
+        containers = []
+        item = self.cacheContainers.GetNextSelected(-1)
+        while item != -1:
+            containers.append(self.cacheContainers.GetItemText(item))
+            item = self.cacheContainers.GetNextSelected(item)
+        if len(containers) > 0:
+            params['containers'] = ",".join(containers)
+            
+        return params
     
     def OnCheckOrigin(self, evt):
         if self.searchOrigin.GetSelection() != 0:
@@ -149,7 +310,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         begin = wx.DateTime.Now()
         end = wx.DateTime.Now()
         if idx == 0:
-            begin = begin - wx.DateSpan(100, 0, 0, 0)
+            begin = begin - wx.DateSpan(30, 0, 0, 0)
         elif idx == 1:
             begin = begin - wx.DateSpan(0, 0, 1, 0)
         elif idx == 2:
@@ -201,6 +362,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         isinstance(self.clearTypes, wx.Button)
         isinstance(self.cacheContainers, wx.ListCtrl)
         isinstance(self.btnClearContainers, wx.Button)
+        isinstance(self.notFoundByMe, wx.CheckBox)
         isinstance(self.notFound, wx.CheckBox)
         isinstance(self.found, wx.CheckBox)
         isinstance(self.notOwned, wx.CheckBox)

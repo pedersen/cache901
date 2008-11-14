@@ -362,6 +362,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnSearch(self, evt):
         dlg = cache901.search.SearchBox(self)
         dlg.ShowModal()
+        params = dlg.getSearchParams()
 
 class geoicons(cache901.ui_xrc.xrcgeoIcons):
     def __init__(self):

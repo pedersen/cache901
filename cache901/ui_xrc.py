@@ -259,7 +259,7 @@ class xrcSearchUI(wx.Dialog):
         self.clearTypes = xrc.XRCCTRL(self, "clearTypes")
         self.cacheContainers = xrc.XRCCTRL(self, "cacheContainers")
         self.btnClearContainers = xrc.XRCCTRL(self, "btnClearContainers")
-        self.notFound = xrc.XRCCTRL(self, "notFound")
+        self.notFoundByMe = xrc.XRCCTRL(self, "notFoundByMe")
         self.found = xrc.XRCCTRL(self, "found")
         self.notOwned = xrc.XRCCTRL(self, "notOwned")
         self.owned = xrc.XRCCTRL(self, "owned")
@@ -1960,7 +1960,7 @@ http://www.justwill.com/</value>
             <object class="wxPanel" name="conditions">
               <object class="wxFlexGridSizer">
                 <object class="sizeritem">
-                  <object class="wxCheckBox" name="notFound">
+                  <object class="wxCheckBox" name="notFoundByMe">
                     <label>I haven't found</label>
                     <enabled>0</enabled>
                     <XRCED>

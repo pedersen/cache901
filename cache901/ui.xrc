@@ -1661,7 +1661,7 @@ http://www.justwill.com/</value>
             <object class="wxPanel" name="conditions">
               <object class="wxFlexGridSizer">
                 <object class="sizeritem">
-                  <object class="wxCheckBox" name="notFound">
+                  <object class="wxCheckBox" name="notFoundByMe">
                     <label>I haven't found</label>
                     <enabled>0</enabled>
                     <XRCED>
