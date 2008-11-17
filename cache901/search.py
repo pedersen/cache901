@@ -388,7 +388,8 @@ def loadSavedSearch(sname):
     return params
 
 def execSearch(params):
-    # todo: checkbox handling
+    seconds = 86400*7 # Number of seconds in a week
+    now = int(time.time())
     isinstance(params, dict)
     query = "select cache_id, difficulty, terrain, url_name, 0 as distance from caches "
     where = []
@@ -437,6 +438,7 @@ def execSearch(params):
             sqlparams.insert(0, float(loc.lon))
             sqlparams.insert(0, float(loc.lat))
             order_by = "order by distance"
+            cache901.notify("Found location")
     if params.has_key('countries'):
         countries = params['countries'].split(',')
         where.append('country in (%s)' % ','.join(map(lambda x: '?', countries)))
@@ -453,6 +455,36 @@ def execSearch(params):
         containers = params['containers'].split(',')
         where.append('container in (%s)' % ','.join(map(lambda x: '?', containers)))
         sqlparams.extend(containers)
+    if params.has_key('notFoundByMe'):
+        pass
+    if params.has_key('found'):
+        pass
+    if params.has_key('notOwned'):
+        pass
+    if params.has_key('owned'):
+        pass
+    if params.has_key('genAvail'):
+        pass
+    if params.has_key('memAvail'):
+        pass
+    if params.has_key('notIgnored'):
+        pass
+    if params.has_key('ignored'):
+        pass
+    if params.has_key('foundLast7'):
+        where.append("cache_id in (select distinct cache_id from logs where date >= ? and logs.cache_id in (select distinct cache_id from logs where type='Found it'))")
+        sqlparams.append(now-seconds)
+    if params.has_key('notFound'):
+        where.append("cache_id not in (select distinct cache_id from logs where type='Found it')")
+    if params.has_key('updatedLast7'):
+        where.append('cache_id in (select distinct cache_id from logs where date >= ?')
+        sqlparams.append(now-seconds)
+    if params.has_key('hasBugs'):
+        where.append("cache_id in (select distinct cache_id from travelbugs)")
+    if params.has_key('notActive'):
+        where.append("archived = 1")
+    if params.has_key('active'):
+        where.append("available = 1")
     if len(where) > 0:
         where_clause = 'where %s' % " and ".join(where)
     else:
