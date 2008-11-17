@@ -280,9 +280,6 @@ class xrcSearchUI(wx.Dialog):
         self.statesCheck = xrc.XRCCTRL(self, "statesCheck")
         self.statesList = xrc.XRCCTRL(self, "statesList")
         self.clearStates = xrc.XRCCTRL(self, "clearStates")
-        self.rangeChoice = xrc.XRCCTRL(self, "rangeChoice")
-        self.beginDate = xrc.XRCCTRL(self, "beginDate")
-        self.endDate = xrc.XRCCTRL(self, "endDate")
         self.saveSearch = xrc.XRCCTRL(self, "saveSearch")
 
 
@@ -2171,70 +2168,7 @@ http://www.justwill.com/</value>
             </object>
             <label>Region</label>
           </object>
-          <object class="notebookpage">
-            <object class="wxPanel" name="placementDates">
-              <object class="wxFlexGridSizer">
-                <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>Placed Within:</label>
-                  </object>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxChoice" name="rangeChoice">
-                    <content>
-                      <item>Any Dates</item>
-                      <item>Last Week</item>
-                      <item>Last Month</item>
-                      <item>Last Year</item>
-                      <item>Date Range</item>
-                    </content>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <option>1</option>
-                  <flag>wxEXPAND|wxGROW</flag>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>Start:</label>
-                  </object>
-                  <flag>wxALIGN_RIGHT</flag>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxDatePickerCtrl" name="beginDate">
-                    <enabled>0</enabled>
-                    <style>wxDP_SHOWCENTURY</style>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <option>1</option>
-                  <flag>wxEXPAND</flag>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>End:</label>
-                  </object>
-                  <flag>wxALIGN_RIGHT</flag>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxDatePickerCtrl" name="endDate">
-                    <enabled>0</enabled>
-                    <style>wxDP_SHOWCENTURY</style>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <option>1</option>
-                  <flag>wxEXPAND</flag>
-                </object>
-                <cols>2</cols>
-                <rows>2</rows>
-              </object>
-            </object>
-            <label>Placement Dates</label>
-          </object>
+        
         </object>
         <option>1</option>
         <flag>wxEXPAND|wxGROW</flag>
@@ -15082,15 +15016,6 @@ def __gettext_strings():
     _("States / Provinces")
     _("Clear Selections")
     _("Region")
-    _("Placed Within:")
-    _("Any Dates")
-    _("Last Week")
-    _("Last Month")
-    _("Last Year")
-    _("Date Range")
-    _("Start:")
-    _("End:")
-    _("Placement Dates")
     _("&Save")
     _("&Ok")
     _("&Cancel")

@@ -22,7 +22,10 @@ import time
 
 import wx
 
+import gpsbabel
+
 import cache901
+import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
 
@@ -40,17 +43,11 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.loadSearchLocs()
         self.loadSavedSearches()
         
-        begin = wx.DateTime.Now()
-        self.endDate.SetValue(begin)
-        begin = begin - wx.DateSpan(30, 0, 0, 0)
-        self.beginDate.SetValue(begin)
-        
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadSavedSearch, self.savedSearches)
         
         self.Bind(wx.EVT_CHECKBOX, self.OnCheckCountry, self.countriesCheck)
         self.Bind(wx.EVT_CHECKBOX, self.OnCheckState,   self.statesCheck)
         
-        self.Bind(wx.EVT_CHOICE, self.OnCheckDates,        self.rangeChoice)
         self.Bind(wx.EVT_CHOICE, self.OnCheckOrigin,       self.searchOrigin)
         
         self.Bind(wx.EVT_BUTTON, self.OnClearCacheContainers, self.btnClearContainers)
@@ -62,9 +59,27 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.searchName.Bind(wx.EVT_KEY_UP, self.OnChangeSearchName)
         
         self.distance.SetValidator(FloatValidator())
-        self.beginDate.SetValidator(DateValidator(self.beginDate, self.endDate))
-        self.endDate.SetValidator(DateValidator(self.beginDate, self.endDate))
         
+    def clearSearch(self, sname=""):
+        self.searchName.SetValue(sname)
+        self.saveSearch.Enable()
+        self.maxResults.SetSelection(0)
+        self.distance.Disable()
+        self.distanceScale.Disable()
+        self.distance.SetValue("")
+        self.distanceScale.SetSelection(0)
+        self.deselectList(self.countriesList)
+        self.deselectList(self.statesList)
+        self.statesCheck.SetValue(False)
+        self.countriesCheck.SetValue(False)
+        self.deselectList(self.cacheContainers)
+        self.deselectList(self.cacheTypes)
+        for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
+                  'memAvail', 'notIgnored', 'ignored', 'foundLast7',
+                  'notFound', 'hasBugs', 'updatedLast7', 'notActive',
+                  'active']:
+            getattr(self, i).SetValue(False)
+    
     def loadSearchLocs(self):
         self.searchOrigin.Clear()
         self.searchOrigin.Append("None")
@@ -117,86 +132,51 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         item = self.savedSearches.GetNextSelected(-1)
         if item != -1:
             sname = self.savedSearches.GetItemText(item)
-            self.searchName.SetValue(sname)
-            self.saveSearch.Enable()
-            self.maxResults.SetSelection(0)
-            self.distance.Disable()
-            self.distanceScale.Disable()
-            self.distance.SetValue("")
-            self.distanceScale.SetSelection(0)
-            self.rangeChoice.SetSelection(0)
-            begin = wx.DateTime.Now()
-            self.endDate.SetValue(begin)
-            begin = begin - wx.DateSpan(30, 0, 0, 0)
-            self.beginDate.SetValue(begin)
-            self.deselectList(self.countriesList)
-            self.deselectList(self.statesList)
-            self.statesCheck.SetValue(False)
-            self.countriesCheck.SetValue(False)
-            self.deselectList(self.cacheContainers)
-            self.deselectList(self.cacheTypes)
-            for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
-                      'memAvail', 'notIgnored', 'ignored', 'foundLast7',
-                      'notFound', 'hasBugs', 'updatedLast7', 'notActive',
-                      'active']:
-                getattr(self, i).SetValue(False)
-            self.cur.execute("SELECT name, param, value FROM searches WHERE name = ?", (sname, ))
-            for row in self.cur:
-                if row[1] == 'maxresults':
-                    self.maxResults.SetSelection(self.maxResults.GetItems().index(row[2]))
-                elif row[1] == 'terrain':
-                    cond, rating = row[2].split(" ")
+            self.clearSearch(sname)
+            params = loadSavedSearch(sname)
+            for param in params.keys():
+                if param == 'maxresults':
+                    self.maxResults.SetSelection(self.maxResults.GetItems().index(params[param]))
+                elif param == 'terrain':
+                    cond, rating = params[param].split(" ")
                     self.terrainCond.SetSelection(self.terrainCond.GetItems().index(cond))
                     self.terrainRating.SetSelection(self.terrainRating.GetItems().index(rating))
-                elif row[1] == 'difficulty':
-                    cond, rating = row[2].split(" ")
+                elif param == 'difficulty':
+                    cond, rating = params[param].split(" ")
                     self.difficultyCond.SetSelection(self.difficultyCond.GetItems().index(cond))
                     self.difficultyRating.SetSelection(self.difficultyRating.GetItems().index(rating))
-                elif row[1] == 'searchOrigin':
-                    self.searchOrigin.SetSelection(self.searchOrigin.GetItems().index(row[2]))
+                elif param == 'searchOrigin':
+                    self.searchOrigin.SetSelection(self.searchOrigin.GetItems().index(params[param]))
                     self.distance.Enable()
                     self.distanceScale.Enable()
-                elif row[1] == 'searchDist':
-                    self.distance.SetValue(row[2])
-                elif row[1] == 'searchScale':
-                    self.distanceScale.SetSelection(self.distanceScale.GetItems().index(row[2]))
-                elif row[1] == 'daterange':
-                    self.rangeChoice.SetSelection(self.rangeChoice.GetItems().index(row[2]))
-                    val = (self.rangeChoice.GetSelection() == 4)
-                    self.beginDate.Enable(val)
-                    self.endDate.Enable(val)
-                elif row[1] == 'begindate':
-                    dt = datetime.datetime.fromtimestamp(int(row[2]))
-                    time_t = time.mktime(dt.timetuple())
-                    self.beginDate.SetValue(wx.DateTimeFromTimeT(time_t))
-                elif row[1] == 'enddate':
-                    dt = datetime.datetime.fromtimestamp(int(row[2]))
-                    time_t = time.mktime(dt.timetuple())
-                    self.endDate.SetValue(wx.DateTimeFromTimeT(time_t))
-                elif row[1] == 'countries':
+                elif param == 'searchDist':
+                    self.distance.SetValue(params[param])
+                elif param == 'searchScale':
+                    self.distanceScale.SetSelection(self.distanceScale.GetItems().index(params[param]))
+                elif param == 'countries':
                     self.deselectList(self.countriesList)
                     self.deselectList(self.statesList)
                     self.countriesCheck.SetValue(True)
                     self.statesCheck.SetValue(False)
-                    for country in row[2].split(","):
+                    for country in params[param].split(","):
                         idx = self.countriesList.FindItem(-1, country)
                         if idx != -1: self.countriesList.Select(idx)
-                elif row[1] == 'states':
+                elif param == 'states':
                     self.deselectList(self.countriesList)
                     self.deselectList(self.statesList)
                     self.countriesCheck.SetValue(False)
                     self.statesCheck.SetValue(True)
-                    for state in row[2].split(","):
+                    for state in params[param].split(","):
                         idx = self.statesList.FindItem(-1, state)
                         if idx != -1: self.statesList.Select(idx)
-                elif row[1] == 'types':
+                elif param == 'types':
                     self.deselectList(self.cacheTypes)
-                    for ctype in row[2].split(","):
+                    for ctype in params[param].split(","):
                         idx = self.cacheTypes.FindItem(-1, ctype)
                         if idx != -1: self.cacheTypes.Select(idx)
-                elif row[1] == 'containers':
+                elif param == 'containers':
                     self.deselectList(self.cacheContainers)
-                    for ctype in row[2].split(","):
+                    for ctype in params[param].split(","):
                         idx = self.cacheContainers.FindItem(-1, ctype)
                         if idx != -1: self.cacheContainers.Select(idx)
                 else:
@@ -204,8 +184,8 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
                               'memAvail', 'notIgnored', 'ignored', 'foundLast7',
                               'notFound', 'hasBugs', 'updatedLast7', 'notActive',
                               'active']:
-                        if row[1] == i.lower():
-                            getattr(self, i).SetValue(1 == int(row[2]))
+                        if param == i.lower():
+                            getattr(self, i).SetValue(1 == int(params[param]))
     
     def OnSaveSearch(self, evt):
         sname = self.searchName.GetValue()
@@ -231,9 +211,6 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         else:
             params['searchDist'] = self.distance.GetValue()
             params['searchScale'] = self.distanceScale.GetItems()[self.distanceScale.GetSelection()]
-        params['daterange'] = self.rangeChoice.GetItems()[self.rangeChoice.GetSelection()]
-        params['begindate'] = self.beginDate.GetValue().GetTicks()
-        params['enddate'] = self.endDate.GetValue().GetTicks()
         for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
                   'memAvail', 'notIgnored', 'ignored', 'foundLast7',
                   'notFound', 'hasBugs', 'updatedLast7', 'notActive',
@@ -302,24 +279,6 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
             self.statesList.Disable()
             self.deselectList(self.statesList)
     
-    def OnCheckDates(self, evt):
-        idx = self.rangeChoice.GetSelection()
-        val = (idx == 4)
-        self.beginDate.Enable(val)
-        self.endDate.Enable(val)
-        begin = wx.DateTime.Now()
-        end = wx.DateTime.Now()
-        if idx == 0:
-            begin = begin - wx.DateSpan(30, 0, 0, 0)
-        elif idx == 1:
-            begin = begin - wx.DateSpan(0, 0, 1, 0)
-        elif idx == 2:
-            begin = begin - wx.DateSpan(0, 1, 0, 0)
-        elif idx == 3:
-            begin = begin - wx.DateSpan(1, 0, 0, 0)
-        self.beginDate.SetValue(begin)
-        self.endDate.SetValue(end)
-    
     def OnClearCacheTypes(self, evt):
         self.deselectList(self.cacheTypes)
     
@@ -384,9 +343,6 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         isinstance(self.statesCheck, wx.CheckBox)
         isinstance(self.statesList, wx.ListCtrl)
         isinstance(self.clearStates, wx.Button)
-        isinstance(self.rangeChoice, wx.Choice)
-        isinstance(self.beginDate, wx.DatePickerCtrl)
-        isinstance(self.endDate, wx.DatePickerCtrl)
         isinstance(self.saveSearch, wx.Button)
 
 class FloatValidator(wx.PyValidator):
@@ -423,40 +379,93 @@ class FloatValidator(wx.PyValidator):
                 textctrl.SetBackgroundColour("red")
                 textctrl.Refresh()
 
-class DateValidator(wx.PyValidator):
-    def __init__(self, begin, end):
-        wx.PyValidator.__init__(self)
-        self.begin = begin
-        self.end = end
-        
-    def Clone(self):
-        return DateValidator(self.begin, self.end)
-    
-    def TransferFromWindow(self):
-        return True
-    
-    def TransferToWindow(self):
-        return True
-    
-    def Validate(self, win):
-        if not self.end.IsEnabled(): return True
-        try:
-            ret = (self.end.GetValue() > self.begin.GetValue())
-            if not ret:
-                self.begin.SetBackgroundColour("red")
-                self.end.SetBackgroundColour("red")
-                return False
+def loadSavedSearch(sname):
+    params = {}
+    cur = cache901.db().cursor()
+    cur.execute("SELECT name, param, value FROM searches WHERE name = ?", (sname, ))
+    for row in cur:
+        params[row[1]] = row[2]
+    return params
+
+def execSearch(params):
+    # todo: checkbox handling
+    isinstance(params, dict)
+    query = "select cache_id, difficulty, terrain, url_name, 0 as distance from caches "
+    where = []
+    sqlparams = []
+    order_by = "order by url_name"
+    if params.has_key("name"):
+        sname = '%%%s%%' % params['name'].replace('*', '%').lower()
+        where.append('lower(url_name) like ?')
+        where.append('lower(name) like ?')
+        sqlparams.append(sname)
+        sqlparams.append(sname)
+    if params.has_key('terrain'):
+        vals=params['terrain'].split(' ')
+        where.append('terrain %s ?' % vals[0])
+        sqlparams.append(vals[1])
+    if params.has_key('difficulty'):
+        vals=params['difficulty'].split(' ')
+        where.append('difficulty %s ?' % vals[0])
+        sqlparams.append(vals[1])
+    if params.has_key("searchDist"):
+        dist = float(params["searchDist"])
+        if params.has_key("searchScale") and params["searchScale"] != "mi":
+            dist = dist * 1.61
+        if params.has_key("searchOrigin"):
+            org = params["searchOrigin"]
+            if org == "From GPS":
+                cfg = wx.Config.Get()
+                cfg.SetPath('/PerMachine')
+                gpstype = cfg.Read('GPSType', 'nmea')
+                gpsport = cfg.Read('GPSPort', 'USB')
+                cache901.notify('Retrieving current GPS position')
+                loc = gpsbabel.gps.getCurrentGpsLocation(gpsport, gpstype)
             else:
-                self.begin.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-                self.end.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-                self.begin.Refresh()
-                self.end.Refresh()
-                return True
-        except:
-            self.begin.SetBackgroundColour("red")
-            self.end.SetBackgroundColour("red")
-            return False
-    
-    def forWingIde(self):
-        isinstance(self.begin, wx.DatePickerCtrl)
-        isinstance(self.end, wx.DatePickerCtrl)
+                wpt_id = cache901.util.getSearchLocs(org)[0]
+                loc = cache901.dbobjects.Waypoint(wpt_id)
+            where.append('distance(lat, lon, ?, ?) <= ?')
+            sqlparams.append(float(loc.lat))
+            sqlparams.append(float(loc.lon))
+            sqlparams.append(dist)
+            query = "select cache_id, difficulty, terrain, url_name, distance(lat, lon, ?, ?) * ? as distance from caches "
+            if params.has_key("searchScale") and params["searchScale"] != "mi":
+                scale = 1.61
+            else:
+                scale = 1.0
+            sqlparams.insert(0, scale)
+            sqlparams.insert(0, float(loc.lon))
+            sqlparams.insert(0, float(loc.lat))
+            order_by = "order by distance"
+    if params.has_key('countries'):
+        countries = params['countries'].split(',')
+        where.append('country in (%s)' % ','.join(map(lambda x: '?', countries)))
+        sqlparams.extend(countries)
+    if params.has_key('states'):
+        states = params['states'].split(',')
+        where.append('state in (%s)' % ','.join(map(lambda x: '?', states)))
+        sqlparams.extend(states)
+    if params.has_key('types'):
+        types = params['types'].split(',')
+        where.append('type in (%s)' % ','.join(map(lambda x: '?', types)))
+        sqlparams.extend(types)
+    if params.has_key('containers'):
+        containers = params['containers'].split(',')
+        where.append('container in (%s)' % ','.join(map(lambda x: '?', containers)))
+        sqlparams.extend(containers)
+    if len(where) > 0:
+        where_clause = 'where %s' % " and ".join(where)
+    else:
+        where_clause = ""
+    if params.has_key('maxresults'):
+        limit = "limit ?"
+        sqlparams.append(int(params['maxresults']))
+    else:
+        limit = ""
+    fquery = "%s %s %s %s" % (query, where_clause, order_by, limit)
+    results = []
+    cur = cache901.db().cursor()
+    cur.execute(fquery, sqlparams)
+    for row in cur:
+        results.append(row)
+    return results

@@ -363,7 +363,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         dlg = cache901.search.SearchBox(self)
         dlg.ShowModal()
         params = dlg.getSearchParams()
-
+        params = cache901.search.loadSavedSearch('Ten Nearest Cool Caches')
+        cache901.search.execSearch(params)
+        
 class geoicons(cache901.ui_xrc.xrcgeoIcons):
     def __init__(self):
         cache901.ui_xrc.xrcgeoIcons.__init__(self, None)
