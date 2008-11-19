@@ -210,7 +210,10 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
             del params['searchOrigin']
         else:
             params['searchDist'] = self.distance.GetValue()
-            params['searchScale'] = self.distanceScale.GetItems()[self.distanceScale.GetSelection()]
+            if len(params['searchDist']) > 0:
+                params['searchScale'] = self.distanceScale.GetItems()[self.distanceScale.GetSelection()]
+            else:
+                del params['searchDist']
         for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
                   'memAvail', 'notIgnored', 'ignored', 'foundLast7',
                   'notFound', 'hasBugs', 'updatedLast7', 'notActive',
@@ -410,34 +413,36 @@ def execSearch(params):
         sqlparams.append(vals[1])
     if params.has_key("searchDist"):
         dist = float(params["searchDist"])
+    else:
+        dist = 12000 # 12,000 miles, roughly one half the circumference of the earth at the equator. *better* be enough
+    if params.has_key("searchScale") and params["searchScale"] != "mi":
+        dist = dist * 1.61
+    if params.has_key("searchOrigin"):
+        org = params["searchOrigin"]
+        if org == "From GPS":
+            cfg = wx.Config.Get()
+            cfg.SetPath('/PerMachine')
+            gpstype = cfg.Read('GPSType', 'nmea')
+            gpsport = cfg.Read('GPSPort', 'USB')
+            cache901.notify('Retrieving current GPS position')
+            loc = gpsbabel.gps.getCurrentGpsLocation(gpsport, gpstype)
+        else:
+            wpt_id = cache901.util.getSearchLocs(org).next()[0]
+            loc = cache901.dbobjects.Waypoint(wpt_id)
+        where.append('distance(lat, lon, ?, ?) <= ?')
+        sqlparams.append(float(loc.lat))
+        sqlparams.append(float(loc.lon))
+        sqlparams.append(dist)
+        query = "select cache_id, difficulty, terrain, url_name, distance(lat, lon, ?, ?) * ? as distance from caches "
         if params.has_key("searchScale") and params["searchScale"] != "mi":
-            dist = dist * 1.61
-        if params.has_key("searchOrigin"):
-            org = params["searchOrigin"]
-            if org == "From GPS":
-                cfg = wx.Config.Get()
-                cfg.SetPath('/PerMachine')
-                gpstype = cfg.Read('GPSType', 'nmea')
-                gpsport = cfg.Read('GPSPort', 'USB')
-                cache901.notify('Retrieving current GPS position')
-                loc = gpsbabel.gps.getCurrentGpsLocation(gpsport, gpstype)
-            else:
-                wpt_id = cache901.util.getSearchLocs(org).next()[0]
-                loc = cache901.dbobjects.Waypoint(wpt_id)
-            where.append('distance(lat, lon, ?, ?) <= ?')
-            sqlparams.append(float(loc.lat))
-            sqlparams.append(float(loc.lon))
-            sqlparams.append(dist)
-            query = "select cache_id, difficulty, terrain, url_name, distance(lat, lon, ?, ?) * ? as distance from caches "
-            if params.has_key("searchScale") and params["searchScale"] != "mi":
-                scale = 1.61
-            else:
-                scale = 1.0
-            sqlparams.insert(0, scale)
-            sqlparams.insert(0, float(loc.lon))
-            sqlparams.insert(0, float(loc.lat))
-            order_by = "order by distance"
-            cache901.notify("Found location")
+            scale = 1.61
+        else:
+            scale = 1.0
+        sqlparams.insert(0, scale)
+        sqlparams.insert(0, float(loc.lon))
+        sqlparams.insert(0, float(loc.lat))
+        order_by = "order by distance"
+        cache901.notify("Found location")
     if params.has_key('countries'):
         countries = params['countries'].split(',')
         where.append('country in (%s)' % ','.join(map(lambda x: '?', countries)))
