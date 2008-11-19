@@ -87,7 +87,11 @@ class xrcCache901UI(wx.Frame):
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
         self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
-        self.mnuCachesSearch = self.GetMenuBar().FindItemById(xrc.XRCID("mnuCachesSearch"))
+        idx = self.GetMenuBar().FindMenu("&Search")
+        if idx != wx.NOT_FOUND:
+            self.CacheSearchMenu = self.GetMenuBar().GetMenu(idx)
+        else:
+            self.CacheSearchMenu = self.GetMenuBar().FindItemById(xrc.XRCID("CacheSearchMenu")).GetSubMenu()
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
@@ -1128,7 +1132,7 @@ def __init_resources():
       </object>
       <object class="wxMenu">
         <label>&amp;Caches</label>
-        <object class="wxMenuItem" name="mnuCachesSearch">
+        <object class="wxMenu" name="CacheSearchMenu">
           <label>&amp;Search</label>
           <XRCED>
             <assign_var>1</assign_var>

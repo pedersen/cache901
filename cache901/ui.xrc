@@ -832,7 +832,7 @@
       </object>
       <object class="wxMenu">
         <label>&amp;Caches</label>
-        <object class="wxMenuItem" name="mnuCachesSearch">
+        <object class="wxMenu" name="CacheSearchMenu">
           <label>&amp;Search</label>
           <XRCED>
             <assign_var>1</assign_var>

@@ -108,6 +108,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.undoNotes, wx.Button)
         isinstance(self.currPhoto, wx.StaticBitmap)
         isinstance(self.photoList, wx.ListCtrl)
+        isinstance(self.CacheSearchMenu, wx.Menu)
 
         self.Bind(wx.EVT_CLOSE,  self.OnClose)
 
@@ -116,7 +117,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnAbout,      self.mnuHelpAbout)
         self.Bind(wx.EVT_MENU,   self.OnSearchLocs, self.mnuFileLocs)
         self.Bind(wx.EVT_MENU,   self.OnPrefs,      self.mnuFilePrefs)
-        self.Bind(wx.EVT_MENU,   self.OnSearch,     self.mnuCachesSearch)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle, self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,   self.encText)
@@ -146,27 +146,32 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.points.InsertColumn(1, "Wpt Desc", width=w)
         self.loadData()
+        self.updSearchMenu()
 
-    def loadData(self, search=None):
-        db = cache901.db()
-        cur = db.cursor()
+    def updSearchMenu(self):
+        for item in self.CacheSearchMenu.GetMenuItems():
+            self.CacheSearchMenu.RemoveItem(item)
+        item = self.CacheSearchMenu.Append(-1, 'Advanced Search')
+        self.Bind(wx.EVT_MENU, self.OnSearch, item)
+        self.CacheSearchMenu.AppendSeparator()
+        cur = cache901.db().cursor()
+        cur.execute('select distinct name from searches order by name')
+        for i in cur:
+            item = self.CacheSearchMenu.Append(-1, i[0])
+            self.Bind(wx.EVT_MENU, self.OnSearch, item)
 
-        #(0, "Dist", "50.0mi")
+    def loadData(self, params={}):
         self.caches.DeleteAllItems()
         self.caches.DeleteAllColumns()
-        for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ")):
+        for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), (3, "Dist", "QQQQQQ")):
             w, h = self.GetTextExtent(i[2])
             self.caches.InsertColumn(i[0], i[1], width=w)
         self.points.DeleteAllItems()
 
-        if len(self.search.GetValue()) < 2 or self.search.GetValue() in ("", "*"):
-            cur.execute("select cache_id, difficulty, terrain, url_name from caches order by url_name")
-        else:
-            search = "%" + self.search.GetValue().replace("*", "%") + "%"    
-            search = search.lower()
-            cur.execute("select cache_id, difficulty, terrain, url_name from caches where lower(url_name) like ? or lower(name) like ? order by url_name", (search, search))
-        for row in cur:
-            cache_id = self.caches.Append((row[1], row[2], row[3]))
+        if len(self.search.GetValue()) > 2:
+            params["urlname"] = self.search.GetValue()
+        for row in cache901.search.execSearch(params):
+            cache_id = self.caches.Append((row[1], row[2], row[3], row[4]))
             self.caches.SetItemData(cache_id, row[0])
 
         for row in cache901.util.getWaypoints(self.search.GetValue()):
@@ -360,12 +365,21 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         opts.showGeneral()
     
     def OnSearch(self, evt):
-        dlg = cache901.search.SearchBox(self)
-        dlg.ShowModal()
-        params = dlg.getSearchParams()
-        params = cache901.search.loadSavedSearch('Ten Nearest Cool Caches')
-        cache901.search.execSearch(params)
-        
+        isinstance(evt, wx.CommandEvent)
+        self.search.SetValue("")
+        itemid = evt.GetId()
+        item = self.GetMenuBar().FindItemById(itemid)
+        mtext = item.GetLabel()
+        if mtext == "Advanced Search":
+            dlg = cache901.search.SearchBox(self)
+            if dlg.ShowModal() == wx.ID_OK:
+                params = dlg.getSearchParams()
+                self.loadData(params)
+        else:
+            params = cache901.search.loadSavedSearch(mtext)
+            self.loadData(params)
+        self.updSearchMenu()
+
 class geoicons(cache901.ui_xrc.xrcgeoIcons):
     def __init__(self):
         cache901.ui_xrc.xrcgeoIcons.__init__(self, None)

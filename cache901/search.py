@@ -395,10 +395,9 @@ def execSearch(params):
     where = []
     sqlparams = []
     order_by = "order by url_name"
-    if params.has_key("name"):
-        sname = '%%%s%%' % params['name'].replace('*', '%').lower()
-        where.append('lower(url_name) like ?')
-        where.append('lower(name) like ?')
+    if params.has_key("urlname"):
+        sname = '%%%s%%' % params['urlname'].replace('*', '%').lower()
+        where.append('lower(url_name) like ? or lower(name) like ?')
         sqlparams.append(sname)
         sqlparams.append(sname)
     if params.has_key('terrain'):
@@ -423,7 +422,7 @@ def execSearch(params):
                 cache901.notify('Retrieving current GPS position')
                 loc = gpsbabel.gps.getCurrentGpsLocation(gpsport, gpstype)
             else:
-                wpt_id = cache901.util.getSearchLocs(org)[0]
+                wpt_id = cache901.util.getSearchLocs(org).next()[0]
                 loc = cache901.dbobjects.Waypoint(wpt_id)
             where.append('distance(lat, lon, ?, ?) <= ?')
             sqlparams.append(float(loc.lat))
@@ -495,9 +494,13 @@ def execSearch(params):
     else:
         limit = ""
     fquery = "%s %s %s %s" % (query, where_clause, order_by, limit)
-    results = []
     cur = cache901.db().cursor()
     cur.execute(fquery, sqlparams)
-    for row in cur:
-        results.append(row)
-    return results
+    for vals in cur:
+        row = []
+        row.extend(vals)
+        if params.has_key("searchScale"):
+            row[4] = "%1.1f%s" % (row[4], params["searchScale"])
+        else:
+            row[4] = "%1.1fmi" % row[4]
+        yield row
