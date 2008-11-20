@@ -28,10 +28,14 @@ import cache901
 import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
+import cache901.validators
 
 class SearchBox(cache901.ui_xrc.xrcSearchUI):
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcSearchUI.__init__(self, parent=parent)
+        self.splitterSave.SetValidator(cache901.validators.splitValidator("splitterSave"))
+        self.splitterType.SetValidator(cache901.validators.splitValidator("splitterType"))
+        self.splitterRegions.SetValidator(cache901.validators.splitValidator("splitterRegions"))
         
         self.w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQQQ")
         self.cur = cache901.db().cursor()

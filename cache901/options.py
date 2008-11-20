@@ -27,16 +27,18 @@ import cache901
 import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
+import cache901.validators
 
 import gpsbabel
 
 class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcOptionsUI.__init__(self, parent)
-        self.gpsbabelLoc.SetValidator(cmdValidator())
-        self.gpsPort.SetValidator(portValidator())
-        self.gpsType.SetValidator(gpsTypeValidator())
-        self.coordDisplay.SetValidator(degDisplayValidator())
+        self.gpsbabelLoc.SetValidator(cache901.validators.cmdValidator())
+        self.gpsPort.SetValidator(cache901.validators.portValidator())
+        self.gpsType.SetValidator(cache901.validators.gpsTypeValidator())
+        self.coordDisplay.SetValidator(cache901.validators.degDisplayValidator())
+        self.locSplit.SetValidator(cache901.validators.splitValidator("locSplit"))
         
         self.loadOrigins()
         
@@ -179,136 +181,4 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.addLoc,    wx.Button)
         isinstance(self.remLoc,    wx.Button)
         isinstance(self.clearSel,  wx.Button)
-
-class cmdValidator(wx.PyValidator):
-    def Clone(self):
-        return cmdValidator()
-    
-    def Validate(self, win):
-        fp = self.GetWindow()
-        isinstance(fp, wx.FilePickerCtrl)
-        fname = fp.GetPath()
-        retval = os.path.exists(fname) and os.access(fname, os.X_OK)
-        if not retval:
-            wx.MessageBox('Invalid location for GPSBabel.', 'GPSBabel Location Problem', parent=win)
-        return retval
-        
-    def TransferToWindow(self):
-        fp = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(fp, wx.FilePickerCtrl)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
-        loc = cfg.Read('GPSBabelLoc', cache901.util.which('gpsbabel'))
-        fp.SetPath(loc)
-        fp.Refresh()
-    
-    def TransferFromWindow(self):
-        fp = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(fp, wx.FilePickerCtrl)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('GPSBabelLoc', fp.GetPath())
-    
-class portValidator(wx.PyValidator):
-    def Clone(self):
-        return portValidator()
-    
-    def Validate(self, win):
-        choice = self.GetWindow()
-        isinstance(choice, wx.Choice)
-        selnum = choice.GetSelection()
-        if selnum == wx.NOT_FOUND: return False
-        items = choice.GetItems()
-        if selnum < 0 or selnum >= len(items): return False
-        if items[selnum] == 'USB': return True
-        try:
-            s = serial.Serial(items[selnum])
-            return True
-        except:
-            wx.MessageBox('Choose a different serial port', 'Invalid Serial Port')
-            return False
-    
-    def TransferToWindow(self):
-        choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(choice, wx.Choice)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
-        choice.Clear()
-        choice.Append('USB')
-        choice.AppendItems(cache901.util.scanForSerial())
-        try:
-            choice.SetSelection(choice.GetItems().index(cfg.Read('GPSPort', 'USB')))
-        except:
-            choice.SetSelection(0)
-            
-    def TransferFromWindow(self):
-        choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(choice, wx.Choice)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('GPSPort', choice.GetItems()[choice.GetSelection()])
-        
-class gpsTypeValidator(wx.PyValidator):
-    def Clone(self):
-        return gpsTypeValidator()
-    
-    def Validate(self, win):
-        choice = self.GetWindow()
-        isinstance(choice, wx.Choice)
-        items = map(lambda x: x.lower(), choice.GetItems())
-        return items[choice.GetSelection()] in ['garmin', 'nmea']
-    
-    def TransferToWindow(self):
-        choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
-        items = map(lambda x: x.lower(), choice.GetItems())
-        try:
-            choice.SetSelection(['garmin', 'nmea'].index(cfg.Read('GPSType', 'nmea')))
-        except:
-            choice.SetSelection(0)
-
-    def TransferFromWindow(self):
-        choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('GPSType', choice.GetItems()[choice.GetSelection()].lower())
-        
-class degDisplayValidator(wx.PyValidator):
-    def Clone(self):
-        return degDisplayValidator()
-    
-    def Validate(self, win):
-        choice = self.GetWindow()
-        isinstance(self, wx.Choice)
-        items = map(lambda x: x.lower(), choice.GetItems())
-        return items[choice.GetSelection()] in ['deg min sec', 'deg min', 'deg']
-    
-    def TransferToWindow(self):
-        choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
-        items = map(lambda x: x.lower(), choice.GetItems())
-        try:
-            choice.SetSelection(['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min sec')))
-        except:
-            choice.SetSelection(0)
-
-    def TransferFromWindow(self):
-        choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('degDisplay', choice.GetItems()[choice.GetSelection()].lower())
-        
+        isinstance(self.locSplit,  wx.SplitterWindow)

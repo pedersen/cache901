@@ -92,6 +92,7 @@ class xrcCache901UI(wx.Frame):
             self.CacheSearchMenu = self.GetMenuBar().GetMenu(idx)
         else:
             self.CacheSearchMenu = self.GetMenuBar().FindItemById(xrc.XRCID("CacheSearchMenu")).GetSubMenu()
+        self.showMap = self.GetMenuBar().FindItemById(xrc.XRCID("showMap"))
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
@@ -285,6 +286,33 @@ class xrcSearchUI(wx.Dialog):
         self.statesList = xrc.XRCCTRL(self, "statesList")
         self.clearStates = xrc.XRCCTRL(self, "clearStates")
         self.saveSearch = xrc.XRCCTRL(self, "saveSearch")
+
+
+
+class xrcMapUI(wx.Dialog):
+#!XRCED:begin-block:xrcMapUI.PreCreate
+    def PreCreate(self, pre):
+        """ This function is called during the class's initialization.
+        
+        Override it for custom setup before the window is created usually to
+        set additional window styles using SetWindowStyle() and SetExtraStyle().
+        """
+        pass
+        
+#!XRCED:end-block:xrcMapUI.PreCreate
+
+    def __init__(self, parent):
+        # Two stage creation (see http://wiki.wxpython.org/index.cgi/TwoStageCreation)
+        pre = wx.PreDialog()
+        self.PreCreate(pre)
+        get_resources().LoadOnDialog(pre, parent, "MapUI")
+        self.PostCreate(pre)
+
+        # Define variables for the controls, bind event handlers
+        self.mapSplit = xrc.XRCCTRL(self, "mapSplit")
+        self.cacheList = xrc.XRCCTRL(self, "cacheList")
+        self.originList = xrc.XRCCTRL(self, "originList")
+        self.mapArea = xrc.XRCCTRL(self, "mapArea")
 
 
 
@@ -1134,6 +1162,12 @@ def __init_resources():
         <label>&amp;Caches</label>
         <object class="wxMenu" name="CacheSearchMenu">
           <label>&amp;Search</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="showMap">
+          <label>Show Map of Caches</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -2211,6 +2245,93 @@ http://www.justwill.com/</value>
       </object>
     </object>
     <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+  </object>
+  <object class="wxDialog" name="MapUI">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxSplitterWindow" name="mapSplit">
+          <object class="wxPanel">
+            <object class="wxBoxSizer">
+              <orient>wxVERTICAL</orient>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <label>Caches</label>
+                </object>
+              </object>
+              <object class="sizeritem">
+                <object class="wxListCtrl" name="cacheList">
+                  <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <option>1</option>
+                <flag>wxEXPAND|wxGROW</flag>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <label>Search Origins</label>
+                </object>
+              </object>
+              <object class="sizeritem">
+                <object class="wxListCtrl" name="originList">
+                  <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <option>1</option>
+                <flag>wxEXPAND|wxGROW</flag>
+              </object>
+            </object>
+          </object>
+          <object class="wxPanel">
+            <object class="wxBoxSizer">
+              <orient>wxVERTICAL</orient>
+              <object class="sizeritem">
+                <object class="wxScrolledWindow" name="mapArea">
+                  <style>wxHSCROLL|wxVSCROLL</style>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <option>1</option>
+                <flag>wxEXPAND|wxGROW</flag>
+              </object>
+            </object>
+          </object>
+          <orientation>vertical</orientation>
+          <sashpos>175</sashpos>
+          <minsize>100</minsize>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <minsize>740,350</minsize>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_OK">
+              <label>Okay</label>
+            </object>
+            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+          </object>
+          <object class="spacer">
+            <size>5,5</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_CANCEL">
+              <label>Cancel</label>
+            </object>
+            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+      </object>
+    </object>
   </object>
 </resource>'''
 
@@ -14918,6 +15039,7 @@ def __gettext_strings():
     _("E&xit")
     _("&Caches")
     _("&Search")
+    _("Show Map of Caches")
     _("&Preferences")
     _("&Preferences")
     _("&Search Locations")
@@ -15023,4 +15145,8 @@ def __gettext_strings():
     _("&Save")
     _("&Ok")
     _("&Cancel")
+    _("Caches")
+    _("Search Origins")
+    _("Okay")
+    _("Cancel")
 

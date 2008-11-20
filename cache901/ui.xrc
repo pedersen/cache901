@@ -838,6 +838,12 @@
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="showMap">
+          <label>Show Map of Caches</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
       </object>
       <object class="wxMenu">
         <label>&amp;Preferences</label>
@@ -1911,5 +1917,92 @@ http://www.justwill.com/</value>
       </object>
     </object>
     <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+  </object>
+  <object class="wxDialog" name="MapUI">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxSplitterWindow" name="mapSplit">
+          <object class="wxPanel">
+            <object class="wxBoxSizer">
+              <orient>wxVERTICAL</orient>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <label>Caches</label>
+                </object>
+              </object>
+              <object class="sizeritem">
+                <object class="wxListCtrl" name="cacheList">
+                  <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <option>1</option>
+                <flag>wxEXPAND|wxGROW</flag>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <label>Search Origins</label>
+                </object>
+              </object>
+              <object class="sizeritem">
+                <object class="wxListCtrl" name="originList">
+                  <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <option>1</option>
+                <flag>wxEXPAND|wxGROW</flag>
+              </object>
+            </object>
+          </object>
+          <object class="wxPanel">
+            <object class="wxBoxSizer">
+              <orient>wxVERTICAL</orient>
+              <object class="sizeritem">
+                <object class="wxScrolledWindow" name="mapArea">
+                  <style>wxHSCROLL|wxVSCROLL</style>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <option>1</option>
+                <flag>wxEXPAND|wxGROW</flag>
+              </object>
+            </object>
+          </object>
+          <orientation>vertical</orientation>
+          <sashpos>175</sashpos>
+          <minsize>100</minsize>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <minsize>740,350</minsize>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_OK">
+              <label>Okay</label>
+            </object>
+            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+          </object>
+          <object class="spacer">
+            <size>5,5</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_CANCEL">
+              <label>Cancel</label>
+            </object>
+            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+      </object>
+    </object>
   </object>
 </resource>
