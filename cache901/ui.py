@@ -101,6 +101,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for item in self.CacheSearchMenu.GetMenuItems():
             self.CacheSearchMenu.RemoveItem(item)
         item = self.CacheSearchMenu.Append(-1, 'Advanced Search')
+        item = self.CacheSearchMenu.Append(-1, 'Clear Search')
         self.Bind(wx.EVT_MENU, self.OnSearch, item)
         self.CacheSearchMenu.AppendSeparator()
         cur = cache901.db().cursor()
@@ -324,6 +325,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             if dlg.ShowModal() == wx.ID_OK:
                 params = dlg.getSearchParams()
                 self.loadData(params)
+        elif mtext == "Clear Search":
+            self.loadData()
         else:
             params = cache901.search.loadSavedSearch(mtext)
             self.loadData(params)
