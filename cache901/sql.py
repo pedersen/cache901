@@ -181,7 +181,8 @@ def prepdb(dbname, debug=False):
             sqlexec(con, stmts, debug)
     except sqlite.OperationalError:
         for stgrp in allstatements:
-            sqlexec(con, stgrp, debug)
+            stmts = globals()[stgrp]
+            sqlexec(con, stmts, debug)
     cur.execute("vacuum")
     cur.execute("analyze")
     return con
