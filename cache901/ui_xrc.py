@@ -313,6 +313,7 @@ class xrcMapUI(wx.Dialog):
         self.cacheList = xrc.XRCCTRL(self, "cacheList")
         self.originList = xrc.XRCCTRL(self, "originList")
         self.mapArea = xrc.XRCCTRL(self, "mapArea")
+        self.mapPanel = xrc.XRCCTRL(self, "mapPanel")
 
 
 
@@ -2291,6 +2292,12 @@ http://www.justwill.com/</value>
               <orient>wxVERTICAL</orient>
               <object class="sizeritem">
                 <object class="wxScrolledWindow" name="mapArea">
+                  <object class="wxPanel" name="mapPanel">
+                    <size>1024,1024</size>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
                   <style>wxHSCROLL|wxVSCROLL</style>
                   <XRCED>
                     <assign_var>1</assign_var>
