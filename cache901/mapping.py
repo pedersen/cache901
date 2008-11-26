@@ -17,6 +17,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# @todo: Add cache list
+# @todo: Add search origins list
+# @todo: recenter map on clicking any of the above
+# @todo: add a map scale
+# @todo: add tooltip for currently selected cache
+# @todo: Add selecting a cache
+# @todo: Add double-clicking to load a cache
+
 import wx
 
 import cache901
