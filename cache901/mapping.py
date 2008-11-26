@@ -121,17 +121,23 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
         dc.Clear()
         
-        hprop = float(sz[0]) / float(self.maxlat - self.minlat)
-        wprop = float(sz[1]) / float(self.maxlon - self.minlon)
+        hprop = float(sz[1]) / float(self.maxlat - self.minlat)
+        wprop = float(sz[0]) / float(self.maxlon - self.minlon)
         geo = wx.GetApp().GetTopWindow().geoicons
         for i, cache in enumerate(self.caches):
             x = int(wprop * (cache[4] - self.minlon))
             y = int(hprop * (cache[3] - self.minlat))
+            tbmpsz = geo[cache[5]].GetSize()
+            if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
+            if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
             dc.DrawBitmap(geo[cache[5]], x, y)
         locbmp = wx.BitmapFromImage(wx.ImageFromBitmap(geo["searchloc"]).Scale(16,16))
+        tbmpsz = locbmp.GetSize()
         for i, loc in enumerate(self.searches):
             x = int(wprop * (loc[2] - self.minlon))
             y = int(hprop * (loc[1] - self.minlat))
+            if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
+            if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
             dc.DrawBitmap(locbmp, x, y)
         dc.SelectObject(wx.NullBitmap)
         self.bmp = bmp
