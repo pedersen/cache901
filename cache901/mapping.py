@@ -59,32 +59,56 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.mapPanel.Bind(wx.EVT_PAINT,       self.OnPaint)
         self.mapPanel.Bind(wx.EVT_LEFT_DCLICK, self.OnMapDoubleClick)
         
-    def updMap(self, cltdc):
-        sz = self.mapPanel.GetSize()
+        self.zoomLevel.Bind(wx.EVT_SCROLL, self.OnChangeZoom)
+        self.oldZoom = None
+        self.mapArea.SetScrollRate(20,20)
+        
+    def updMap(self):
+        # zoom 1 is all caches on-screen, minimum of 5 miles across horizontal
+        # zoom 10 is 1mi across horizontal
+        # all other zooms are proportional differences between 1 and 10, using the minimum of 5 miles
+        zoom = self.zoomLevel.GetValue()
+        wrange = cache901.util.distance_exact(0, self.minlon, 0, self.maxlon)
+        wdist = wrange
+        if zoom == 1:
+            wrange = 5.0 if wrange < 5.0 else wrange
+        elif zoom == 10:
+            wrange = 1.0
+        else:
+            wrange = wrange - ((((wrange - 1.0) / 9.0) * (zoom-1)) + 1.0)
+        sz = self.mapArea.GetSize()
+        sz.width  = int(sz.width /wrange*wdist+1)
+        sz.height = int(sz.height/wrange*wdist+1)
+        self.mapPanel.SetSize(sz)
+        self.mapPanel.SetPosition((0, 0))
+        self.mapArea.SetVirtualSize(sz)
+        sz = self.mapPanel.GetSizeTuple()
         bmp = wx.EmptyBitmap(sz[0], sz[1], -1)
         dc = wx.MemoryDC(bmp)
         dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
         dc.Clear()
         
         wprop = float(sz[0]) / float(self.maxlat - self.minlat)
-        hprop = float(sz[0]) / float(self.maxlon - self.minlon)
+        hprop = float(sz[1]) / float(self.maxlon - self.minlon)
         geo = wx.GetApp().GetTopWindow().geoicons
         for i, cache in enumerate(self.caches):
             x = int(wprop * (cache[3] - self.minlat))
             y = int(hprop * (cache[4] - self.minlon))
             dc.DrawBitmap(geo[cache[5]], x, y)
-            if i % 300 == 0:
-                cltdc.Blit(0, 0, sz[0], sz[1], dc, 0, 0)
-        cltdc.Blit(0, 0, sz[0], sz[1], dc, 0, 0)
         dc.SelectObject(wx.NullBitmap)
+        self.bmp = bmp
+        self.oldZoom = self.zoomLevel.GetValue()
     
     def OnPaint(self, evt):
+        if self.oldZoom is None or self.oldZoom != self.zoomLevel.GetValue():
+            self.updMap()
         paintdc = wx.PaintDC(self.mapPanel)
-        self.updMap(paintdc)
-        self.mapArea.SetVirtualSize(self.mapPanel.GetSize())
-        self.mapArea.SetScrollRate(20, 20)
-        evt.Skip()
+        paintdc.DrawBitmap(self.bmp, 0, 0)
     
+    def OnChangeZoom(self, evt):
+        self.updMap()
+        self.Refresh()
+        
     def OnMapDoubleClick(self, evt):
         wx.MessageBox("Map doubleclicked!", "Debug")
         
@@ -94,4 +118,5 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         isinstance(self.mapSplit,   wx.SplitterWindow)
         isinstance(self.cacheList,  wx.ListCtrl)
         isinstance(self.originList, wx.ListCtrl)
+        isinstance(self.zoomLevel,  wx.Slider)
         

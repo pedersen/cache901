@@ -312,6 +312,7 @@ class xrcMapUI(wx.Dialog):
         self.mapSplit = xrc.XRCCTRL(self, "mapSplit")
         self.cacheList = xrc.XRCCTRL(self, "cacheList")
         self.originList = xrc.XRCCTRL(self, "originList")
+        self.zoomLevel = xrc.XRCCTRL(self, "zoomLevel")
         self.mapArea = xrc.XRCCTRL(self, "mapArea")
         self.mapPanel = xrc.XRCCTRL(self, "mapPanel")
 
@@ -1149,8 +1150,6 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        
-        
         <object class="wxMenuItem" name="mnuFileExit">
           <label>E&amp;xit</label>
           <accel>Ctrl-Q</accel>
@@ -2207,7 +2206,6 @@ http://www.justwill.com/</value>
             </object>
             <label>Region</label>
           </object>
-        
         </object>
         <option>1</option>
         <flag>wxEXPAND|wxGROW</flag>
@@ -2289,7 +2287,22 @@ http://www.justwill.com/</value>
           </object>
           <object class="wxPanel">
             <object class="wxBoxSizer">
-              <orient>wxVERTICAL</orient>
+              <object class="sizeritem">
+                <object class="wxSlider" name="zoomLevel">
+                  <value>1</value>
+                  <min>1</min>
+                  <max>10</max>
+                  <tickfreq>10</tickfreq>
+                  <pagesize>10</pagesize>
+                  <tick>10</tick>
+                  <style>wxSL_VERTICAL|wxSL_LABELS|wxSL_INVERSE</style>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <option>0</option>
+                <flag>wxGROW</flag>
+              </object>
               <object class="sizeritem">
                 <object class="wxScrolledWindow" name="mapArea">
                   <object class="wxPanel" name="mapPanel">
@@ -2306,6 +2319,7 @@ http://www.justwill.com/</value>
                 <option>1</option>
                 <flag>wxEXPAND|wxGROW</flag>
               </object>
+              <orient>wxHORIZONTAL</orient>
             </object>
           </object>
           <orientation>vertical</orientation>
