@@ -42,6 +42,14 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.maxlat = float(row[2])
         self.maxlon = float(row[3])
         
+        qry = 'select min(lat), min(lon), max(lat), max(lon) from locations where loc_type=2'
+        cur.execute(qry)
+        for row in cur:
+            self.minlat = min(self.minlat, row[0])
+            self.minlon = min(self.minlon, row[1])
+            self.maxlat = max(self.maxlat, row[2])
+            self.maxlon = max(self.maxlon, row[3])
+        
         cache901.notify('Loading caches')
         self.caches = []
         cur.execute('select cache_id, url_name, name, lat, lon, type from caches where cache_id in %s' % self.parms)
@@ -53,6 +61,18 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             self.caches.append(r)
             if len(self.caches) % 250 == 0:
                 cache901.notify('Loaded cache %s' % str(cache901.util.forceAscii(self.caches[-1][1])))
+                
+        cache901.notify('Loading search origin locations')
+        self.searches = []
+        cur.execute('select name, lat, lon from locations where loc_type=2')
+        for row in cur:
+            r=[]
+            r.extend(row)
+            r[1] = float(r[1])
+            r[2] = float(r[2])
+            self.searches.append(r)
+            if len(self.searches) % 10 == 0:
+                cache901.notify('Loaded search origin %s' % str(cache901.util.forceAscii(self.searches[-1][0])))
         
         self.mapSplit.SetValidator(cache901.validators.splitValidator("mapSplit"))
         
@@ -70,15 +90,20 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         zoom = self.zoomLevel.GetValue()
         wrange = cache901.util.distance_exact(0, self.minlon, 0, self.maxlon)
         wdist = wrange
+        hrange = cache901.util.distance_exact(self.minlat, 0, self.maxlat, 0)
+        hdist = hrange
         if zoom == 1:
             wrange = 5.0 if wrange < 5.0 else wrange
+            hrange = 5.0 if hrange < 5.0 else hrange
         elif zoom == 10:
             wrange = 1.0
+            hrange = 1.0
         else:
             wrange = wrange - ((((wrange - 1.0) / 9.0) * (zoom-1)) + 1.0)
+            hrange = hrange - ((((hrange - 1.0) / 9.0) * (zoom-1)) + 1.0)
         sz = self.mapArea.GetSize()
         sz.width  = int(sz.width /wrange*wdist+1)
-        sz.height = int(sz.height/wrange*wdist+1)
+        sz.height = int(sz.height/hrange*hdist+1)
         self.mapPanel.SetSize(sz)
         self.mapPanel.SetPosition((0, 0))
         self.mapArea.SetVirtualSize(sz)
@@ -88,13 +113,18 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
         dc.Clear()
         
-        wprop = float(sz[0]) / float(self.maxlat - self.minlat)
-        hprop = float(sz[1]) / float(self.maxlon - self.minlon)
+        hprop = float(sz[0]) / float(self.maxlat - self.minlat)
+        wprop = float(sz[1]) / float(self.maxlon - self.minlon)
         geo = wx.GetApp().GetTopWindow().geoicons
         for i, cache in enumerate(self.caches):
-            x = int(wprop * (cache[3] - self.minlat))
-            y = int(hprop * (cache[4] - self.minlon))
+            x = int(wprop * (cache[4] - self.minlon))
+            y = int(hprop * (cache[3] - self.minlat))
             dc.DrawBitmap(geo[cache[5]], x, y)
+        locbmp = wx.BitmapFromImage(wx.ImageFromBitmap(geo["searchloc"]).Scale(16,16))
+        for i, loc in enumerate(self.searches):
+            x = int(wprop * (loc[2] - self.minlon))
+            y = int(hprop * (loc[1] - self.minlat))
+            dc.DrawBitmap(locbmp, x, y)
         dc.SelectObject(wx.NullBitmap)
         self.bmp = bmp
         self.oldZoom = self.zoomLevel.GetValue()

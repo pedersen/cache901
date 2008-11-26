@@ -446,5 +446,7 @@ class geoicons(cache901.ui_xrc.xrcgeoIcons):
                 return wx.Icon(os.path.join(os.sep.join(sys.argv[0].split(os.sep)[:-1]), 'shield.ico'), wx.BITMAP_TYPE_ICO)
             else:
                 return wx.Icon(os.path.join(cache901.__path__[0], 'shield.ico'), wx.BITMAP_TYPE_ICO)
+        elif key == "searchloc":
+            return self.appicon.GetBitmap()
         else:
             return self.mystery.GetBitmap()
