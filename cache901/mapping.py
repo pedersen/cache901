@@ -17,12 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# @todo: Add cache list
-# @todo: Add search origins list
-# @todo: recenter map on clicking any of the above
-# @todo: add a map scale
+# @todo: recenter map on clicking cache or search origin
 # @todo: add tooltip for currently selected cache
-# @todo: Add selecting a cache
 # @todo: Add double-clicking to load a cache
 
 import wx
@@ -59,6 +55,10 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             self.maxlon = max(self.maxlon, row[3])
         
         cache901.notify('Loading caches')
+        w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQQQQQQQQ")
+        self.cacheList.DeleteAllItems()
+        self.cacheList.DeleteAllColumns()
+        self.cacheList.InsertColumn(0, "Cache Name", width=w)
         self.caches = []
         cur.execute('select cache_id, url_name, name, lat, lon, type from caches where cache_id in %s' % self.parms)
         for row in cur:
@@ -67,18 +67,25 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             r[3] = float(r[3])
             r[4] = float(r[4])
             self.caches.append(r)
+            iid = self.cacheList.Append((r[1], ))
+            self.cacheList.SetItemData(iid, r[0])
             if len(self.caches) % 250 == 0:
                 cache901.notify('Loaded cache %s' % str(cache901.util.forceAscii(self.caches[-1][1])))
                 
         cache901.notify('Loading search origin locations')
+        self.originList.DeleteAllItems()
+        self.originList.DeleteAllColumns()
+        self.originList.InsertColumn(0, "Search Origin Name", width=w)
         self.searches = []
-        cur.execute('select name, lat, lon from locations where loc_type=2')
+        cur.execute('select name, lat, lon, wpt_id from locations where loc_type=2')
         for row in cur:
             r=[]
             r.extend(row)
             r[1] = float(r[1])
             r[2] = float(r[2])
             self.searches.append(r)
+            iid = self.originList.Append((r[0], ))
+            self.originList.SetItemData(iid, r[3])
             if len(self.searches) % 10 == 0:
                 cache901.notify('Loaded search origin %s' % str(cache901.util.forceAscii(self.searches[-1][0])))
         
@@ -121,6 +128,22 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
         dc.Clear()
         
+        hprop = float(sz[1]) / float(hrange)
+        wprop = float(sz[0]) / float(wrange)
+        hscale = int(hrange / 16.0 * hprop) # Screen size divided by 4, and then by 4 again for each bar
+        wscale = int(wrange / 16.0 * wprop) # Then multiplied by proportion to give accurate size
+        blk = wx.Brush(wx.Colour(0, 0, 0))
+        wht = wx.Brush(wx.Colour(255, 255, 255))
+        brushes = [blk, wht]
+        for i in range(4):
+            dc.SetBackground(brushes[0])
+            dc.SetBrush(brushes[1])
+            dc.DrawRectangle(10 + i*wscale, 10, wscale, 10)
+            brushes.reverse()
+            dc.SetBackground(brushes[0])
+            dc.SetBrush(brushes[1])
+            dc.DrawRectangle(0, 20+i*hscale, 10, hscale)
+            
         hprop = float(sz[1]) / float(self.maxlat - self.minlat)
         wprop = float(sz[0]) / float(self.maxlon - self.minlon)
         geo = wx.GetApp().GetTopWindow().geoicons
@@ -139,6 +162,10 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
             dc.DrawBitmap(locbmp, x, y)
+        
+        dc.SetFont(wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT))
+        dc.DrawText('%1.2fmi' % (wrange / 4), 20 + 4*wscale, 10)
+        dc.DrawText('%1.2fmi' % (hrange / 4), 10, 25+ 4*hscale)
         dc.SelectObject(wx.NullBitmap)
         self.bmp = bmp
         self.oldZoom = self.zoomLevel.GetValue()
