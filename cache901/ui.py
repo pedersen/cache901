@@ -300,6 +300,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnChangeSearch(self, evt):
         if len(self.search.GetValue()) > 2 or len(self.search.GetValue()) == 0:
             self.loadData()
+            self.search.SetFocus()
+            self.search.SetSelection(0, 0)
+            self.search.SetInsertionPointEnd()
 
     def OnAbout(self, evt):
         abt = cache901.ui_xrc.xrcAboutBox(self)
