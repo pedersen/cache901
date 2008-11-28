@@ -356,6 +356,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 self.caches.EnsureVisible(item)
         
     def forWingIde(self):
+        isinstance(self.mnuAddPhoto, wx.MenuItem)
+        isinstance(self.mnuClearNote, wx.MenuItem)
+        isinstance(self.mnuRemovePhoto, wx.MenuItem)
+        isinstance(self.mnuSaveNote, wx.MenuItem)
+        isinstance(self.btnSaveNotes, wx.Button)
         isinstance(self.cacheSiteIcon, wx.StaticBitmap)
         isinstance(self.cacheSiteName, wx.StaticText)
         isinstance(self.containerIcon, wx.StaticBitmap)

@@ -79,6 +79,7 @@ class xrcCache901UI(wx.Frame):
         self.encText = xrc.XRCCTRL(self, "encText")
         self.cacheNotes = xrc.XRCCTRL(self, "cacheNotes")
         self.currNotes = xrc.XRCCTRL(self, "currNotes")
+        self.btnSaveNotes = xrc.XRCCTRL(self, "btnSaveNotes")
         self.saveNotes = xrc.XRCCTRL(self, "saveNotes")
         self.undoNotes = xrc.XRCCTRL(self, "undoNotes")
         self.cachePics = xrc.XRCCTRL(self, "cachePics")
@@ -93,6 +94,10 @@ class xrcCache901UI(wx.Frame):
         else:
             self.CacheSearchMenu = self.GetMenuBar().FindItemById(xrc.XRCID("CacheSearchMenu")).GetSubMenu()
         self.showMap = self.GetMenuBar().FindItemById(xrc.XRCID("showMap"))
+        self.mnuSaveNote = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSaveNote"))
+        self.mnuClearNote = self.GetMenuBar().FindItemById(xrc.XRCID("mnuClearNote"))
+        self.mnuAddPhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuAddPhoto"))
+        self.mnuRemovePhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuRemovePhoto"))
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
@@ -1065,6 +1070,15 @@ def __init_resources():
                       <flag>wxEXPAND|wxGROW</flag>
                     </object>
                     <object class="sizeritem">
+                      <object class="wxButton" name="btnSaveNotes">
+                        <label>Save Notes</label>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                    </object>
+                    <object class="sizeritem">
                       <object class="wxBoxSizer">
                         <object class="sizeritem">
                           <object class="wxButton" name="saveNotes">
@@ -1172,6 +1186,34 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+      </object>
+      <object class="wxMenu">
+        <object class="wxMenuItem" name="mnuSaveNote">
+          <label>Save Notes</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuClearNote">
+          <label>Remove Notes</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="mnuAddPhoto">
+          <label>Add Photo</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuRemovePhoto">
+          <label>Remove Photo</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <label>Cache E&amp;xtras</label>
       </object>
       <object class="wxMenu">
         <label>&amp;Preferences</label>
@@ -15051,6 +15093,7 @@ def __gettext_strings():
     _("Travel Bugs")
     _("Encode / Decode Text")
     _("Logs")
+    _("Save Notes")
     _("&Save Notes")
     _("&Undo Changes")
     _("Notes")
@@ -15061,6 +15104,11 @@ def __gettext_strings():
     _("&Caches")
     _("&Search")
     _("Show Map of Caches")
+    _("Save Notes")
+    _("Remove Notes")
+    _("Add Photo")
+    _("Remove Photo")
+    _("Cache E&xtras")
     _("&Preferences")
     _("&Preferences")
     _("&Search Locations")
