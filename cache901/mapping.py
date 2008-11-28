@@ -17,7 +17,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# @todo: bug: with my 1490 caches, at zoom level 10, turbo exit
 # @todo: recenter map on clicking cache or search origin
 
 import wx
@@ -95,6 +94,10 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.mapPanel.Bind(wx.EVT_MOTION,      self.OnMoveMouse)
         
         self.zoomLevel.Bind(wx.EVT_SCROLL, self.OnChangeZoom)
+        
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectCache,  self.cacheList)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectSearch, self.originList)
+        
         self.oldZoom = None
         self.mapArea.SetScrollRate(20,20)
         
@@ -111,11 +114,11 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             wrange = 5.0 if wrange < 5.0 else wrange
             hrange = 5.0 if hrange < 5.0 else hrange
         elif zoom == 10:
-            wrange = 1.0
-            hrange = 1.0
+            wrange = 3.0
+            hrange = 3.0
         else:
-            wrange = wrange - ((((wrange - 1.0) / 9.0) * (zoom-1)) + 1.0)
-            hrange = hrange - ((((hrange - 1.0) / 9.0) * (zoom-1)) + 1.0)
+            wrange = wrange - ((((wrange - 3.0) / 9.0) * (zoom-1)) + 3.0)
+            hrange = hrange - ((((hrange - 3.0) / 9.0) * (zoom-1)) + 3.0)
         sz = self.mapArea.GetSize()
         sz.width  = int(sz.width /wrange*wdist+1)
         sz.height = int(sz.height/hrange*hdist+1)
@@ -148,7 +151,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         geo = wx.GetApp().GetTopWindow().geoicons
         for i, cache in enumerate(self.caches):
             x = int(wprop * (cache[4] - self.minlon))
-            y = int(hprop * (cache[3] - self.minlat))
+            y = sz[1] - int(hprop * (cache[3] - self.minlat))
             tbmpsz = geo[cache[5]].GetSize()
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
@@ -191,6 +194,12 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.updMap()
         self.Refresh()
         
+    def OnSelectCache(self, evt):
+        pass
+    
+    def OnSelectSearch(self, evt):
+        pass
+    
     def OnMapDoubleClick(self, evt):
         isinstance(evt, wx.MouseEvent)
         pos = evt.GetPosition()
