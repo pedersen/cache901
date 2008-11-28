@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# @todo: bug: with my 1490 caches, at zoom level 10, turbo exit
 # @todo: recenter map on clicking cache or search origin
 # @todo: add tooltip for currently selected cache
 # @todo: Add double-clicking to load a cache
@@ -128,21 +129,20 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
         dc.Clear()
         
-        hprop = float(sz[1]) / float(hrange)
-        wprop = float(sz[0]) / float(wrange)
-        hscale = int(hrange / 16.0 * hprop) # Screen size divided by 4, and then by 4 again for each bar
-        wscale = int(wrange / 16.0 * wprop) # Then multiplied by proportion to give accurate size
+        asz = self.mapArea.GetSizeTuple()
+        wbar = asz[0] / 16
+        hbar = asz[1] / 16
         blk = wx.Brush(wx.Colour(0, 0, 0))
         wht = wx.Brush(wx.Colour(255, 255, 255))
         brushes = [blk, wht]
         for i in range(4):
             dc.SetBackground(brushes[0])
             dc.SetBrush(brushes[1])
-            dc.DrawRectangle(10 + i*wscale, 10, wscale, 10)
+            dc.DrawRectangle(10 + i*wbar, 10, wbar, 10)
             brushes.reverse()
             dc.SetBackground(brushes[0])
             dc.SetBrush(brushes[1])
-            dc.DrawRectangle(0, 20+i*hscale, 10, hscale)
+            dc.DrawRectangle(0, 20+i*hbar, 10, hbar)
             
         hprop = float(sz[1]) / float(self.maxlat - self.minlat)
         wprop = float(sz[0]) / float(self.maxlon - self.minlon)
@@ -163,9 +163,13 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
             dc.DrawBitmap(locbmp, x, y)
         
+        hprop = float(sz[1]) / float(hrange) # pixels per mile
+        wprop = float(sz[0]) / float(wrange) # pixels per mile
+        #hscale = int(hrange / 16.0 * hprop) # Screen size divided by 4, and then by 4 again for each bar
+        #wscale = int(wrange / 16.0 * wprop) # Then multiplied by proportion to give accurate size
         dc.SetFont(wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT))
-        dc.DrawText('%1.2fmi' % (wrange / 4), 20 + 4*wscale, 10)
-        dc.DrawText('%1.2fmi' % (hrange / 4), 10, 25+ 4*hscale)
+        dc.DrawText('%1.2fmi' % (wrange / 4), 20 + 4*wbar, 10)
+        dc.DrawText('%1.2fmi' % (hrange / 4), 10, 25+ 4*hbar)
         dc.SelectObject(wx.NullBitmap)
         self.bmp = bmp
         self.oldZoom = self.zoomLevel.GetValue()
