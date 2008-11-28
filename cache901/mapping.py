@@ -17,8 +17,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# @todo: recenter map on clicking cache or search origin
-
 import wx
 
 import cache901
@@ -33,6 +31,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         cache901.ui_xrc.xrcMapUI.__init__(self, parent)
         self.parent = parent
         self.cacheids = caches
+        self.found = None
         self.parms = '(%s)' % (','.join(map(lambda x: '%d' % x, self.cacheids)), )
         
         cur = cache901.db().cursor()
@@ -58,7 +57,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.cacheList.DeleteAllColumns()
         self.cacheList.InsertColumn(0, "Cache Name", width=w)
         self.caches = []
-        cur.execute('select cache_id, url_name, name, lat, lon, type, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from caches where cache_id in %s' % self.parms)
+        cur.execute('select cache_id, url_name, name, lat, lon, type, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from caches where cache_id in %s order by url_name' % self.parms)
         for row in cur:
             r = []
             r.extend(row)
@@ -75,7 +74,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.originList.DeleteAllColumns()
         self.originList.InsertColumn(0, "Search Origin Name", width=w)
         self.searches = []
-        cur.execute('select name, lat, lon, wpt_id, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from locations where loc_type=2')
+        cur.execute('select name, lat, lon, wpt_id, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from locations where loc_type=2 order by name')
         for row in cur:
             r=[]
             r.extend(row)
@@ -99,7 +98,6 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectSearch, self.originList)
         
         self.oldZoom = None
-        self.mapArea.SetScrollRate(20,20)
         
     def updMap(self):
         # zoom 1 is all caches on-screen, minimum of 5 miles across horizontal
@@ -185,6 +183,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.oldZoom = self.zoomLevel.GetValue()
     
     def OnPaint(self, evt):
+        self.mapArea.SetScrollRate(20, 20)
         if self.oldZoom is None or self.oldZoom != self.zoomLevel.GetValue():
             self.updMap()
         paintdc = wx.PaintDC(self.mapPanel)
@@ -193,12 +192,35 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
     def OnChangeZoom(self, evt):
         self.updMap()
         self.Refresh()
-        
+
     def OnSelectCache(self, evt):
-        pass
+        cid = evt.GetData()
+        self.found = cid
+        idx = 0
+        while self.caches[idx][0] != cid: idx = idx+1
+        sz = self.mapArea.GetSize()
+        sz.width = sz.width/2
+        sz.height = sz.height/2
+        xpix = self.caches[idx][6]-sz.width
+        ypix = self.caches[idx][7]-sz.height
+        if xpix < 0: xpix = 0
+        if ypix < 0: ypix = 0
+        xscr, yscr = self.mapArea.GetScrollPixelsPerUnit()
+        self.mapArea.Scroll(xpix/xscr, ypix/yscr)
     
     def OnSelectSearch(self, evt):
-        pass
+        cid = evt.GetData()
+        idx = 0
+        while self.searches[idx][3] != cid: idx = idx+1
+        sz = self.mapArea.GetSize()
+        sz.width = sz.width/2
+        sz.height = sz.height/2
+        xpix = self.searches[idx][4]-sz.width
+        ypix = self.searches[idx][5]-sz.height
+        if xpix < 0: xpix = 0
+        if ypix < 0: ypix = 0
+        xscr, yscr = self.mapArea.GetScrollPixelsPerUnit()
+        self.mapArea.Scroll(xpix/xscr, ypix/yscr)
     
     def OnMapDoubleClick(self, evt):
         isinstance(evt, wx.MouseEvent)

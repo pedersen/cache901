@@ -17,8 +17,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# @todo: Add double-clicking to load a cache
-
 import sys
 import os
 import datetime
@@ -343,7 +341,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             cacheids.append(self.caches.GetItemData(i))
             i = i + 1
         mapui = cache901.mapping.MapUI(self, cacheids)
-        mapui.ShowModal()
+        if mapui.ShowModal() == wx.ID_OK:
+            cid = mapui.found
+            if cid is not None:
+                item = self.caches.GetFirstSelected()
+                while item != -1:
+                    self.caches.Select(item, 0)
+                    item = self.caches.GetNextSelected(item)
+                item = self.caches.FindItemData(0, cid)
+                self.caches.Select(item)
+                self.caches.EnsureVisible(item)
         
     def forWingIde(self):
         isinstance(self.cacheSiteIcon, wx.StaticBitmap)
