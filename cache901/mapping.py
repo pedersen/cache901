@@ -19,8 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 # @todo: bug: with my 1490 caches, at zoom level 10, turbo exit
 # @todo: recenter map on clicking cache or search origin
-# @todo: add tooltip for currently selected cache
-# @todo: Add double-clicking to load a cache
 
 import wx
 
@@ -61,7 +59,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.cacheList.DeleteAllColumns()
         self.cacheList.InsertColumn(0, "Cache Name", width=w)
         self.caches = []
-        cur.execute('select cache_id, url_name, name, lat, lon, type from caches where cache_id in %s' % self.parms)
+        cur.execute('select cache_id, url_name, name, lat, lon, type, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from caches where cache_id in %s' % self.parms)
         for row in cur:
             r = []
             r.extend(row)
@@ -78,7 +76,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.originList.DeleteAllColumns()
         self.originList.InsertColumn(0, "Search Origin Name", width=w)
         self.searches = []
-        cur.execute('select name, lat, lon, wpt_id from locations where loc_type=2')
+        cur.execute('select name, lat, lon, wpt_id, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from locations where loc_type=2')
         for row in cur:
             r=[]
             r.extend(row)
@@ -94,6 +92,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         
         self.mapPanel.Bind(wx.EVT_PAINT,       self.OnPaint)
         self.mapPanel.Bind(wx.EVT_LEFT_DCLICK, self.OnMapDoubleClick)
+        self.mapPanel.Bind(wx.EVT_MOTION,      self.OnMoveMouse)
         
         self.zoomLevel.Bind(wx.EVT_SCROLL, self.OnChangeZoom)
         self.oldZoom = None
@@ -153,6 +152,10 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             tbmpsz = geo[cache[5]].GetSize()
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
+            self.caches[i][6] = x
+            self.caches[i][7] = y
+            self.caches[i][8] = x+tbmpsz.width
+            self.caches[i][9] = y+tbmpsz.height
             dc.DrawBitmap(geo[cache[5]], x, y)
         locbmp = wx.BitmapFromImage(wx.ImageFromBitmap(geo["searchloc"]).Scale(16,16))
         tbmpsz = locbmp.GetSize()
@@ -161,6 +164,10 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             y = int(hprop * (loc[1] - self.minlat))
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
+            self.searches[i][4] = x
+            self.searches[i][5] = y
+            self.searches[i][6] = x+tbmpsz.width
+            self.searches[i][7] = y+tbmpsz.height
             dc.DrawBitmap(locbmp, x, y)
         
         hprop = float(sz[1]) / float(hrange) # pixels per mile
@@ -185,7 +192,33 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.Refresh()
         
     def OnMapDoubleClick(self, evt):
-        wx.MessageBox("Map doubleclicked!", "Debug")
+        isinstance(evt, wx.MouseEvent)
+        pos = evt.GetPosition()
+        x=pos.x
+        y=pos.y
+        self.found = None
+        for cache in self.caches:
+            if x >= cache[6] and x <= cache[8] and y >= cache[7] and y <= cache[9]:
+                self.mapPanel.SetToolTipString(cache[1])
+                self.found = cache[0]
+        if self.found is not None:
+            self.EndModal(wx.ID_OK)
+        
+    def OnMoveMouse(self, evt):
+        isinstance(evt, wx.MouseEvent)
+        pos = evt.GetPosition()
+        x=pos.x
+        y=pos.y
+        found = False
+        for cache in self.caches:
+            if x >= cache[6] and x <= cache[8] and y >= cache[7] and y <= cache[9]:
+                self.mapPanel.SetToolTipString(cache[1])
+                found = True
+        for search in self.searches:
+            if x >= search[4] and x <= search[6] and y >= search[5] and y <= search[7]:
+                self.mapPanel.SetToolTipString(search[0])
+                found = True
+        if not found: self.mapPanel.SetToolTipString('')
         
     def forWingIde(self):
         isinstance(self.mapArea,    wx.ScrolledWindow)
