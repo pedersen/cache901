@@ -66,6 +66,20 @@ class Cache(object):
         except cache901.InvalidID:
             pass
         
+        # Load note information
+        try:
+            self.note = cache901.dbobjects.Note(self.cache_id)
+        except cache901.InvalidID:
+            self.note = cache901.dbobjects.Note(-999999)
+            self.note.id = self.cache_id
+        
+        # Load PhotoList
+        try:
+            self.photolist = cache901.dbobjects.PhotoList(self.cache_id)
+        except:
+            self.photolist = cache901.dbobjects.PhotoList(-999999)
+            self.photolist.id = self.cache_id
+        
         # Load travelbug information
         self.bugs = []
         cur = cache901.db().cursor()
@@ -183,6 +197,31 @@ class TravelBug(object):
         cur.execute('delete from travelbugs where id=?', (self.id, ))
         cur.execute("insert into travelbugs(id, cache_id, name, ref) values(?,?,?,?)", (self.id, self.cache_id, self.name, self.ref))
 
+class Note(object):
+    def __init__(self, nid):
+        if nid < 0:
+            cur=cache901.db().cursor()
+            cur.execute('select min(cache_id) from notes')
+            row = cur.fetchone()
+            if row[0] is None:
+                nid = -1
+            else:
+                nid = row[0]-1
+            cur.execute("insert into notes(cache_id, note) values(?,'')", (nid, ))
+        cur = cache901.db().cursor()
+        cur.execute('select cache_id, note from notes where cache_id=?', (nid, ))
+        row = cur.fetchone()
+        if type(row) is tuple:
+            self.id = nid
+            self.note = row[1]
+        else:
+            raise cache901.InvalidID('Invalid Note ID: %d' % nid)
+
+    def Save(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from notes where cache_id=?', (self.id, ))
+        cur.execute("insert into notes(cache_id, note) values(?,?)", (self.id, self.note))
+
 class Hint(object):
     def __init__(self, hid):
         if hid < 0:
@@ -207,3 +246,33 @@ class Hint(object):
         cur = cache901.db().cursor()
         cur.execute('delete from hints where cache_id=?', (self.id, ))
         cur.execute("insert into hints(cache_id, hint) values(?,?)", (self.id, self.hint))
+
+class PhotoList(object):
+    def __init__(self, plid):
+        self.names = []
+        if plid < 0:
+            cur=cache901.db().cursor()
+            cur.execute('select min(cache_id) from photos')
+            row = cur.fetchone()
+            if row[0] is None:
+                plid = -1
+            else:
+                plid = row[0]-1
+            cur.execute("insert into photos(cache_id, photofile) values(?,'')", (plid, ))
+        cur = cache901.db().cursor()
+        cur.execute('select cache_id, photofile from photos where cache_id=? order by photofile', (plid, ))
+        rowcount = 0
+        for row in cur:
+            if type(row) is tuple:
+                self.id = plid
+                rowcount = rowcount + 1
+                if row[1] != "":
+                    self.names.append(row[1])
+        if rowcount <= 0:
+            raise cache901.InvalidID('Invalid PhotoList ID: %d' % plid)
+
+    def Save(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from photos where cache_id=?', (self.id, ))
+        for f in self.names:
+            cur.execute("insert into photos(cache_id, photofile) values(?,?)", (self.id, f))

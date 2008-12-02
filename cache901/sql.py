@@ -27,7 +27,6 @@ import cache901.sql
 
 statements_v001 = [
     "CREATE TABLE version (version integer)",
-    "INSERT INTO version(version) values(1)",
     """
     CREATE TABLE categories (
         catid integer primary key autoincrement,
@@ -153,8 +152,20 @@ statements_v002 = [
         )
     """,
     "CREATE INDEX searches_name ON searches(name)",
-    "DELETE FROM version",
-    "INSERT INTO version(version) values(2)"
+    """
+    CREATE TABLE notes (
+        cache_id integer,
+        note     text
+        )
+    """,
+    "CREATE INDEX notes_id ON notes(cache_id)",
+    """
+    CREATE TABLE photos (
+        cache_id  integer,
+        photofile text
+        )
+    """,
+    "CREATE INDEX photos_id ON photos(cache_id)",
     ]
 
 allstatements = sorted(filter(lambda x: x.startswith("statements_v"), globals()))
@@ -179,10 +190,16 @@ def prepdb(dbname, debug=False):
         for stgrp in allstatements[allstatements.index(vname)+1:]:
             stmts = globals()[stgrp]
             sqlexec(con, stmts, debug)
+            vnum = int(stgrp[-3:])
+            cur.execute("DELETE FROM version")
+            cur.execute("INSERT INTO version(version) VALUES(?)", (vnum, ))
     except sqlite.OperationalError:
         for stgrp in allstatements:
             stmts = globals()[stgrp]
             sqlexec(con, stmts, debug)
+            vnum = int(stgrp[-3:])
+            cur.execute("DELETE FROM version")
+            cur.execute("INSERT INTO version(version) VALUES(?)", (vnum, ))
     cur.execute("vacuum")
     cur.execute("analyze")
     return con

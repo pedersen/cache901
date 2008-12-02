@@ -735,15 +735,6 @@
                       <flag>wxEXPAND|wxGROW</flag>
                     </object>
                     <object class="sizeritem">
-                      <object class="wxButton" name="btnSaveNotes">
-                        <label>Save Notes</label>
-                        <XRCED>
-                          <assign_var>1</assign_var>
-                        </XRCED>
-                      </object>
-                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-                    </object>
-                    <object class="sizeritem">
                       <object class="wxBoxSizer">
                         <object class="sizeritem">
                           <object class="wxButton" name="saveNotes">
@@ -790,7 +781,7 @@
                     </object>
                     <object class="sizeritem">
                       <object class="wxListCtrl" name="photoList">
-                        <style>wxLC_ICON|wxLC_AUTOARRANGE|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
+                        <style>wxLC_ICON|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
                         <XRCED>
                           <assign_var>1</assign_var>
                         </XRCED>
@@ -838,7 +829,6 @@
         </object>
       </object>
       <object class="wxMenu">
-        <label>&amp;Caches</label>
         <object class="wxMenu" name="CacheSearchMenu">
           <label>&amp;Search</label>
           <XRCED>
@@ -851,8 +841,7 @@
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-      </object>
-      <object class="wxMenu">
+        <object class="separator"/>
         <object class="wxMenuItem" name="mnuSaveNote">
           <label>Save Notes</label>
           <XRCED>
@@ -878,7 +867,7 @@
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        <label>Cache E&amp;xtras</label>
+        <label>&amp;Cache</label>
       </object>
       <object class="wxMenu">
         <label>&amp;Preferences</label>

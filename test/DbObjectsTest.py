@@ -318,6 +318,52 @@ class TravelBugTest(unittest.TestCase):
         self.failUnless(b.name == "The Worst Bug")
         self.failUnless(b.ref == "refbug")
 
+class NoteTest(unittest.TestCase):
+    def setUp(self):
+        cur = cache901.db().cursor()
+        cur.execute("delete from locations")
+        cur.execute("delete from caches")
+        cur.execute("delete from travelbugs")
+        cur.execute("delete from logs")
+        cur.execute("delete from hints")
+        cur.execute("delete from notes")
+        cache901.db().commit()
+
+        self.note = "Best Note Ever!"
+        self.noteid = 101
+
+    def testInitInvalidID(self):
+        try:
+            c = dbo.Note(101)
+            self.fail("Note made with invalid ID")
+        except cache901.InvalidID, e:
+            pass
+
+    def testInitValidID(self):
+        cur = cache901.db().cursor()
+        cur.execute("insert into notes(cache_id, note) values(?,?)", (self.noteid, self.note))
+        
+        h = dbo.Note(101)
+        self.failUnless(h.id == 101)
+        self.failUnless(h.note == "Best Note Ever!")
+
+    def testMakeNewId(self):
+        h = dbo.Note(-999)
+        self.failUnless(h.id == -1)
+        self.failUnless(h.note == "")
+
+    def testSave(self):
+        cur = cache901.db().cursor()
+        cur.execute("insert into notes(cache_id, note) values(?,?)", (self.noteid, self.note))
+
+        h = dbo.Note(101)
+        h.note = "The Worst Note"
+        h.Save()
+        del h
+        h = dbo.Note(101)
+        self.failUnless(h.id == 101)
+        self.failUnless(h.note == "The Worst Note")
+
 class HintTest(unittest.TestCase):
     def setUp(self):
         cur = cache901.db().cursor()
@@ -334,7 +380,7 @@ class HintTest(unittest.TestCase):
     def testInitInvalidID(self):
         try:
             c = dbo.Hint(101)
-            self.fail("int made with invalid ID")
+            self.fail("Hint made with invalid ID")
         except cache901.InvalidID, e:
             pass
 
@@ -362,6 +408,56 @@ class HintTest(unittest.TestCase):
         h = dbo.Hint(101)
         self.failUnless(h.id == 101)
         self.failUnless(h.hint == "The Worst Hint")
+
+class PhotoListTest(unittest.TestCase):
+    def setUp(self):
+        cur = cache901.db().cursor()
+        cur.execute("delete from locations")
+        cur.execute("delete from caches")
+        cur.execute("delete from travelbugs")
+        cur.execute("delete from logs")
+        cur.execute("delete from hints")
+        cur.execute("delete from photos")
+        cache901.db().commit()
+        
+        self.plist = ['a', 'b', 'c']
+        self.cache_id = 101
+        
+    def testInitInvalidID(self):
+        try:
+            pl = dbo.PhotoList(101)
+            self.fail("PhotoList made with Invalid ID!")
+        except cache901.InvalidID, e:
+            pass
+    
+    def testInitValidID(self):
+        cur = cache901.db().cursor()
+        for i in self.plist:
+            cur.execute('insert into photos(cache_id, photofile) values(?, ?)', (self.cache_id, i))
+        
+        pl = dbo.PhotoList(self.cache_id)
+        self.failUnless(pl.id == self.cache_id)
+        self.failUnless(pl.names == sorted(self.plist))
+    
+    def testMakeNewId(self):
+        pl = dbo.PhotoList(-1)
+        self.failUnless(pl.id == -1)
+        self.failUnless(pl.names == [])
+    
+    def testSave(self):
+        cur = cache901.db().cursor()
+        for i in self.plist:
+            cur.execute('insert into photos(cache_id, photofile) values(?, ?)', (self.cache_id, i))
+        
+        pl = dbo.PhotoList(self.cache_id)
+        pl.names.append('d')
+        pl.names.append('efg')
+        pl.Save()
+        del pl
+        
+        pl = dbo.PhotoList(self.cache_id)
+        self.failUnless(pl.id == self.cache_id)
+        self.failUnless(pl.names == ['a', 'b', 'c', 'd', 'efg'])
 
 class AttributeTest(unittest.TestCase):
     """

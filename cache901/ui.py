@@ -17,9 +17,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-import sys
-import os
 import datetime
+import os
+import os.path
+import shutil
+import sys
 from urlparse import urlparse
 
 import wx
@@ -60,19 +62,26 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
 
         self.Bind(wx.EVT_CLOSE,  self.OnClose)
 
-        self.Bind(wx.EVT_MENU,   self.OnClose,      self.mnuFileExit)
-        self.Bind(wx.EVT_MENU,   self.OnImportFile, self.mnuFileImport)
-        self.Bind(wx.EVT_MENU,   self.OnAbout,      self.mnuHelpAbout)
-        self.Bind(wx.EVT_MENU,   self.OnSearchLocs, self.mnuFileLocs)
-        self.Bind(wx.EVT_MENU,   self.OnPrefs,      self.mnuFilePrefs)
-        self.Bind(wx.EVT_MENU,   self.OnShowMap,    self.showMap)
+        self.Bind(wx.EVT_MENU,   self.OnClose,       self.mnuFileExit)
+        self.Bind(wx.EVT_MENU,   self.OnImportFile,  self.mnuFileImport)
+        self.Bind(wx.EVT_MENU,   self.OnAbout,       self.mnuHelpAbout)
+        self.Bind(wx.EVT_MENU,   self.OnSearchLocs,  self.mnuFileLocs)
+        self.Bind(wx.EVT_MENU,   self.OnPrefs,       self.mnuFilePrefs)
+        self.Bind(wx.EVT_MENU,   self.OnShowMap,     self.showMap)
+        self.Bind(wx.EVT_MENU,   self.OnAddPhoto,    self.mnuAddPhoto)
+        self.Bind(wx.EVT_MENU,   self.OnRemovePhoto, self.mnuRemovePhoto)
+        self.Bind(wx.EVT_MENU,   self.OnSaveNotes,   self.mnuSaveNote)
+        self.Bind(wx.EVT_MENU,   self.OnClearNotes,  self.mnuClearNote)
 
-        self.Bind(wx.EVT_BUTTON, self.OnHintsToggle, self.hintsCoding)
-        self.Bind(wx.EVT_BUTTON, self.OnLogToggle,   self.encText)
+        self.Bind(wx.EVT_BUTTON, self.OnHintsToggle,     self.hintsCoding)
+        self.Bind(wx.EVT_BUTTON, self.OnLogToggle,       self.encText)
+        self.Bind(wx.EVT_BUTTON, self.OnSaveNotes,       self.saveNotes)
+        self.Bind(wx.EVT_BUTTON, self.OnUndoNoteChanges, self.undoNotes)
 
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadCache, self.caches)
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadWpt,   self.points)
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadLog,   self.logList)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadCache,   self.caches)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadWpt,     self.points)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadLog,     self.logList)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSwitchPhoto, self.photoList)
 
         self.search.Bind(wx.EVT_KEY_UP, self.OnChangeSearch)
 
@@ -96,7 +105,24 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.points.InsertColumn(1, "Wpt Desc", width=w)
         self.loadData()
         self.updSearchMenu()
+        self.updPhotoList()
 
+    def updPhotoList(self):
+        if not hasattr(self, "photoImageList"):
+            self.photoImageList = wx.ImageList(64, 64, True)
+            self.photoList.AssignImageList(self.photoImageList, wx.IMAGE_LIST_NORMAL)
+        self.photoList.DeleteAllItems()
+        self.photoImageList.RemoveAll()
+        self.currPhoto.SetBitmap(wx.NullBitmap)
+
+        if self.ld_cache is not None:
+            for fname in self.ld_cache.photolist.names:
+                cache901.notify('Retreiving photo %s' % fname)
+                img = wx.BitmapFromImage(wx.Image(os.sep.join([cache901.dbpath, fname])).Scale(64, 64))
+                pnum = self.photoImageList.Add(img)
+                self.photoList.InsertImageItem(pnum, pnum)
+            self.photoList.Select(0)
+    
     def updSearchMenu(self):
         for item in self.CacheSearchMenu.GetMenuItems():
             self.CacheSearchMenu.RemoveItem(item)
@@ -130,7 +156,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.points.SetItemData(wpt_id, row[0])
 
         self.ld_cache = None
-        self.updStatus()
 
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
@@ -178,6 +203,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.logType.SetValue("")
         self.logMine.SetValue(False)
         self.logMineFound.SetValue(False)
+        # set up notes
+        self.currNotes.SetValue("")
+        # set up photos
+        self.updPhotoList()
         self.cacheSiteIcon.SetBitmap(self.geoicons["Unknown"])
         self.cacheSiteName.SetLabel("")
         self.waypointId.SetLabel("")
@@ -232,6 +261,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.logType.SetValue("")
         self.logMine.SetValue(False)
         self.logMineFound.SetValue(False)
+        self.currNotes.SetValue(self.ld_cache.note.note)
+        self.updPhotoList()
         cn = urlparse(self.ld_cache.url)[1]
         bmp = wx.ImageFromBitmap(self.geoicons[cn]).Scale(16,16)
         self.cacheSiteIcon.SetBitmap(wx.BitmapFromImage(bmp))
@@ -296,6 +327,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 cache901.notify('Completed processing %s' % path)
             cache901.dbm.scrub()
             self.loadData()
+        self.updStatus()
 
     def OnChangeSearch(self, evt):
         if len(self.search.GetValue()) > 2 or len(self.search.GetValue()) == 0:
@@ -354,13 +386,70 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 item = self.caches.FindItemData(0, cid)
                 self.caches.Select(item)
                 self.caches.EnsureVisible(item)
+        self.updStatus()
         
+    def OnClearNotes(self, evt):
+        if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
+            self.currNotes.SetValue("")
+            self.ld_cache.note.note = ""
+            self.ld_cache.note.Save()
+            cache901.db().commit()
+    
+    def OnSaveNotes(self, evt):
+        self.ld_cache.note.note = self.currNotes.GetValue()
+        self.ld_cache.note.Save()
+        cache901.db().commit()
+    
+    def OnUndoNoteChanges(self, evt):
+        if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
+            self.currNotes.SetValue(self.ld_cache.note.note)
+        
+    def OnAddPhoto(self, evt):
+        fdg = wx.FileDialog(self, "Select Image File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="Photo Files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|All Files (*.*)|*.*")
+        cfg = wx.Config.Get()
+        isinstance(cfg, wx.Config)
+        cfg.SetPath("/Files")
+        if cfg.HasEntry("LastPhotoDir"):
+            fdg.SetDirectory(cfg.Read("LastPhotoDir"))
+        if fdg.ShowModal() == wx.ID_OK:
+            cfg.Write("LastPhotoDir", fdg.GetDirectory())
+            for fname in fdg.GetPaths():
+                dest = os.path.split(fname)[1]
+                idx = 0
+                while os.path.exists(os.sep.join([cache901.dbpath, dest])):
+                    dest = "%06d-%s" % (idx, dest)
+                fulldest = os.sep.join([cache901.dbpath, dest])
+                cache901.notify('Copying file %s to %s' % (fname, fulldest))
+                shutil.copyfile(fname, fulldest)
+                self.ld_cache.photolist.names.append(dest)
+            self.ld_cache.photolist.Save()
+            cache901.db().commit()
+        self.updPhotoList()
+        self.updStatus()
+    
+    def OnSwitchPhoto(self, evt):
+        idx = evt.GetImage()
+        fname = os.sep.join([cache901.dbpath, self.ld_cache.photolist.names[idx]])
+        sz = self.currPhoto.GetSize()
+        self.currPhoto.SetBitmap(wx.BitmapFromImage(wx.Image(fname).Scale(sz.width, sz.height, wx.IMAGE_QUALITY_HIGH)))
+        self.updStatus()
+        
+    
+    def OnRemovePhoto(self, evt):
+        if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
+            idx = self.photoList.GetFirstSelected()
+            fname = os.sep.join([cache901.dbpath, self.ld_cache.photolist.names[idx]])
+            os.unlink(fname)
+            del self.ld_cache.photolist.names[idx]
+            self.ld_cache.photolist.Save()
+            cache901.db().commit()
+            self.updPhotoList()
+    
     def forWingIde(self):
         isinstance(self.mnuAddPhoto, wx.MenuItem)
         isinstance(self.mnuClearNote, wx.MenuItem)
         isinstance(self.mnuRemovePhoto, wx.MenuItem)
         isinstance(self.mnuSaveNote, wx.MenuItem)
-        isinstance(self.btnSaveNotes, wx.Button)
         isinstance(self.cacheSiteIcon, wx.StaticBitmap)
         isinstance(self.cacheSiteName, wx.StaticText)
         isinstance(self.containerIcon, wx.StaticBitmap)
