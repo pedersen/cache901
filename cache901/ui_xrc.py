@@ -77,6 +77,7 @@ class xrcCache901UI(wx.Frame):
         self.travelbugs = xrc.XRCCTRL(self, "travelbugs")
         self.logEntry = xrc.XRCCTRL(self, "logEntry")
         self.encText = xrc.XRCCTRL(self, "encText")
+        self.saveLogs = xrc.XRCCTRL(self, "saveLogs")
         self.cacheNotes = xrc.XRCCTRL(self, "cacheNotes")
         self.currNotes = xrc.XRCCTRL(self, "currNotes")
         self.saveNotes = xrc.XRCCTRL(self, "saveNotes")
@@ -93,6 +94,7 @@ class xrcCache901UI(wx.Frame):
         else:
             self.CacheSearchMenu = self.GetMenuBar().FindItemById(xrc.XRCID("CacheSearchMenu")).GetSubMenu()
         self.showMap = self.GetMenuBar().FindItemById(xrc.XRCID("showMap"))
+        self.mnuLogThisCache = self.GetMenuBar().FindItemById(xrc.XRCID("mnuLogThisCache"))
         self.mnuSaveNote = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSaveNote"))
         self.mnuClearNote = self.GetMenuBar().FindItemById(xrc.XRCID("mnuClearNote"))
         self.mnuAddPhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuAddPhoto"))
@@ -1025,14 +1027,29 @@ def __init_resources():
                               <flag>wxEXPAND|wxGROW</flag>
                             </object>
                             <object class="sizeritem">
-                              <object class="wxButton" name="encText">
-                                <label>Encode / Decode Text</label>
-                                <XRCED>
-                                  <assign_var>1</assign_var>
-                                </XRCED>
+                              <object class="wxBoxSizer">
+                                <object class="sizeritem">
+                                  <object class="wxButton" name="encText">
+                                    <label>Encode / Decode Text</label>
+                                    <XRCED>
+                                      <assign_var>1</assign_var>
+                                    </XRCED>
+                                  </object>
+                                </object>
+                                <object class="sizeritem">
+                                  <object class="wxButton" name="saveLogs">
+                                    <label>Save Log</label>
+                                    <enabled>0</enabled>
+                                    <XRCED>
+                                      <assign_var>1</assign_var>
+                                    </XRCED>
+                                  </object>
+                                </object>
+                                <orient>wxHORIZONTAL</orient>
                               </object>
                               <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                             </object>
+                            
                             <orient>wxVERTICAL</orient>
                           </object>
                         </object>
@@ -1176,6 +1193,12 @@ def __init_resources():
           </XRCED>
         </object>
         <object class="separator"/>
+        <object class="wxMenuItem" name="mnuLogThisCache">
+          <label>Log This Cache</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <object class="wxMenuItem" name="mnuSaveNote">
           <label>Save Notes</label>
           <XRCED>
@@ -1188,7 +1211,7 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        <object class="separator"/>
+        
         <object class="wxMenuItem" name="mnuAddPhoto">
           <label>Add Photo</label>
           <XRCED>
@@ -15080,6 +15103,7 @@ def __gettext_strings():
     _("Log Entries")
     _("Travel Bugs")
     _("Encode / Decode Text")
+    _("Save Log")
     _("Logs")
     _("&Save Notes")
     _("&Undo Changes")
@@ -15090,6 +15114,7 @@ def __gettext_strings():
     _("E&xit")
     _("&Search")
     _("Show Map of Caches")
+    _("Log This Cache")
     _("Save Notes")
     _("Remove Notes")
     _("Add Photo")

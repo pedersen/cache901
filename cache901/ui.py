@@ -22,6 +22,7 @@ import os
 import os.path
 import shutil
 import sys
+import time
 from urlparse import urlparse
 
 import wx
@@ -72,11 +73,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnRemovePhoto, self.mnuRemovePhoto)
         self.Bind(wx.EVT_MENU,   self.OnSaveNotes,   self.mnuSaveNote)
         self.Bind(wx.EVT_MENU,   self.OnClearNotes,  self.mnuClearNote)
+        self.Bind(wx.EVT_MENU,   self.OnLogCache,    self.mnuLogThisCache)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle,     self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,       self.encText)
         self.Bind(wx.EVT_BUTTON, self.OnSaveNotes,       self.saveNotes)
         self.Bind(wx.EVT_BUTTON, self.OnUndoNoteChanges, self.undoNotes)
+        self.Bind(wx.EVT_BUTTON, self.OnSaveLog,         self.saveLogs)
 
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadCache,   self.caches)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadWpt,     self.points)
@@ -310,6 +313,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.logType.SetValue(log.type)
         self.logMine.SetValue(log.my_log)
         self.logMineFound.SetValue(log.my_log_found)
+        self.saveLogs.Enable(log.my_log)
 
     def OnImportFile(self, evt):
         fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX Files (*.gpx)|*.gpx|All Files (*.*)|*.*")
@@ -445,6 +449,38 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             cache901.db().commit()
             self.updPhotoList()
     
+    def OnLogCache(self, evt):
+        log = cache901.dbobjects.Log(-99999999)
+        log.cache_id = self.ld_cache.cache_id
+        log.my_log = True
+        log.date = time.mktime(datetime.datetime.now().timetuple())
+        if time.daylight:
+            log.date -= time.altzone
+        else:
+            log.date -= time.timezone
+        log.Save()
+        cache901.db().commit()
+        iid = self.caches.GetFirstSelected()
+        self.caches.Select(iid, 0)
+        self.caches.Select(iid, 1)
+        self.logList.Select(0)
+    
+    def OnSaveLog(self, evt):
+        log = cache901.dbobjects.Log(self.logList.GetItemData(self.logList.GetFirstSelected()))
+        log.log_entry = self.logEntry.GetValue()
+        log.type = self.logType.GetValue()
+        log.my_log_found = self.logMineFound.GetValue()
+    
+        (year, mon, day)=map(lambda x: int(x), self.logDate.GetValue().split('-'))
+        d = datetime.datetime(year, mon, day, 0, 0, 0)
+        log.date = time.mktime(d.timetuple())
+        if time.daylight:
+            log.date -= time.altzone
+        else:
+            log.date -= time.timezone
+        log.Save()
+        cache901.db().commit()
+                        
     def forWingIde(self):
         isinstance(self.mnuAddPhoto, wx.MenuItem)
         isinstance(self.mnuClearNote, wx.MenuItem)
@@ -497,6 +533,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.currPhoto, wx.StaticBitmap)
         isinstance(self.photoList, wx.ListCtrl)
         isinstance(self.CacheSearchMenu, wx.Menu)
+        isinstance(self.saveLogs, wx.Button)
+        isinstance(self.mnuLogThisCache, wx.MenuItem)
 
 class geoicons(cache901.ui_xrc.xrcgeoIcons):
     def __init__(self):
