@@ -111,7 +111,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.points.InsertColumn(0, "Wpt Name", width=w)
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.points.InsertColumn(1, "Wpt Desc", width=w)
+        
         self.pop = None
+        self.ld_cache = None
+        
         self.loadData()
         self.updSearchMenu()
         self.updPhotoList()
@@ -164,8 +167,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for row in cache901.util.getWaypoints(self.search.GetValue()):
             wpt_id = self.points.Append((row[1], row[2]))
             self.points.SetItemData(wpt_id, row[0])
-
-        self.ld_cache = None
 
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
@@ -244,6 +245,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Layout()
 
     def OnLoadWpt(self, evt):
+        iid = self.caches.GetFirstSelected()
+        while iid != -1:
+            self.caches.Select(iid, 0)
+            iid = self.caches.GetFirstSelected()
         self.clearAllGui()
         self.ld_cache = cache901.dbobjects.Waypoint(evt.GetData())
         self.waypointId.SetLabel(self.ld_cache.name)
@@ -255,6 +260,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.cacheDescLong.SetPage('<p>' + self.ld_cache.comment.replace('\n', '</p><p>') + '</p>')
 
     def OnLoadCache(self, evt):
+        iid = self.points.GetFirstSelected()
+        while iid != -1:
+            self.points.Select(iid, 0)
+            iid = self.points.GetFirstSelected()
         self.ld_cache = cache901.dbobjects.Cache(evt.GetData())
         # Set up travel bug listings
         self.travelbugs.DeleteAllItems()
@@ -461,10 +470,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         log.cache_id = self.ld_cache.cache_id
         log.my_log = True
         log.date = time.mktime(datetime.datetime.now().timetuple())
-        if time.daylight:
-            log.date -= time.altzone
-        else:
-            log.date -= time.timezone
         log.Save()
         cache901.db().commit()
         iid = self.caches.GetFirstSelected()
