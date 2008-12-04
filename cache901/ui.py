@@ -25,6 +25,7 @@ import sys
 import time
 from urlparse import urlparse
 
+import gpsbabel
 import wx
 import wx.xrc as xrc
 import wx.html
@@ -62,6 +63,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.search.SetFont(font)
 
         self.Bind(wx.EVT_CLOSE,  self.OnClose)
+        
+        self.caches.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuCaches)
+        self.points.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuWpts)
 
         self.Bind(wx.EVT_MENU,   self.OnClose,       self.mnuFileExit)
         self.Bind(wx.EVT_MENU,   self.OnImportFile,  self.mnuFileImport)
@@ -74,6 +78,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnSaveNotes,   self.mnuSaveNote)
         self.Bind(wx.EVT_MENU,   self.OnClearNotes,  self.mnuClearNote)
         self.Bind(wx.EVT_MENU,   self.OnLogCache,    self.mnuLogThisCache)
+        self.Bind(wx.EVT_MENU,   self.OnSendToGPS,   self.mnuSendToGPS)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle,     self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,       self.encText)
@@ -106,6 +111,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.points.InsertColumn(0, "Wpt Name", width=w)
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.points.InsertColumn(1, "Wpt Desc", width=w)
+        self.pop = None
         self.loadData()
         self.updSearchMenu()
         self.updPhotoList()
@@ -153,6 +159,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for row in cache901.search.execSearch(params):
             cache_id = self.caches.Append((row[1], row[2], row[3], row[4]))
             self.caches.SetItemData(cache_id, row[0])
+        self.caches.Select(0)
 
         for row in cache901.util.getWaypoints(self.search.GetValue()):
             wpt_id = self.points.Append((row[1], row[2]))
@@ -481,7 +488,44 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         log.Save()
         cache901.db().commit()
                         
+    def OnPopupMenu(self, evt):
+        mnu = cache901.ui_xrc.xrcCwMenu()
+        mnu.Bind(wx.EVT_MENU, self.OnSendToGPS, mnu.popSendToGPS)
+        self.PopupMenu(mnu)
+        mnu.Destroy()
+    
+    def OnPopupMenuCaches(self, evt):
+        self.pop = self.caches
+        self.OnPopupMenu(evt)
+        
+    def OnPopupMenuWpts(self, evt):
+        self.pop = self.points
+        self.OnPopupMenu(evt)
+        
+    def OnSendToGPS(self, evt):
+        isinstance(evt, wx.CommandEvent)
+        win = evt.GetEventObject()
+        isinstance(win, wx.Menu)
+        print type(win.GetInvokingWindow())
+        #print type(evt.GetEventObject().GetParent())
+        cfg = wx.Config.Get()
+        cfg.SetPath('/PerMachine')
+        if self.pop == self.caches:
+            cache = cache901.dbobjects.Cache(self.caches.GetItemData(self.caches.GetFirstSelected()))
+            ctp = 'cache'
+        else:
+            cache = cache901.dbobjects.Waypoint(self.points.GetItemData(self.points.GetFirstSelected()))
+            ctp = 'waypoint'
+        gpx = cache901.util.CacheToGPX(cache)
+        cache901.notify('Sending %s "%s" to GPS' % (ctp, cache.name))
+        gpsbabel.gps.setInGpx(gpx)
+        gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, parseOutput=False)
+        self.pop = None
+        self.updStatus()
+    
     def forWingIde(self):
+        isinstance(cache901.ui_xrc.xrcCwMenu.popSendToGPS)
+        isinstance(self.mnuSendToGPS, wx.MenuItem)
         isinstance(self.mnuAddPhoto, wx.MenuItem)
         isinstance(self.mnuClearNote, wx.MenuItem)
         isinstance(self.mnuRemovePhoto, wx.MenuItem)

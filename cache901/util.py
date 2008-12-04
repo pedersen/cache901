@@ -28,6 +28,8 @@ import wx
 from decimal import Decimal, InvalidOperation
 
 import cache901
+import cache901.dbobjects
+import gpsbabel
 
 degsym = u'\u00B0'
 
@@ -209,6 +211,17 @@ def getSearchLocs(searchpat=None):
     cur.execute(query, params)
     for row in cur:
         yield row
+
+def CacheToGPX(cache):
+    gpx = gpsbabel.GPXData()
+    wpt = gpsbabel.GPXWaypoint()
+    wpt.lat = cache.lat
+    wpt.lon = cache.lon
+    wpt.name = cache.name
+    wpt.cmt = cache.name
+    wpt.desc = cache.name
+    gpx.wpts.append(wpt)
+    return gpx
 
 class InvalidDegFormat(Exception):
     pass

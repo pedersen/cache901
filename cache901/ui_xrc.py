@@ -99,6 +99,7 @@ class xrcCache901UI(wx.Frame):
         self.mnuClearNote = self.GetMenuBar().FindItemById(xrc.XRCID("mnuClearNote"))
         self.mnuAddPhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuAddPhoto"))
         self.mnuRemovePhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuRemovePhoto"))
+        self.mnuSendToGPS = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSendToGPS"))
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
@@ -231,6 +232,16 @@ class xrcOptionsUI(wx.Dialog):
         self.longitude = xrc.XRCCTRL(self, "longitude")
         self.addLoc = xrc.XRCCTRL(self, "addLoc")
         self.getFromGPS = xrc.XRCCTRL(self, "getFromGPS")
+        self.cacheday = xrc.XRCCTRL(self, "cacheday")
+        self.cacheDays = xrc.XRCCTRL(self, "cacheDays")
+        self.addCacheDay = xrc.XRCCTRL(self, "addCacheDay")
+        self.remCacheDay = xrc.XRCCTRL(self, "remCacheDay")
+        self.cachesForDay = xrc.XRCCTRL(self, "cachesForDay")
+        self.upCache = xrc.XRCCTRL(self, "upCache")
+        self.remCache = xrc.XRCCTRL(self, "remCache")
+        self.addCache = xrc.XRCCTRL(self, "addCache")
+        self.downCache = xrc.XRCCTRL(self, "downCache")
+        self.availCaches = xrc.XRCCTRL(self, "availCaches")
 
 
 
@@ -322,6 +333,30 @@ class xrcMapUI(wx.Dialog):
         self.mapArea = xrc.XRCCTRL(self, "mapArea")
         self.mapPanel = xrc.XRCCTRL(self, "mapPanel")
 
+
+
+class xrcCwMenu(wx.Menu):
+    def __init__(self):
+        pre = get_resources().LoadMenu("CwMenu")
+
+        # This is a copy of Robin's PostCreate voodoo magic in wx.Window that
+        # relinks the self object with the menu object.
+        self.this = pre.this
+        self.thisown = pre.thisown
+        pre.thisown = 0
+        if hasattr(self, '_setOORInfo'):
+            self._setOORInfo(self)
+
+        # Define variables for the menu items
+        self.popSendToGPS = self.FindItemById(xrc.XRCID("popSendToGPS"))
+
+        self.Bind(wx.EVT_MENU, self.OnMenu)
+
+#!XRCED:begin-block:xrcCwMenu.OnMenu
+    def OnMenu(self, evt):
+        # Replace with event handler code
+        print "OnMenu()"
+#!XRCED:end-block:xrcCwMenu.OnMenu        
 
 
 
@@ -1224,6 +1259,12 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuSendToGPS">
+          <label>Send To GPS</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <label>&amp;Cache</label>
       </object>
       <object class="wxMenu">
@@ -1719,6 +1760,153 @@ http://www.justwill.com/</value>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
+          <object class="notebookpage">
+            <object class="wxPanel" name="cacheday">
+              <object class="wxBoxSizer">
+                <orient>wxHORIZONTAL</orient>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Cache Day(s)</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxListCtrl" name="cacheDays">
+                        <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <option>1</option>
+                      <flag>wxEXPAND|wxGROW</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxButton" name="addCacheDay">
+                            <label>Add</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>3,3</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="remCacheDay">
+                            <label>Delete</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                    </object>
+                    <orient>wxVERTICAL</orient>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>The Caches</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxListCtrl" name="cachesForDay">
+                        <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <option>1</option>
+                      <flag>wxEXPAND|wxGROW</flag>
+                    </object>
+                    <orient>wxVERTICAL</orient>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxGridSizer">
+                    <object class="spacer"/>
+                    <object class="sizeritem">
+                      <object class="wxBitmapButton" name="upCache">
+                        <bitmap stock_id="wxART_GO_UP"/>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                    </object>
+                    <object class="spacer"/>
+                    <object class="sizeritem">
+                      <object class="wxBitmapButton" name="remCache">
+                        <bitmap stock_id="wxART_DEL_BOOKMARK"/>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                    </object>
+                    <object class="spacer"/>
+                    <object class="sizeritem">
+                      <object class="wxBitmapButton" name="addCache">
+                        <bitmap stock_id="wxART_ADD_BOOKMARK"/>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                    </object>
+                    <object class="spacer"/>
+                    <object class="sizeritem">
+                      <object class="wxBitmapButton" name="downCache">
+                        <bitmap stock_id="wxART_GO_DOWN"/>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                    </object>
+                    <cols>3</cols>
+                  </object>
+                  <flag>wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Available Caches</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxListCtrl" name="availCaches">
+                        <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <option>1</option>
+                      <flag>wxEXPAND|wxGROW</flag>
+                    </object>
+                    <orient>wxVERTICAL</orient>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+              </object>
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+            <label>Cache Day</label>
+          </object>
         </object>
         <option>1</option>
         <flag>wxEXPAND|wxGROW</flag>
@@ -2406,6 +2594,17 @@ http://www.justwill.com/</value>
         <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
       </object>
     </object>
+  </object>
+  <object class="wxMenu" name="CwMenu">
+    <object class="wxMenuItem" name="popSendToGPS">
+      <label>Send To GPS</label>
+      <XRCED>
+        <assign_var>1</assign_var>
+      </XRCED>
+    </object>
+    <XRCED>
+      <events>EVT_MENU</events>
+    </XRCED>
   </object>
 </resource>'''
 
@@ -15119,6 +15318,7 @@ def __gettext_strings():
     _("Remove Notes")
     _("Add Photo")
     _("Remove Photo")
+    _("Send To GPS")
     _("&Cache")
     _("&Preferences")
     _("&Preferences")
@@ -15153,6 +15353,12 @@ def __gettext_strings():
     _("&Add / Replace")
     _("Get From GPS")
     _("&Search")
+    _("Cache Day(s)")
+    _("Add")
+    _("Delete")
+    _("The Caches")
+    _("Available Caches")
+    _("Cache Day")
     _("&Okay")
     _("&Cancel")
     _("Cache901 Options")
@@ -15229,4 +15435,5 @@ def __gettext_strings():
     _("Search Origins")
     _("Okay")
     _("Cancel")
+    _("Send To GPS")
 

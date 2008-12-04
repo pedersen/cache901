@@ -182,3 +182,15 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.remLoc,    wx.Button)
         isinstance(self.clearSel,  wx.Button)
         isinstance(self.locSplit,  wx.SplitterWindow)
+        
+        # Cache Day Tab
+        isinstance(self.cacheday,     wx.Panel)
+        isinstance(self.addCacheDay,  wx.Button)
+        isinstance(self.remCacheDay,  wx.Button)
+        isinstance(self.upCache,      wx.BitmapButton)
+        isinstance(self.downCache,    wx.BitmapButton)
+        isinstance(self.addCache,     wx.BitmapButton)
+        isinstance(self.remCache,     wx.BitmapButton)
+        isinstance(self.cacheDays,    wx.ListCtrl)
+        isinstance(self.cachesForDay, wx.ListCtrl)
+        isinstance(self.availCaches,  wx.ListCtrl)
