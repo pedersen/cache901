@@ -79,6 +79,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnClearNotes,  self.mnuClearNote)
         self.Bind(wx.EVT_MENU,   self.OnLogCache,    self.mnuLogThisCache)
         self.Bind(wx.EVT_MENU,   self.OnSendToGPS,   self.mnuSendToGPS)
+        self.Bind(wx.EVT_MENU,   self.OnCacheDay,    self.mnuPrefsCacheDay)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle,     self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,       self.encText)
@@ -363,13 +364,17 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         abt.ShowModal()
     
     def OnSearchLocs(self, evt):
-        opts = cache901.options.OptionsUI(self)
+        opts = cache901.options.OptionsUI(self.caches, self)
         opts.showSearch()
     
     def OnPrefs(self, evt):
-        opts = cache901.options.OptionsUI(self)
+        opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
     
+    def OnCacheDay(self, evt):
+        opts = cache901.options.OptionsUI(self.caches, self)
+        opts.showCacheDay()
+        
     def OnSearch(self, evt):
         isinstance(evt, wx.CommandEvent)
         self.search.SetValue("")

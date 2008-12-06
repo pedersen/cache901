@@ -910,6 +910,12 @@
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuPrefsCacheDay">
+          <label>Cache Day</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
       </object>
       <object class="wxMenu">
         <label>&amp;Help</label>

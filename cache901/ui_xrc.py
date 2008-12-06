@@ -102,6 +102,7 @@ class xrcCache901UI(wx.Frame):
         self.mnuSendToGPS = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSendToGPS"))
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
+        self.mnuPrefsCacheDay = self.GetMenuBar().FindItemById(xrc.XRCID("mnuPrefsCacheDay"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
         self.statusBar = xrc.XRCCTRL(self, "statusBar")
 
@@ -1277,6 +1278,12 @@ def __init_resources():
         </object>
         <object class="wxMenuItem" name="mnuFileLocs">
           <label>&amp;Search Locations</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuPrefsCacheDay">
+          <label>Cache Day</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -15323,6 +15330,7 @@ def __gettext_strings():
     _("&Preferences")
     _("&Preferences")
     _("&Search Locations")
+    _("Cache Day")
     _("&Help")
     _("&About")
     _("Cache 901 - Caching At The Upper Levels")

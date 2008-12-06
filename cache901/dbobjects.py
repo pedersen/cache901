@@ -276,3 +276,39 @@ class PhotoList(object):
         cur.execute('delete from photos where cache_id=?', (self.id, ))
         for f in self.names:
             cur.execute("insert into photos(cache_id, photofile) values(?,?)", (self.id, f))
+
+class CacheDay(object):
+    def __init__(self, dayname):
+        self.caches = []
+        self.dayname = dayname
+        cur = cache901.db().cursor()
+        cur.execute('select dayname, cache_id, cache_type, cache_order from cacheday where dayname=? order by cache_order', (self.dayname, ))
+        for row in cur:
+            if row[2] == 1:
+                self.caches.append(Cache(row[1]))
+            elif row[2] == 2:
+                self.caches.append(Waypoint(row[1]))
+            else:
+                raise Exception('Invalid cache type %d' % (row[2], ))
+        
+    def Save(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from cacheday where dayname=?', (self.dayname, ))
+        cur.execute('delete from cacheday_names where dayname=?', (self.dayname, ))
+        cur.execute('insert into cacheday_names(dayname) values (?)', (self.dayname, ))
+        for idx, wpt in enumerate(self.caches):
+            if isinstance(wpt, Cache):
+                cache_type = 1
+                cid = wpt.cache_id
+            elif isinstance(wpt, Waypoint):
+                cache_type = 2
+                cid = wpt.wpt_id
+            else: raise Exception('Invalid cache type in cache day at index %d' % (idx, ))
+            cur.execute('insert into cacheday(dayname, cache_id, cache_type, cache_order) values (?,?,?,?)', (self.dayname, cid, cache_type, idx))
+        cache901.db().commit()
+        
+    def Delete(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from cacheday where dayname=?', (self.dayname, ))
+        cur.execute('delete from cacheday_names where dayname=?', (self.dayname, ))
+        cache901.db().commit()

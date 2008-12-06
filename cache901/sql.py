@@ -168,6 +168,24 @@ statements_v002 = [
     "CREATE INDEX photos_id ON photos(cache_id)",
     ]
 
+statements_v003 = [
+    # cache_type: 1 for cache, 2 for waypoint
+    """
+    CREATE TABLE cacheday (
+        dayname     text,
+        cache_id    integer,
+        cache_type  integer,
+        cache_order integer
+        )
+    """,
+    "CREATE INDEX cacheday_name ON cacheday(dayname)",
+    """
+    CREATE TABLE cacheday_names (
+        dayname text
+        )
+    """
+    ]
+
 allstatements = sorted(filter(lambda x: x.startswith("statements_v"), globals()))
 
 def sqlexec(con, statements, debug=False):

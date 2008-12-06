@@ -32,7 +32,7 @@ import cache901.validators
 import gpsbabel
 
 class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
-    def __init__(self, parent=None):
+    def __init__(self, listOfCaches, parent=None):
         cache901.ui_xrc.xrcOptionsUI.__init__(self, parent)
         self.gpsbabelLoc.SetValidator(cache901.validators.cmdValidator())
         self.gpsPort.SetValidator(cache901.validators.portValidator())
@@ -40,14 +40,38 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.coordDisplay.SetValidator(cache901.validators.degDisplayValidator())
         self.locSplit.SetValidator(cache901.validators.splitValidator("locSplit"))
         
+        w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
+        self.cacheDays.InsertColumn(0, 'Cache Day', width=w)
+        self.cachesForDay.InsertColumn(0, 'Caches For Day', width=w)
+        self.availCaches.InsertColumn(0, 'Available Caches', width=w)
+
+        isinstance(listOfCaches, wx.ListCtrl)
+        idx = 0
+        while idx <= listOfCaches.GetItemCount():
+            cache_item = listOfCaches.GetItem(idx, 2)
+            ctext = cache_item.GetText()
+            iid = self.availCaches.Append((ctext, ))
+            self.availCaches.SetItemData(iid, listOfCaches.GetItemData(idx))
+            idx = idx + 1
+        
         self.loadOrigins()
+        self.listCacheDays()
         
         self.Bind(wx.EVT_BUTTON, self.OnRemoveOrigin,   self.remLoc)
         self.Bind(wx.EVT_BUTTON, self.OnAddOrigin,      self.addLoc)
         self.Bind(wx.EVT_BUTTON, self.OnClearSelection, self.clearSel)
         self.Bind(wx.EVT_BUTTON, self.OnGetFromGPS,     self.getFromGPS)
+        self.Bind(wx.EVT_BUTTON, self.OnAddCacheDay,    self.addCacheDay)
+        self.Bind(wx.EVT_BUTTON, self.OnRemCacheDay,    self.remCacheDay)
+        self.Bind(wx.EVT_BUTTON, self.OnCacheUp,        self.upCache)
+        self.Bind(wx.EVT_BUTTON, self.OnCacheDown,      self.downCache)
+        self.Bind(wx.EVT_BUTTON, self.OnAddCache,       self.addCache)
+        self.Bind(wx.EVT_BUTTON, self.OnRemCache,       self.remCache)
         
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadOrigin, self.locations)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadOrigin,   self.locations)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadCacheDay, self.cacheDays)
+        
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnAddCache, self.availCaches)
         
     def loadOrigins(self):
         self.locations.DeleteAllItems()
@@ -64,6 +88,10 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         
     def showSearch(self):
         self.tabs.ChangeSelection(1)
+        self.ShowModal()
+    
+    def showCacheDay(self):
+        self.tabs.ChangeSelection(2)
         self.ShowModal()
         
     def OnRemoveOrigin(self, evt):
@@ -153,6 +181,102 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             self.longitude.SetValue(cache901.util.lonToDMS(wpt.lon))
         except Exception, e:
             wx.MessageBox(str(e), "An Error Occured")
+    
+    def listCacheDays(self):
+        cur = cache901.db().cursor()
+        cur.execute('select dayname from cacheday_names order by dayname')
+        self.cacheDays.DeleteAllItems()
+        for row in cur:
+            self.cacheDays.Append((row[0], ))
+        if self.cacheDays.GetItemCount() > 0:
+            self.cacheDays.Select(0)
+            self.OnLoadCacheDay(None)
+    
+    def OnAddCacheDay(self, evt):
+        newname = wx.GetTextFromUser('New Cache Day:', 'Enter The Name', parent=self)
+        if newname != '':
+            day = cache901.dbobjects.CacheDay(newname)
+            day.Save()
+            self.listCacheDays()
+    
+    def OnRemCacheDay(self, evt):
+        iid = self.cacheDays.GetFirstSelected()
+        while iid != -1:
+            dname = self.cacheDays.GetItemText(iid)
+            day = cache901.dbobjects.CacheDay(dname)
+            if wx.MessageBox('Really delete cache day %s?' % dname, 'Remove Cache Day', style=wx.YES_NO, parent=self) == wx.YES:
+                day.Delete()
+            iid = self.cacheDays.GetNextSelected(iid)
+        self.listCacheDays()
+    
+    def OnCacheUp(self, evt):
+        iid = self.cacheDays.GetFirstSelected()
+        dname = self.cacheDays.GetItemText(iid)
+        day = cache901.dbobjects.CacheDay(dname)
+        
+        iid = self.cachesForDay.GetFirstSelected()
+        if iid > 0:
+            cache = day.caches[iid]
+            del day.caches[iid]
+            day.caches.insert(iid-1, cache)
+            day.Save()
+            self.OnLoadCacheDay(evt)
+            self.cachesForDay.Select(iid-1)
+    
+    def OnCacheDown(self, evt):
+        iid = self.cacheDays.GetFirstSelected()
+        dname = self.cacheDays.GetItemText(iid)
+        day = cache901.dbobjects.CacheDay(dname)
+        
+        iid = self.cachesForDay.GetFirstSelected()
+        if iid < len(day.caches)-1:
+            cache = day.caches[iid]
+            del day.caches[iid]
+            day.caches.insert(iid+1, cache)
+            day.Save()
+            self.OnLoadCacheDay(evt)
+            self.cachesForDay.Select(iid+1)
+    
+    def OnAddCache(self, evt):
+        iid = self.cacheDays.GetFirstSelected()
+        dname = self.cacheDays.GetItemText(iid)
+        day = cache901.dbobjects.CacheDay(dname)
+        
+        iid = self.availCaches.GetFirstSelected()
+        while iid != -1:
+            day.caches.append(cache901.dbobjects.Cache(self.availCaches.GetItemData(iid)))
+            iid = self.availCaches.GetNextSelected(iid)
+        day.Save()
+        self.OnLoadCacheDay(evt)
+    
+    def OnRemCache(self, evt):
+        iid = self.cacheDays.GetFirstSelected()
+        dname = self.cacheDays.GetItemText(iid)
+        day = cache901.dbobjects.CacheDay(dname)
+        
+        iid = self.cachesForDay.GetFirstSelected()
+        delme = []
+        while iid != -1:
+            delme.append(iid)
+            iid = self.cachesForDay.GetNextSelected(iid)
+        delme.reverse()
+        for idx in delme:
+            del day.caches[idx]
+        day.Save()
+        self.OnLoadCacheDay(evt)
+    
+    def OnLoadCacheDay(self, evt):
+        iid = self.cacheDays.GetFirstSelected()
+        dname = self.cacheDays.GetItemText(iid)
+        day = cache901.dbobjects.CacheDay(dname)
+        self.cachesForDay.DeleteAllItems()
+        for cache in day.caches:
+            if isinstance(cache, cache901.dbobjects.Cache):
+                iid = self.cachesForDay.Append((cache.url_name, ))
+                self.cachesForDay.SetItemData(iid, cache.cache_id)
+            elif isinstance(cache, cache901.dbobjects.Waypoint):
+                iid = self.cachesForDay.Append((cache.name, ))
+                self.cachesForDay.SetItemData(iid, cache.wpt_id)
     
     def forWingIde(self):
         """
