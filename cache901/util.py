@@ -186,16 +186,29 @@ def scanForSerial():
                 pass
     return available
 
-def getWaypoints(searchpat=None):
-    if searchpat in (None, "", "*") or len(searchpat) < 2:
-        where = "where loc_type = 1"
-        params = ()
+def getWaypoints(params={}):
+    where = []
+    sqlparams = []
+    query = "select wpt_id, name, desc from locations"
+    order_by = "order by name"
+    where.append("loc_type = 1")
+    if params.has_key('ids'):
+        query = "select wpt_id, name, desc, (select cache_order from cacheday as cd where cd.cache_id=c.wpt_id and cd.dayname='%s') as cache_order  from locations as c " % params['dayname']
+        order_by = "order by cache_order"
+        where.append('wpt_id in (%s)' % ",".join(map(lambda x: '?', params['ids'])))
+        sqlparams.extend(params['ids'])
+    if params.has_key('searchpat') and len(params['searchpat']) >= 2:
+        where.append("(lower(name) like ? or lower(desc) like ?)")
+        sname = '%%%s%%' % params['searchpat']
+        sqlparams.append(sname)
+        sqlparams.append(sname)
+    if len(where) > 0:
+        where_clause = 'where %s' % " and ".join(where)
     else:
-        where = "where loc_type = 1 and (lower(name) like ? or lower(desc) like ?)"
-        params = (searchpat, searchpat)
-    query = "%s %s %s" % ("select wpt_id, name, desc from locations", where, "order by name")
+        where_clause = ""
+    query = "%s %s %s" % (query, where_clause, order_by)
     cur = cache901.db().cursor()
-    cur.execute(query, params)
+    cur.execute(query, sqlparams)
     for row in cur:
         yield row
 

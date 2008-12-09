@@ -151,8 +151,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for i in cur:
             item = self.CacheSearchMenu.Append(-1, i[0])
             self.Bind(wx.EVT_MENU, self.OnSearch, item)
+        self.CacheSearchMenu.AppendSeparator()
+        cur.execute('select distinct dayname from cacheday_names order by dayname')
+        for i in cur:
+            item = self.CacheSearchMenu.Append(-1, 'Cache Day: %s' % i[0])
+            self.Bind(wx.EVT_MENU, self.OnSearch, item)
 
-    def loadData(self, params={}):
+    def loadData(self, params={}, wpt_params={}):
         self.caches.DeleteAllItems()
         self.caches.DeleteAllColumns()
         for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), (3, "Dist", "QQQQQQ")):
@@ -167,7 +172,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.caches.SetItemData(cache_id, row[0])
         self.caches.Select(0)
 
-        for row in cache901.util.getWaypoints(self.search.GetValue()):
+        wpt_params['searchpat'] = self.search.GetValue()
+        for row in cache901.util.getWaypoints(wpt_params):
             wpt_id = self.points.Append((row[1], row[2]))
             self.points.SetItemData(wpt_id, row[0])
 
@@ -389,6 +395,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         itemid = evt.GetId()
         item = self.GetMenuBar().FindItemById(itemid)
         mtext = item.GetLabel()
+        isinstance(mtext, str)
         if mtext == "Advanced Search":
             dlg = cache901.search.SearchBox(self)
             if dlg.ShowModal() == wx.ID_OK:
@@ -397,6 +404,23 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         elif mtext == "Clear Search":
             self.search.SetValue("")
             self.loadData({})
+        elif mtext.startswith('Cache Day: '):
+            mtext = mtext.replace('Cache Day: ', '')
+            day = cache901.dbobjects.CacheDay(mtext)
+            cache_params = {}
+            cache_params['dayname'] = mtext
+            cache_params['ids'] = []
+            wpt_params = {}
+            wpt_params['ids'] = []
+            wpt_params['dayname'] = mtext
+            for cw in day.caches:
+                if isinstance(cw, cache901.dbobjects.Cache):
+                    cache_params['ids'].append(cw.cache_id)
+                else:
+                    wpt_params['ids'].append(cw.wpt_id)
+            if len(cache_params['ids']) == 0: del cache_params['ids']
+            if len(wpt_params['ids']) == 0: del wpt_params['ids']
+            self.loadData(cache_params, wpt_params)
         else:
             params = cache901.search.loadSavedSearch(mtext)
             self.loadData(params)

@@ -402,6 +402,11 @@ def execSearch(params):
     where = []
     sqlparams = []
     order_by = "order by url_name"
+    if params.has_key('ids'):
+        query = "select cache_id, difficulty, terrain, url_name, 0 as distance, (select cache_order from cacheday as cd where cd.cache_id=c.cache_id and cd.dayname='%s') as cache_order  from caches as c " % params['dayname']
+        order_by = "order by cache_order"
+        where.append('cache_id in (%s)' % ",".join(map(lambda x: '?', params['ids'])))
+        sqlparams.extend(params['ids'])
     if params.has_key("urlname"):
         sname = '%%%s%%' % params['urlname'].replace('*', '%').lower()
         where.append('lower(url_name) like ? or lower(name) like ?')
