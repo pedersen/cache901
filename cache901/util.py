@@ -223,5 +223,22 @@ def CacheToGPX(cache):
     gpx.wpts.append(wpt)
     return gpx
 
+def CacheDayToGPX(cacheday):
+    isinstance(cacheday, cache901.dbobjects.CacheDay)
+    gpx = gpsbabel.GPXData()
+    route = gpsbabel.GPXRoute()
+    route.name = cacheday.dayname
+    for wptdata in cacheday.caches:
+        wpt = gpsbabel.GPXWaypoint()
+        wpt.lat = wptdata.lat
+        wpt.lon = wptdata.lon
+        wpt.cmt = wptdata.name
+        wpt.desc = wptdata.name
+        wpt.name = wptdata.name
+        route.rtepts.append(wpt)
+        gpx.wpts.append(wpt)
+    gpx.rtes.append(route)
+    return gpx
+        
 class InvalidDegFormat(Exception):
     pass

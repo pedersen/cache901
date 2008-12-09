@@ -119,6 +119,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.loadData()
         self.updSearchMenu()
         self.updPhotoList()
+        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
+        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
 
     def updPhotoList(self):
         if not hasattr(self, "photoImageList"):
@@ -366,14 +368,20 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnSearchLocs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showSearch()
+        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
+        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
     
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
+        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
+        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
     
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
+        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
+        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
         
     def OnSearch(self, evt):
         isinstance(evt, wx.CommandEvent)
@@ -499,10 +507,12 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         cache901.db().commit()
                         
     def OnPopupMenu(self, evt):
-        mnu = cache901.ui_xrc.xrcCwMenu()
-        mnu.Bind(wx.EVT_MENU, self.OnSendToGPS, mnu.popSendToGPS)
-        self.PopupMenu(mnu)
-        mnu.Destroy()
+        self.mnu = cache901.ui_xrc.xrcCwMenu()
+        self.mnu.Bind(wx.EVT_MENU, self.OnSendToGPS, self.mnu.popSendToGPS)
+        self.updCacheDayMenus(self.mnu.popAddCurrentToCacheDay)
+        self.PopupMenu(self.mnu)
+        self.mnu.Destroy()
+        self.mnu = None
     
     def OnPopupMenuCaches(self, evt):
         self.pop = self.caches
@@ -516,8 +526,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(evt, wx.CommandEvent)
         win = evt.GetEventObject()
         isinstance(win, wx.Menu)
-        print type(win.GetInvokingWindow())
-        #print type(evt.GetEventObject().GetParent())
         cfg = wx.Config.Get()
         cfg.SetPath('/PerMachine')
         if self.pop == self.caches:
@@ -533,8 +541,70 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.pop = None
         self.updStatus()
     
+    def OnAddToCacheDay(self, evt):
+        isinstance(evt, wx.CommandEvent)
+        self.search.SetValue("")
+        itemid = evt.GetId()
+        item = self.GetMenuBar().FindItemById(itemid)
+        if item is None:
+            if self.mnu is not None:
+                item = self.mnu.FindItemById(itemid)
+            else:
+                cache901.notify('An error occurred in the popup menu handler')
+        mtext = item.GetLabel()
+        if mtext == "New Cache Day":
+            mtext =  wx.GetTextFromUser('New Cache Day Name', 'New Cache Day Name', parent = self)
+            if mtext != '':
+                day = cache901.dbobjects.CacheDay(mtext)
+                day.Save()
+            else:
+                day = None
+        else:
+            day = cache901.dbobjects.CacheDay(mtext)
+        if day is not None:
+            iid = self.caches.GetFirstSelected()
+            if iid != -1:
+                day.caches.append(cache901.dbobjects.Cache(self.caches.GetItemData(iid)))
+            else:
+                day.caches.append(cache901.dbobjects.Waypoint(self.points.GetItemData(self.points.GetFirstSelected())))
+            day.Save()
+    
+    def OnSendCacheDayToGPS(self, evt):
+        isinstance(evt, wx.CommandEvent)
+        self.search.SetValue("")
+        itemid = evt.GetId()
+        item = self.GetMenuBar().FindItemById(itemid)
+        mtext = item.GetLabel()
+        day = cache901.dbobjects.CacheDay(mtext)
+        gpx = cache901.util.CacheDayToGPX(day)
+        cfg = wx.Config.Get()
+        cfg.SetPath('/PerMachine')
+        cache901.notify('Sending Cache Day "%s" to GPS' % (mtext, ))
+        gpsbabel.gps.setInGpx(gpx)
+        gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, route=True, parseOutput=False)
+        self.updStatus()
+    
+    def updCacheDayMenus(self, menu, includenew=True, bindsub=None):
+        isinstance(menu, wx.Menu)
+        for item in menu.GetMenuItems():
+            menu.RemoveItem(item)
+        if includenew:
+            item = menu.Append(-1, 'New Cache Day')
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+            menu.AppendSeparator()
+        if bindsub is None:
+            bindsub = self.OnAddToCacheDay
+        cur = cache901.db().cursor()
+        cur.execute('select dayname from cacheday_names order by dayname')
+        for row in cur:
+            item = menu.Append(-1, row[0])
+            self.Bind(wx.EVT_MENU, bindsub, item)
+    
     def forWingIde(self):
-        isinstance(cache901.ui_xrc.xrcCwMenu.popSendToGPS)
+        cwmenu = cache901.ui_xrc.xrcCwMenu()
+        isinstance(cwmenu.popSendToGPS, wx.MenuItem)
+        isinstance(cwmenu.popAddCurrentToCacheDay, wx.Menu)
+        isinstance(self.mnuAddCurrentToCacheDay, wx.MenuItem)
         isinstance(self.mnuSendToGPS, wx.MenuItem)
         isinstance(self.mnuAddPhoto, wx.MenuItem)
         isinstance(self.mnuClearNote, wx.MenuItem)

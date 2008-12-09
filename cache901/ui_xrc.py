@@ -100,9 +100,19 @@ class xrcCache901UI(wx.Frame):
         self.mnuAddPhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuAddPhoto"))
         self.mnuRemovePhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuRemovePhoto"))
         self.mnuSendToGPS = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSendToGPS"))
+        self.mnuPrefsCacheDay = self.GetMenuBar().FindItemById(xrc.XRCID("mnuPrefsCacheDay"))
+        idx = self.GetMenuBar().FindMenu("Add Current To Cache Day")
+        if idx != wx.NOT_FOUND:
+            self.mnuAddCurrentToCacheDay = self.GetMenuBar().GetMenu(idx)
+        else:
+            self.mnuAddCurrentToCacheDay = self.GetMenuBar().FindItemById(xrc.XRCID("mnuAddCurrentToCacheDay")).GetSubMenu()
+        idx = self.GetMenuBar().FindMenu("Send To GPS")
+        if idx != wx.NOT_FOUND:
+            self.mnuSendCacheDayToGPS = self.GetMenuBar().GetMenu(idx)
+        else:
+            self.mnuSendCacheDayToGPS = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSendCacheDayToGPS")).GetSubMenu()
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
-        self.mnuPrefsCacheDay = self.GetMenuBar().FindItemById(xrc.XRCID("mnuPrefsCacheDay"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
         self.statusBar = xrc.XRCCTRL(self, "statusBar")
 
@@ -350,6 +360,7 @@ class xrcCwMenu(wx.Menu):
 
         # Define variables for the menu items
         self.popSendToGPS = self.FindItemById(xrc.XRCID("popSendToGPS"))
+        self.popAddCurrentToCacheDay = self.FindItemById(xrc.XRCID("popAddCurrentToCacheDay")).GetSubMenu()
 
         self.Bind(wx.EVT_MENU, self.OnMenu)
 
@@ -1269,6 +1280,28 @@ def __init_resources():
         <label>&amp;Cache</label>
       </object>
       <object class="wxMenu">
+        <object class="wxMenuItem" name="mnuPrefsCacheDay">
+          <label>Cache Day Management</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenu" name="mnuAddCurrentToCacheDay">
+          <label>Add Current To Cache Day</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenu" name="mnuSendCacheDayToGPS">
+          <label>Send To GPS</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <label>CacheDay</label>
+      </object>
+      <object class="wxMenu">
         <label>&amp;Preferences</label>
         <object class="wxMenuItem" name="mnuFilePrefs">
           <label>&amp;Preferences</label>
@@ -1278,12 +1311,6 @@ def __init_resources():
         </object>
         <object class="wxMenuItem" name="mnuFileLocs">
           <label>&amp;Search Locations</label>
-          <XRCED>
-            <assign_var>1</assign_var>
-          </XRCED>
-        </object>
-        <object class="wxMenuItem" name="mnuPrefsCacheDay">
-          <label>Cache Day</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -2605,6 +2632,12 @@ http://www.justwill.com/</value>
   <object class="wxMenu" name="CwMenu">
     <object class="wxMenuItem" name="popSendToGPS">
       <label>Send To GPS</label>
+      <XRCED>
+        <assign_var>1</assign_var>
+      </XRCED>
+    </object>
+    <object class="wxMenu" name="popAddCurrentToCacheDay">
+      <label>Add To Cache Day</label>
       <XRCED>
         <assign_var>1</assign_var>
       </XRCED>
@@ -15327,10 +15360,13 @@ def __gettext_strings():
     _("Remove Photo")
     _("Send To GPS")
     _("&Cache")
+    _("Cache Day Management")
+    _("Add Current To Cache Day")
+    _("Send To GPS")
+    _("CacheDay")
     _("&Preferences")
     _("&Preferences")
     _("&Search Locations")
-    _("Cache Day")
     _("&Help")
     _("&About")
     _("Cache 901 - Caching At The Upper Levels")
@@ -15444,4 +15480,5 @@ def __gettext_strings():
     _("Okay")
     _("Cancel")
     _("Send To GPS")
+    _("Add To Cache Day")
 

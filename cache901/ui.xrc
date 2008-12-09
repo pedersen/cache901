@@ -897,6 +897,28 @@
         <label>&amp;Cache</label>
       </object>
       <object class="wxMenu">
+        <object class="wxMenuItem" name="mnuPrefsCacheDay">
+          <label>Cache Day Management</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenu" name="mnuAddCurrentToCacheDay">
+          <label>Add Current To Cache Day</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenu" name="mnuSendCacheDayToGPS">
+          <label>Send To GPS</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <label>CacheDay</label>
+      </object>
+      <object class="wxMenu">
         <label>&amp;Preferences</label>
         <object class="wxMenuItem" name="mnuFilePrefs">
           <label>&amp;Preferences</label>
@@ -906,12 +928,6 @@
         </object>
         <object class="wxMenuItem" name="mnuFileLocs">
           <label>&amp;Search Locations</label>
-          <XRCED>
-            <assign_var>1</assign_var>
-          </XRCED>
-        </object>
-        <object class="wxMenuItem" name="mnuPrefsCacheDay">
-          <label>Cache Day</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -2233,6 +2249,12 @@ http://www.justwill.com/</value>
   <object class="wxMenu" name="CwMenu">
     <object class="wxMenuItem" name="popSendToGPS">
       <label>Send To GPS</label>
+      <XRCED>
+        <assign_var>1</assign_var>
+      </XRCED>
+    </object>
+    <object class="wxMenu" name="popAddCurrentToCacheDay">
+      <label>Add To Cache Day</label>
       <XRCED>
         <assign_var>1</assign_var>
       </XRCED>
