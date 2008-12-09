@@ -458,7 +458,110 @@ class PhotoListTest(unittest.TestCase):
         pl = dbo.PhotoList(self.cache_id)
         self.failUnless(pl.id == self.cache_id)
         self.failUnless(pl.names == ['a', 'b', 'c', 'd', 'efg'])
-
+        
+class CacheDayTest(unittest.TestCase):
+    def setUp(self):
+        cur = cache901.db().cursor()
+        cur.execute("delete from cacheday")
+        cur.execute("delete from cacheday_names")
+        cur.execute("delete from caches")
+        cur.execute("delete from locations")
+        cache901.db().commit()
+    
+    def testEmptyDay(self):
+        day = cache901.dbobjects.CacheDay('emptyday')
+        self.failUnless(day.dayname == 'emptyday')
+        self.failUnless(len(day.caches) == 0)
+    
+    def testFullDay(self):
+        cur = cache901.db().cursor()
+        cur.execute('insert into caches(cache_id) values(1)')
+        cur.execute('insert into caches(cache_id) values(2)')
+        cur.execute('insert into caches(cache_id) values(4)')
+        cur.execute('insert into locations(wpt_id) values(3)')
+        for idx_tuple in (('fullday', 1, 1, 1), ('fullday', 2, 1, 2), ('fullday', 3, 2, 3), ('fullday', 4, 1, 4)):
+            cur.execute('insert into cacheday(dayname, cache_id, cache_type, cache_order) values (?,?,?,?)', idx_tuple)
+        cache901.db().commit()
+        day = cache901.dbobjects.CacheDay('fullday')
+        self.failUnless(day.dayname == 'fullday')
+        self.failUnless(len(day.caches) == 4)
+        self.failUnless(isinstance(day.caches[0], cache901.dbobjects.Cache))
+        self.failUnless(day.caches[0].cache_id == 1)
+        self.failUnless(isinstance(day.caches[1], cache901.dbobjects.Cache))
+        self.failUnless(day.caches[1].cache_id == 2)
+        self.failUnless(isinstance(day.caches[2], cache901.dbobjects.Waypoint))
+        self.failUnless(day.caches[2].wpt_id == 3)
+        self.failUnless(isinstance(day.caches[3], cache901.dbobjects.Cache))
+        self.failUnless(day.caches[3].cache_id == 4)
+        
+    def testSave(self):
+        cur = cache901.db().cursor()
+        cur.execute('insert into caches(cache_id) values(1)')
+        cur.execute('insert into caches(cache_id) values(2)')
+        cur.execute('insert into caches(cache_id) values(4)')
+        cur.execute('insert into locations(wpt_id) values(3)')
+        c1 = cache901.dbobjects.Cache(1)
+        c2 = cache901.dbobjects.Cache(2)
+        c3 = cache901.dbobjects.Waypoint(3)
+        c4 = cache901.dbobjects.Cache(4)
+        day = cache901.dbobjects.CacheDay('saveday')
+        day.caches.append(c1)
+        day.caches.append(c2)
+        day.caches.append(c3)
+        day.caches.append(c4)
+        day.Save()
+        
+        del day
+        day = cache901.dbobjects.CacheDay('saveday')
+        self.failUnless(day.dayname == 'saveday')
+        self.failUnless(len(day.caches) == 4)
+        self.failUnless(isinstance(day.caches[0], cache901.dbobjects.Cache))
+        self.failUnless(day.caches[0].cache_id == 1)
+        self.failUnless(isinstance(day.caches[1], cache901.dbobjects.Cache))
+        self.failUnless(day.caches[1].cache_id == 2)
+        self.failUnless(isinstance(day.caches[2], cache901.dbobjects.Waypoint))
+        self.failUnless(day.caches[2].wpt_id == 3)
+        self.failUnless(isinstance(day.caches[3], cache901.dbobjects.Cache))
+        self.failUnless(day.caches[3].cache_id == 4)
+    
+    def testSaveEmpty(self):
+        day = cache901.dbobjects.CacheDay('emptyday')
+        day.Save()
+        cur = cache901.db().cursor()
+        cur.execute('select dayname from cacheday_names')
+        row = cur.fetchone()
+        self.failUnless(row[0] == 'emptyday')
+    
+    def testDelete(self):
+        cur = cache901.db().cursor()
+        cur.execute('insert into caches(cache_id) values(1)')
+        cur.execute('insert into caches(cache_id) values(2)')
+        cur.execute('insert into caches(cache_id) values(4)')
+        cur.execute('insert into locations(wpt_id) values(3)')
+        c1 = cache901.dbobjects.Cache(1)
+        c2 = cache901.dbobjects.Cache(2)
+        c3 = cache901.dbobjects.Waypoint(3)
+        c4 = cache901.dbobjects.Cache(4)
+        day = cache901.dbobjects.CacheDay('saveday')
+        day.caches.append(c1)
+        day.caches.append(c2)
+        day.caches.append(c3)
+        day.caches.append(c4)
+        day.Save()
+        
+        day.Delete()
+        cur.execute('select dayname from cacheday_names where dayname="saveday"')
+        daydelete = True
+        for row in cur:
+            daydelete = False
+        self.failUnless(daydelete == True, "Entry still exists in cacheday_names")
+        
+        cur.execute('select dayname from cacheday where dayname="saveday"')
+        daydelete = True
+        for row in cur:
+            daydelete = False
+        self.failUnless(daydelete == True, "Entry still exists in cacheday")
+        
 class AttributeTest(unittest.TestCase):
     """
     @todo: write this test case

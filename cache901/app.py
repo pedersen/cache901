@@ -32,15 +32,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 # just to explain why these pieces are here, and why all of them must
 # be updated if one of them is.
 
+import sys
+
 import wx
 
 import cache901
 import cache901.ui
 import cache901.ui_xrc
 
+def Cache901ExceptionHandler(exctype, val, traceback):
+    wx.MessageBox(str(val), "An Error Has Occurred", style=wx.ICON_ERROR)
+    
 class Cache901App(wx.App):
     def OnInit(self):
         cache901.updating = True
+        sys.excepthook = Cache901ExceptionHandler
         wx.InitAllImageHandlers()
         geoicons = cache901.ui.geoicons()
         splash = cache901.ui_xrc.xrcsplash(None)
