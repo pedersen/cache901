@@ -425,6 +425,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             params = cache901.search.loadSavedSearch(mtext)
             self.loadData(params)
         self.updSearchMenu()
+        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
+        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
         
     def OnShowMap(self, evt):
         i = 0
@@ -592,6 +594,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             else:
                 day.caches.append(cache901.dbobjects.Waypoint(self.points.GetItemData(self.points.GetFirstSelected())))
             day.Save()
+        self.updSearchMenu()
+        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
+        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
     
     def OnSendCacheDayToGPS(self, evt):
         isinstance(evt, wx.CommandEvent)
