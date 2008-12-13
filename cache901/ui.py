@@ -619,7 +619,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             menu.RemoveItem(item)
         if includenew:
             item = menu.Append(-1, 'New Cache Day')
-            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+            menu.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
             menu.AppendSeparator()
         if bindsub is None:
             bindsub = self.OnAddToCacheDay
@@ -627,7 +627,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         cur.execute('select dayname from cacheday_names order by dayname')
         for row in cur:
             item = menu.Append(-1, row[0])
-            self.Bind(wx.EVT_MENU, bindsub, item)
+            menu.Bind(wx.EVT_MENU, bindsub, item)
     
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()

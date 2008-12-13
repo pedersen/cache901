@@ -45,11 +45,12 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         
         qry = 'select min(lat), min(lon), max(lat), max(lon) from locations where loc_type=2'
         cur.execute(qry)
-        for row in cur:
-            self.minlat = min(self.minlat, row[0])
-            self.minlon = min(self.minlon, row[1])
-            self.maxlat = max(self.maxlat, row[2])
-            self.maxlon = max(self.maxlon, row[3])
+	row = cur.fetchone()
+	if row[0] is not None:
+            self.minlat = min(self.minlat, float(row[0]))
+            self.minlon = min(self.minlon, float(row[1]))
+            self.maxlat = max(self.maxlat, float(row[2]))
+            self.maxlon = max(self.maxlon, float(row[3]))
         
         cache901.notify('Loading caches')
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQQQQQQQQ")

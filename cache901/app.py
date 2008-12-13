@@ -33,6 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 # be updated if one of them is.
 
 import sys
+import traceback
 
 import wx
 
@@ -40,8 +41,9 @@ import cache901
 import cache901.ui
 import cache901.ui_xrc
 
-def Cache901ExceptionHandler(exctype, val, traceback):
-    wx.MessageBox(str(val), "An Error Has Occurred", style=wx.ICON_ERROR)
+def Cache901ExceptionHandler(exctype, val, tb):
+    excout =  "".join(traceback.format_exception(exctype, val, tb))
+    wx.MessageBox(excout, "An Error Has Occurred", style=wx.ICON_ERROR)
     
 class Cache901App(wx.App):
     def OnInit(self):

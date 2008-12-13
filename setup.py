@@ -36,9 +36,38 @@ except ImportError, e:
     pass
 
 if sys.platform == "win32":
+    try:
+        import win32file
+    except:
+        print "Without win32file, pyserial will fail on Windows. Aborting."
+        sys.exit(0)
     datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico'])],) ]
 else:
     datafiles = []
+
+try:
+    import wx
+except:
+    print "Without wx, this program will fail. Aborting."
+    sys.exit(0)
+
+try:
+    import serial
+except:
+    print "Without serial, this program will fail. Aborting."
+    sys.exit(0)
+
+try:
+    import sqlite3
+except:
+    print "Without sqlite3, this program will fail. Aborting."
+    sys.exit(0)
+
+try:
+    import gpsbabel
+except:
+    print "Without gpsbabel, this program will fail. Aborting."
+    sys.exit(0)
 
 setup(name='Cache901',
         version="0.2",

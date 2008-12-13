@@ -362,13 +362,6 @@ class xrcCwMenu(wx.Menu):
         self.popSendToGPS = self.FindItemById(xrc.XRCID("popSendToGPS"))
         self.popAddCurrentToCacheDay = self.FindItemById(xrc.XRCID("popAddCurrentToCacheDay")).GetSubMenu()
 
-        self.Bind(wx.EVT_MENU, self.OnMenu)
-
-#!XRCED:begin-block:xrcCwMenu.OnMenu
-    def OnMenu(self, evt):
-        # Replace with event handler code
-        print "OnMenu()"
-#!XRCED:end-block:xrcCwMenu.OnMenu        
 
 
 
@@ -1096,7 +1089,6 @@ def __init_resources():
                               </object>
                               <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                             </object>
-                            
                             <orient>wxVERTICAL</orient>
                           </object>
                         </object>
@@ -1258,7 +1250,6 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        
         <object class="wxMenuItem" name="mnuAddPhoto">
           <label>Add Photo</label>
           <XRCED>
@@ -2642,9 +2633,6 @@ http://www.justwill.com/</value>
         <assign_var>1</assign_var>
       </XRCED>
     </object>
-    <XRCED>
-      <events>EVT_MENU</events>
-    </XRCED>
   </object>
 </resource>'''
 

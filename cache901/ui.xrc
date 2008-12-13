@@ -713,7 +713,6 @@
                               </object>
                               <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                             </object>
-                            
                             <orient>wxVERTICAL</orient>
                           </object>
                         </object>
@@ -875,7 +874,6 @@
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        
         <object class="wxMenuItem" name="mnuAddPhoto">
           <label>Add Photo</label>
           <XRCED>
@@ -2259,8 +2257,5 @@ http://www.justwill.com/</value>
         <assign_var>1</assign_var>
       </XRCED>
     </object>
-    <XRCED>
-      <events>EVT_MENU</events>
-    </XRCED>
   </object>
 </resource>
