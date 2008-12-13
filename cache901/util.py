@@ -165,11 +165,11 @@ def which(cmd):
     return None
 
 def scanForSerial():
+    available = []
     if sys.platform == "win32":
         # @todo: Fix the scanning on Windows
         pass
     else:
-        available = []
         for i in range(256):
             try:
                 s = serial.Serial(i)
