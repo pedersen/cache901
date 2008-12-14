@@ -38,7 +38,7 @@ class cmdValidator(wx.PyValidator):
         fp = self.GetWindow()
         isinstance(fp, wx.FilePickerCtrl)
         fname = fp.GetPath()
-        retval = os.path.exists(fname) and os.access(fname, os.X_OK)
+        retval = (os.path.exists(fname) and os.access(fname, os.X_OK)) and (fname != 'Select Executable')
         if not retval:
             wx.MessageBox('Invalid location for GPSBabel.', 'GPSBabel Location Problem', parent=win)
         return retval
@@ -49,7 +49,9 @@ class cmdValidator(wx.PyValidator):
         isinstance(fp, wx.FilePickerCtrl)
         isinstance(cfg, wx.Config)
         cfg.SetPath('/PerMachine')
-        loc = cfg.Read('GPSBabelLoc', cache901.util.which('gpsbabel'))
+        cmd = cache901.util.which('gpsbabel')
+        if cmd is None: cmd = 'Select Executable'
+        loc = cfg.Read('GPSBabelLoc', cmd)
         fp.SetPath(loc)
         fp.Refresh()
     

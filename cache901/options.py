@@ -47,7 +47,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
 
         isinstance(listOfCaches, wx.ListCtrl)
         idx = 0
-        while idx <= listOfCaches.GetItemCount():
+        while idx < listOfCaches.GetItemCount():
             cache_item = listOfCaches.GetItem(idx, 2)
             ctext = cache_item.GetText()
             iid = self.availCaches.Append((ctext, ))

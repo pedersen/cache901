@@ -52,6 +52,8 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             self.maxlat = max(self.maxlat, float(row[2]))
             self.maxlon = max(self.maxlon, float(row[3]))
         
+        if self.minlat == self.maxlat: self.minlat = self.minlat - 1
+        if self.minlon == self.maxlon: self.minlon = self.minlon - 1
         cache901.notify('Loading caches')
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQQQQQQQQ")
         self.cacheList.DeleteAllItems()

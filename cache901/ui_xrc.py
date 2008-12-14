@@ -2197,6 +2197,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="cacheTypes">
+                            <style>wxLC_LIST|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2226,6 +2227,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="cacheContainers">
+                            <style>wxLC_LIST|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2441,6 +2443,7 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="statesList">
                             <enabled>0</enabled>
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
