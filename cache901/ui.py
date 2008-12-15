@@ -119,8 +119,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.loadData()
         self.updSearchMenu()
         self.updPhotoList()
-        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
-        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
     def updPhotoList(self):
         if not hasattr(self, "photoImageList"):
@@ -374,20 +376,26 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnSearchLocs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showSearch()
-        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
-        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
     
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
-        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
-        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
     
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
-        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
-        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
         
     def OnSearch(self, evt):
         isinstance(evt, wx.CommandEvent)
@@ -425,8 +433,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             params = cache901.search.loadSavedSearch(mtext)
             self.loadData(params)
         self.updSearchMenu()
-        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
-        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
         
     def OnShowMap(self, evt):
         i = 0
@@ -536,6 +546,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.mnu = cache901.ui_xrc.xrcCwMenu()
         self.mnu.Bind(wx.EVT_MENU, self.OnSendToGPS, self.mnu.popSendToGPS)
         self.updCacheDayMenus(self.mnu.popAddCurrentToCacheDay)
+        for item in self.updCacheDayMenus(self.mnu.popAddCurrentToCacheDay):
+            self.mnu.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         self.PopupMenu(self.mnu)
         self.mnu.Destroy()
         self.mnu = None
@@ -595,8 +607,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 day.caches.append(cache901.dbobjects.Waypoint(self.points.GetItemData(self.points.GetFirstSelected())))
             day.Save()
         self.updSearchMenu()
-        self.updCacheDayMenus(self.mnuAddCurrentToCacheDay)
-        self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False, self.OnSendCacheDayToGPS)
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
     
     def OnSendCacheDayToGPS(self, evt):
         isinstance(evt, wx.CommandEvent)
@@ -613,22 +627,20 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, route=True, parseOutput=False)
         self.updStatus()
     
-    def updCacheDayMenus(self, menu, includenew=True, bindsub=None):
+    def updCacheDayMenus(self, menu, includenew=True):
 	#@todo: This doesn't bind the subroutine properly, must be fixed
         isinstance(menu, wx.Menu)
         for item in menu.GetMenuItems():
             menu.RemoveItem(item)
+        mitems = []
         if includenew:
-            item = menu.Append(-1, 'New Cache Day')
-            menu.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+            mitems.append(menu.Append(-1, 'New Cache Day'))
             menu.AppendSeparator()
-        if bindsub is None:
-            bindsub = self.OnAddToCacheDay
         cur = cache901.db().cursor()
         cur.execute('select dayname from cacheday_names order by dayname')
         for row in cur:
-            item = menu.Append(-1, row[0])
-            menu.Bind(wx.EVT_MENU, bindsub, item)
+            mitems.append(menu.Append(-1, row[0]))
+        return mitems
     
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
