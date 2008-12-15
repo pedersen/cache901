@@ -167,8 +167,8 @@ def which(cmd):
 def scanForSerial():
     available = []
     if sys.platform == "win32":
-        # @todo: Fix the scanning on Windows
-        pass
+        import cache901.scanwin32
+        available.extend(map(lambda x: '%s:' % str(x), cache901.scanwin32.getSerialPorts()))
     else:
         for i in range(256):
             try:

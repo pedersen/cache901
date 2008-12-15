@@ -76,7 +76,7 @@ class portValidator(wx.PyValidator):
         if selnum < 0 or selnum >= len(items): return False
         if items[selnum] == 'USB': return True
         try:
-            s = serial.Serial(items[selnum])
+            #s = serial.Serial(items[selnum])
             return True
         except:
             wx.MessageBox('Choose a different serial port', 'Invalid Serial Port')
@@ -89,7 +89,7 @@ class portValidator(wx.PyValidator):
         isinstance(cfg, wx.Config)
         cfg.SetPath('/PerMachine')
         choice.Clear()
-        choice.Append('USB')
+        choice.Append('USB:')
         choice.AppendItems(cache901.util.scanForSerial())
         try:
             choice.SetSelection(choice.GetItems().index(cfg.Read('GPSPort', 'USB')))

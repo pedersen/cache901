@@ -554,7 +554,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(win, wx.Menu)
         cfg = wx.Config.Get()
         cfg.SetPath('/PerMachine')
-        if self.pop == self.caches:
+        if self.caches.GetFirstSelected() != -1:
             cache = cache901.dbobjects.Cache(self.caches.GetItemData(self.caches.GetFirstSelected()))
             ctp = 'cache'
         else:
@@ -614,6 +614,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.updStatus()
     
     def updCacheDayMenus(self, menu, includenew=True, bindsub=None):
+	#@todo: This doesn't bind the subroutine properly, must be fixed
         isinstance(menu, wx.Menu)
         for item in menu.GetMenuItems():
             menu.RemoveItem(item)
