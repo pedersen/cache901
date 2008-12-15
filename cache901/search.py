@@ -94,16 +94,12 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         
     def loadCacheTypes(self):
         self.cacheTypes.DeleteAllItems()
-        self.cacheTypes.DeleteAllColumns()
-        self.cacheTypes.InsertColumn(0, "Cache Types", width=self.w)
         self.cur.execute("select distinct type from caches order by type")
         for row in self.cur:
             self.cacheTypes.Append((row[0], ))
         
     def loadCacheContainers(self):
         self.cacheContainers.DeleteAllItems()
-        self.cacheContainers.DeleteAllColumns()
-        self.cacheContainers.InsertColumn(0, "Cache Containers", width=self.w)
         self.cur.execute("select distinct container from caches order by container")
         for row in self.cur:
             self.cacheContainers.Append((row[0], ))

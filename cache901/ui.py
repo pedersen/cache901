@@ -138,7 +138,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 img = wx.BitmapFromImage(wx.Image(os.sep.join([cache901.dbpath, fname])).Scale(64, 64))
                 pnum = self.photoImageList.Add(img)
                 self.photoList.InsertImageItem(pnum, pnum)
-            self.photoList.Select(0)
+            if self.photoList.GetItemCount() > 0:
+                self.photoList.Select(0)
 
     def updSearchMenu(self):
         for item in self.CacheSearchMenu.GetMenuItems():
