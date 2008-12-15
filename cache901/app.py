@@ -78,7 +78,7 @@ class Cache901App(wx.App):
         return(True)
 
 def main():
-    app = Cache901App()
+    app = Cache901App(redirect=False, useBestVisual=True)
     app.MainLoop()
 
 if __name__ == '__main__':

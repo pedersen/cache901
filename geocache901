@@ -24,7 +24,7 @@ except ImportError:
 import cache901.app
 
 def main():
-    app = cache901.app.Cache901App(redirect=False)
+    app = cache901.app.Cache901App(redirect=False, useBestVisual=True)
     app.MainLoop()
 
 if __name__ == '__main__':

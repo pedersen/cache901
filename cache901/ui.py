@@ -63,7 +63,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.search.SetFont(font)
 
         self.Bind(wx.EVT_CLOSE,  self.OnClose)
-        
+
         self.caches.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuCaches)
         self.points.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuWpts)
 
@@ -104,7 +104,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.splitLists.SetSashPosition(cfg.ReadInt("ListSplitPos"), 370)
         self.splitLogsAndBugs.SetSashPosition(cfg.ReadInt("BugLogSplitPos"), 200)
         self.splitLogsandLog.SetSashPosition(cfg.ReadInt("LogDateLogSplitPos"), 200)
-        
+
         self.logList.DeleteAllColumns()
         w,h = self.GetTextExtent("QQQQ/QQ/QQQQQ")
         self.logList.InsertColumn(0, "Log Date", width=w)
@@ -112,10 +112,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.points.InsertColumn(0, "Wpt Name", width=w)
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.points.InsertColumn(1, "Wpt Desc", width=w)
-        
+
         self.pop = None
         self.ld_cache = None
-        
+
         self.loadData()
         self.updSearchMenu()
         self.updPhotoList()
@@ -139,7 +139,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 pnum = self.photoImageList.Add(img)
                 self.photoList.InsertImageItem(pnum, pnum)
             self.photoList.Select(0)
-    
+
     def updSearchMenu(self):
         for item in self.CacheSearchMenu.GetMenuItems():
             self.CacheSearchMenu.RemoveItem(item)
@@ -372,7 +372,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         abt.version.SetLabel("Version: %s" % cache901.version)
         abt.SetIcon(self.geoicons["appicon"])
         abt.ShowModal()
-    
+
     def OnSearchLocs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showSearch()
@@ -380,7 +380,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
-    
+
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
@@ -388,7 +388,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
-    
+
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
@@ -396,7 +396,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
-        
+
     def OnSearch(self, evt):
         isinstance(evt, wx.CommandEvent)
         self.search.SetValue("")
@@ -437,7 +437,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
-        
+
     def OnShowMap(self, evt):
         i = 0
         cacheids = []
@@ -456,23 +456,23 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 self.caches.Select(item)
                 self.caches.EnsureVisible(item)
         self.updStatus()
-        
+
     def OnClearNotes(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             self.currNotes.SetValue("")
             self.ld_cache.note.note = ""
             self.ld_cache.note.Save()
             cache901.db().commit()
-    
+
     def OnSaveNotes(self, evt):
         self.ld_cache.note.note = self.currNotes.GetValue()
         self.ld_cache.note.Save()
         cache901.db().commit()
-    
+
     def OnUndoNoteChanges(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             self.currNotes.SetValue(self.ld_cache.note.note)
-        
+
     def OnAddPhoto(self, evt):
         fdg = wx.FileDialog(self, "Select Image File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="Photo Files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|All Files (*.*)|*.*")
         cfg = wx.Config.Get()
@@ -495,15 +495,15 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             cache901.db().commit()
         self.updPhotoList()
         self.updStatus()
-    
+
     def OnSwitchPhoto(self, evt):
         idx = evt.GetImage()
         fname = os.sep.join([cache901.dbpath, self.ld_cache.photolist.names[idx]])
         sz = self.currPhoto.GetSize()
         self.currPhoto.SetBitmap(wx.BitmapFromImage(wx.Image(fname).Scale(sz.width, sz.height, wx.IMAGE_QUALITY_HIGH)))
         self.updStatus()
-        
-    
+
+
     def OnRemovePhoto(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             idx = self.photoList.GetFirstSelected()
@@ -513,7 +513,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.ld_cache.photolist.Save()
             cache901.db().commit()
             self.updPhotoList()
-    
+
     def OnLogCache(self, evt):
         log = cache901.dbobjects.Log(-99999999)
         log.cache_id = self.ld_cache.cache_id
@@ -525,13 +525,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.caches.Select(iid, 0)
         self.caches.Select(iid, 1)
         self.logList.Select(0)
-    
+
     def OnSaveLog(self, evt):
         log = cache901.dbobjects.Log(self.logList.GetItemData(self.logList.GetFirstSelected()))
         log.log_entry = self.logEntry.GetValue()
         log.type = self.logType.GetValue()
         log.my_log_found = self.logMineFound.GetValue()
-    
+
         (year, mon, day)=map(lambda x: int(x), self.logDate.GetValue().split('-'))
         d = datetime.datetime(year, mon, day, 0, 0, 0)
         log.date = time.mktime(d.timetuple())
@@ -541,25 +541,28 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             log.date -= time.timezone
         log.Save()
         cache901.db().commit()
-                        
+
     def OnPopupMenu(self, evt):
         self.mnu = cache901.ui_xrc.xrcCwMenu()
         self.mnu.Bind(wx.EVT_MENU, self.OnSendToGPS, self.mnu.popSendToGPS)
         self.updCacheDayMenus(self.mnu.popAddCurrentToCacheDay)
         for item in self.updCacheDayMenus(self.mnu.popAddCurrentToCacheDay):
-            self.mnu.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+            if sys.platform == 'win32':
+                self.mnu.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+            else:
+                item.GetMenu().Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         self.PopupMenu(self.mnu)
         self.mnu.Destroy()
         self.mnu = None
-    
+
     def OnPopupMenuCaches(self, evt):
         self.pop = self.caches
         self.OnPopupMenu(evt)
-        
+
     def OnPopupMenuWpts(self, evt):
         self.pop = self.points
         self.OnPopupMenu(evt)
-        
+
     def OnSendToGPS(self, evt):
         isinstance(evt, wx.CommandEvent)
         win = evt.GetEventObject()
@@ -578,7 +581,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, parseOutput=False)
         self.pop = None
         self.updStatus()
-    
+
     def OnAddToCacheDay(self, evt):
         isinstance(evt, wx.CommandEvent)
         self.search.SetValue("")
@@ -611,7 +614,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
-    
+
     def OnSendCacheDayToGPS(self, evt):
         isinstance(evt, wx.CommandEvent)
         self.search.SetValue("")
@@ -626,9 +629,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         gpsbabel.gps.setInGpx(gpx)
         gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, route=True, parseOutput=False)
         self.updStatus()
-    
+
     def updCacheDayMenus(self, menu, includenew=True):
-	#@todo: This doesn't bind the subroutine properly, must be fixed
         isinstance(menu, wx.Menu)
         for item in menu.GetMenuItems():
             menu.RemoveItem(item)
@@ -641,7 +643,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for row in cur:
             mitems.append(menu.Append(-1, row[0]))
         return mitems
-    
+
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)
