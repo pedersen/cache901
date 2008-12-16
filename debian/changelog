@@ -1,3 +1,14 @@
+cache901 (0.4-1) unstable; urgency=low
+
+  * Added code to show map of search results.
+  * Added advanced searches, and saving of them
+  * Added CacheDay feature
+  * Added cache logging
+  * Added cache notes and photos
+  * Added GPS integration
+
+ -- Michael J. Pedersen <m.pedersen@icelus.org>  Mon, 15 Dec 2008 21:14:00 -0500
+
 cache901 (0.2-1) unstable; urgency=low
 
   * Initial release
