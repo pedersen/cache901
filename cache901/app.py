@@ -35,8 +35,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import sys
 import traceback
 
-import wxversion
-wxversion.ensureMinimal("2.8")
+if not hasattr(sys, "frozen"):
+    import wxversion
+    wxversion.ensureMinimal("2.8")
 import wx
 
 import cache901
