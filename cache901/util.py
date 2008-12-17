@@ -151,7 +151,10 @@ def forceAscii(s):
 
 def which(cmd):
     if sys.platform == 'win32':
-        for d in os.environ['PATH'].split(';'):
+        syspath = ['.']
+        syspath.append(cache901.__path__[0].replace('%slibrary.zip' % os.sep, ''))
+        syspath = os.environ['PATH'].split(';')
+        for d in syspath:
             t = os.sep.join([d, cmd])
             for ext in ['exe', 'bat', 'com']:
                 f = "%s.%s" % (t, ext)
