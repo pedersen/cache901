@@ -30,6 +30,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 # rm -rf /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/pyserial-2.4-py2.5.egg
 # After that, the serial module was correctly included
 
+# OSX Issue:
+# Seems that macholib has problems with the way these options are for OSX.
+# Had to correct by installing an updated version. Used this command:
+# sudo easy_install "macholib==dev"
+
 from distutils.core import setup
 import os, os.path, sys
 
@@ -95,7 +100,7 @@ setup(name='Cache901',
                 "dll_excludes": ["user32.dll", "ole32.dll", "kernel32.dll", "rpcrt4.dll", "oleaut32.dll", "shell32.dll", "shlwapi.dll", "ntdll.dll", "comdlg32.dll", "wsock32.dll", "comctl32.dll", "advapi32.dll", "ws2_32.dll", "gdi32.dll", "winmm.dll", "ws2help.dll", "mswsock.dll"]
             },
             "py2app" : {
-                "resources": [os.sep.join(['cache901', 'shield.ico']), './gpsbabel'],
+                "resources": [os.sep.join(['cache901', 'shield.ico']), os.sep.join(['.', 'gpsbabel'])],
                 "iconfile": "shield.icns"
             }
         },

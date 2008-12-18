@@ -25,11 +25,7 @@ import sys
 import time
 from urlparse import urlparse
 
-try:
-    import gpsbabel
-except:
-    os.environ['PATH'] = '%s:%s' % ('.', os.environ['PATH'])
-    import gpsbabel
+import gpsbabel
 import wx
 import wx.xrc as xrc
 import wx.html
@@ -177,7 +173,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for row in cache901.search.execSearch(params):
             cache_id = self.caches.Append((row[1], row[2], row[3], row[4]))
             self.caches.SetItemData(cache_id, row[0])
-        self.caches.Select(0)
+        if self.caches.GetItemCount() > 0:
+            self.caches.Select(0)
 
         wpt_params['searchpat'] = self.search.GetValue()
         for row in cache901.util.getWaypoints(wpt_params):
