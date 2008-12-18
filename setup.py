@@ -42,7 +42,11 @@ if sys.platform == "win32":
         print "Without win32file, pyserial will fail on Windows. Aborting."
         sys.exit(0)
     datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico']),'gpsbabel.exe','libexpat.dll'],) ]
+    ospkgs=['cache901', ],
+elif sys.platform == "darwin":
+    ospkgs=['cache901', 'serial'],
 else:
+    ospkgs=['cache901', ],
     datafiles = []
 
 try:
@@ -76,7 +80,7 @@ setup(name='Cache901',
         author_email='m.pedersen@icelus.org ',
         url='http://www.cache901.org/',
         scripts=['geocache901',],
-        packages=['cache901', ],
+        packages=ospkgs,
         package_data={'cache901' : ['shield.ico', ]},
         # Combined options for py2app and py2exe
         options = {
