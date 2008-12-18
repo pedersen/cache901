@@ -21,6 +21,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 # py2app: http://pypi.python.org/pypi/py2app/
 # easy dmg: http://www.versiontracker.com/dyn/moreinfo/macosx/26358
 
+# OSX Issue:
+# GPSBabel could not run correctly from the app bundle, but had already been
+# release. As a result, the app bundle requires the svn version of
+# Python-GPSBabel. That version will be released when the next version of
+# Cache901 comes out.
+
 # OSX Serial issue:
 # When installing pyserial on OSX, an egg is created. py2app doesn't
 # support eggs correctly. As a result, the serial module was not being
