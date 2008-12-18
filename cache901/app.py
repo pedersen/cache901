@@ -34,8 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import sys
 import traceback
-
-if not hasattr(sys, "frozen"):
+if not hasattr(sys, "frozen") and 'wx' not in sys.modules and 'wxPython' not in sys.modules:
     import wxversion
     wxversion.ensureMinimal("2.8")
 import wx
