@@ -25,7 +25,11 @@ import sys
 import time
 from urlparse import urlparse
 
-import gpsbabel
+try:
+    import gpsbabel
+except:
+    os.environ['PATH'] = '%s:%s' % ('.', os.environ['PATH'])
+    import gpsbabel
 import wx
 import wx.xrc as xrc
 import wx.html

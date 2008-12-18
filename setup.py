@@ -21,6 +21,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 # py2app: http://pypi.python.org/pypi/py2app/
 # easy dmg: http://www.versiontracker.com/dyn/moreinfo/macosx/26358
 
+# OSX Serial issue:
+# When installing pyserial on OSX, an egg is created. py2app doesn't
+# support eggs correctly. As a result, the serial module was not being
+# included, and I could not make it happen. The fix I employed (which is
+# far from ideal) was to execute the following commands:
+#  mv /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/pyserial-2.4-py2.5.egg/serial /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages
+# rm -rf /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/pyserial-2.4-py2.5.egg
+# After that, the serial module was correctly included
+
 from distutils.core import setup
 import os, os.path, sys
 
@@ -42,11 +51,9 @@ if sys.platform == "win32":
         print "Without win32file, pyserial will fail on Windows. Aborting."
         sys.exit(0)
     datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico']),'gpsbabel.exe','libexpat.dll'],) ]
-    ospkgs=['cache901', ],
 elif sys.platform == "darwin":
-    ospkgs=['cache901', 'serial'],
+    datafiles = []
 else:
-    ospkgs=['cache901', ],
     datafiles = []
 
 try:
@@ -80,7 +87,7 @@ setup(name='Cache901',
         author_email='m.pedersen@icelus.org ',
         url='http://www.cache901.org/',
         scripts=['geocache901',],
-        packages=ospkgs,
+        packages=['cache901', ],
         package_data={'cache901' : ['shield.ico', ]},
         # Combined options for py2app and py2exe
         options = {
@@ -88,7 +95,7 @@ setup(name='Cache901',
                 "dll_excludes": ["user32.dll", "ole32.dll", "kernel32.dll", "rpcrt4.dll", "oleaut32.dll", "shell32.dll", "shlwapi.dll", "ntdll.dll", "comdlg32.dll", "wsock32.dll", "comctl32.dll", "advapi32.dll", "ws2_32.dll", "gdi32.dll", "winmm.dll", "ws2help.dll", "mswsock.dll"]
             },
             "py2app" : {
-                "resources": [os.sep.join(['cache901', 'shield.ico'])],
+                "resources": [os.sep.join(['cache901', 'shield.ico']), './gpsbabel'],
                 "iconfile": "shield.icns"
             }
         },
@@ -106,8 +113,6 @@ setup(name='Cache901',
         app = ['geocache901.py', ]
     )
 
-try:
+if sys.platform=="win32":
     os.rename(os.sep.join(['dist', 'cache901', 'gpsbabel.exe']), os.sep.join(['dist', 'gpsbabel.exe']))
     os.rename(os.sep.join(['dist', 'cache901', 'libexpat.dll']), os.sep.join(['dist', 'libexpat.dll']))
-except:
-    pass
