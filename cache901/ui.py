@@ -196,7 +196,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             (w, h) = self.GetSize()
             cfg.WriteInt("Width", w)
             cfg.WriteInt("Height", h)
-            self.geoicons.Destroy()
+            try:
+                self.geoicons.Destroy()
+            except:
+                pass
             self.Destroy()
         else:
             if isinstance(evt, wx.CloseEvent): evt.Veto()
