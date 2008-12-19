@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import email
 import email.message
 import email.parser
+import imaplib
 import os
 import os.path
 import poplib
@@ -37,9 +38,6 @@ class GPXSource(object):
     def __iter__(self):
         return self
     
-    def nextFilename(self):
-        return ""
-    
     def next(self):
         raise StopIteration
 
@@ -51,26 +49,11 @@ class FolderSource(GPXSource):
         self.gpxzip = []
         self.z = None
         
-    def nextFilename(self):
-        if len(self.gpxfiles) > 0:
-            return os.sep.join([self.folder, self.gpxfiles[-1]])
-        if len(self.zipfiles) > 0:
-            if self.z is None:
-                fname = self.zipfiles[-1]
-                z = zipfile.ZipFile(os.sep.join([self.folder, fname]))
-                gpxzip = filter(lambda x: x.lower().endswith('.gpx'), z.namelist())
-            else:
-                z = self.z
-                gpxzip = self.gpxzip
-            if len(gpxzip) > 0:
-                return os.sep.join([z.filename, gpxzip[-1]])
-            else:
-                return z.filename
-        
     def next(self):
         ext = ""
         if len(self.gpxfiles) > 0:
             fname = self.gpxfiles.pop()
+            cache901.notify('Processing %s' % fname)
             f = open(os.sep.join([self.folder, fname]))
             return "\n".join(f.readlines())
         if len(self.zipfiles) > 0:
@@ -79,12 +62,12 @@ class FolderSource(GPXSource):
                 self.z = zipfile.ZipFile(os.sep.join([self.folder, fname]))
                 self.gpxzip = filter(lambda x: x.lower().endswith('.gpx'), self.z.namelist())
             if len(self.gpxzip) > 0:
+                cache901.notify('Processing %s' % os.sep.join([fname, self.gpxzip[-1]]))
                 return self.z.read(self.gpxzip.pop())
             else:
                 self.z = None
                 self.zipfiles.pop()
         raise StopIteration
-    
 
 class PopSource(GPXSource):
     def __init__(self, host, user, password, ssl=False):
@@ -100,17 +83,14 @@ class PopSource(GPXSource):
         self.zfile = None
         self.gpxlist = []
         
-    def nextFilename(self):
-        if self.count + 1 <= self.nummsgs:
-            return "Message %d" % (self.count+1)
-        else:
-            return "No more messages"
-    
+    def __del__(self):
+        self.pop3.quit()
+        
     def next(self):
-        while self.count < self.nummsgs:
+        while (self.count < self.nummsgs) or (self.zfile is not None):
             if self.zfile is None:
-                cache901.notify('Processing %s' % self.nextFilename())
                 self.count = self.count + 1
+                cache901.notify('Processing Message %d' % self.count)
                 pmsg = "\n".join(self.pop3.retr(self.count)[1])
                 msg = self.parser.parsestr(pmsg)
                 isinstance(msg, email.message.Message)
@@ -129,8 +109,52 @@ class PopSource(GPXSource):
                 if len(self.gpxlist) == 0:
                     self.zfile = None
                     return '<gpx></gpx>'
-                cache901.notify('Processing Message %d, Zip Attachment, File %s' % (self.count, self.gpxlist[-1]))
+                fname = self.gpxlist.pop()
+                cache901.notify('Processing Message %d, Zip Attachment, File %s' % (self.count, fname))
+                return self.zfile.read(fname)
+        raise StopIteration
+
+class IMAPSource(GPXSource):
+    def __init__(self, host, user, password, ssl=False, folder='INBOX'):
+        if ssl:
+            self.imap4 = imaplib.IMAP4(host)
+        else:
+            self.imap4 = imaplib.IMAP4_SSL(host)
+        self.imap4.login(user, password)
+        self.imap4.select(folder)
+        typ, data = self.imap4.search(None, 'UNSEEN')
+        self.msgnums = data[0].split()
+        self.count = 0
+        self.parser = email.parser.Parser()
+        self.zfile = None
+        self.gpxlist = []
+        
+    def __del__(self):
+        self.imap4.close()
+        
+    def next(self):
+        while self.count < len(self.msgnums)-1:
+            if self.zfile is None:
+                self.count = self.count + 1
+                cache901.notify('Processing Message %s' % self.msgnums[self.count])
+                typ, pmsg = self.imap4.fetch(self.msgnums[self.count], '(RFC822)')
+                msg = self.parser.parsestr(pmsg[0][1])
+                isinstance(msg, email.message.Message)
+                if msg.is_multipart():
+                    for part in msg.get_payload():
+                        isinstance(part, email.message.Message)
+                        fname = part.get_filename('').lower()
+                        if fname.endswith('.gpx'):
+                            return part.get_payload(decode=True)
+                        if fname.endswith('.zip'):
+                            self.zfile = zipfile.ZipFile(StringIO(part.get_payload(decode=True)))
+                            self.gpxlist = filter(lambda x: x.lower().endswith('.gpx'), self.zfile.namelist())
+                            if len(self.gpxlist) == 0:
+                                self.zfile = None
+            else:
+                if len(self.gpxlist) == 0:
+                    self.zfile = None
+                    return '<gpx></gpx>'
+                print 'Processing Message %s, Zip Attachment, File %s' % (self.msgnums[self.count], self.gpxlist[-1])
                 return self.zfile.read(self.gpxlist.pop())
-        if self.count >= self.nummsgs:
-            raise StopIteration
-        return '<gpx></gpx>'
+        raise StopIteration
