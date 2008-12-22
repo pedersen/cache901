@@ -17,13 +17,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import cookielib
 import email
 import email.message
 import email.parser
 import imaplib
 import os
 import os.path
+import re
 import poplib
+import urllib
+import urllib2
 import zipfile
 
 from cStringIO import StringIO
@@ -155,6 +159,81 @@ class IMAPSource(GPXSource):
                 if len(self.gpxlist) == 0:
                     self.zfile = None
                     return '<gpx></gpx>'
-                print 'Processing Message %s, Zip Attachment, File %s' % (self.msgnums[self.count], self.gpxlist[-1])
+                cache901.notify('Processing Message %s, Zip Attachment, File %s' % (self.msgnums[self.count], self.gpxlist[-1]))
                 return self.zfile.read(self.gpxlist.pop())
+        raise StopIteration
+
+class GeoCachingComSource(GPXSource):
+    def __init__(self, username, password, wptnames=[]):
+        self.username = username
+        self.password = password
+        self.wptnames = wptnames
+        self.useragent = 'Mozilla/4.0 (compatible; MSIE 5.5; Cache 901)'
+        
+    def __del__(self):
+        urllib2.urlopen('http://www.geocaching.com/login/default.aspx?RESET=Y')
+        
+    def setWpts(self, wptnames=[]):
+        self.wptnames = wptnames
+        
+    def login(self):
+        try:
+            cache901.notify('Logging into geocaching.com site')
+            jar = cookielib.LWPCookieJar()
+            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(jar))
+            urllib2.install_opener(opener)
+            
+            gcmain = 'http://www.geocaching.com/default.aspx'
+            
+            page = urllib2.urlopen(gcmain)
+            m = re.match(r'.+?id="__VIEWSTATE"\s+value="(.+?)"', page.read(), re.S)
+            fromvalues = urllib.urlencode({
+                '__VIEWSTATE': m.group(1),
+                'ctl00$MiniProfile$loginUsername' : self.username,
+                'ctl00$MiniProfile$loginPassword' : self.password,
+                'ctl00$MiniProfile$LoginBtn' : 'Go',
+                'ctl00$MiniProfile$loginRemember' : 'on'
+            })
+            headers = {'User-agent' : self.useragent }
+
+            request = urllib2.Request(gcmain, fromvalues, headers)
+            page = urllib2.urlopen(request)
+
+            m = re.match('.+%s.+' % self.username, page.read(), re.S)
+    
+            if m is None:
+                raise Exception('GeoCaching.com Login Failed, invalid username/password')
+            cache901.notify('Login successful')
+        except IOError, e:
+            if hasattr(e, 'code'):
+                raise Exception('GeoCaching.com Login Failed, error code: %s' % e.code)
+            elif hasattr(e, 'reason'):
+                raise Exception('GeoCaching.com Login Failed, error reason: %s' % e.reason)
+            else:
+                raise Exception('GeoCaching.com Login Failed, error %s' % str(e))
+        
+    def next(self):
+        cfind = 'http://www.geocaching.com/seek/cache_details.aspx?wp='
+        headers = {'User-agent' : self.useragent }
+        if len(self.wptnames) > 0:
+            self.login()
+            cname = self.wptnames.pop()
+            curl = '%s%s' % (cfind, cname)
+            
+            # Get __VIEWSTATE
+            cache901.notify('Retrieving cache page for %s' % cname)
+            page = urllib2.urlopen(curl)
+            m = re.match(r'.+?id="__VIEWSTATE"\s+value="(.+?)"', page.read(), re.S)
+            fromvalues = urllib.urlencode({
+                '__VIEWSTATE': m.group(1),
+                'btnGPXDL' : 'GPX eXchange File'
+            })
+            
+            # Get GPX file
+            cache901.notify('Retrieving GPX file for %s' % cname)
+            request = urllib2.Request(curl, fromvalues, headers)
+            page = urllib2.urlopen(request)
+            ptext = page.read()
+            cache901.notify('Retrieved GPX file for %s' % cname)
+            return ptext
         raise StopIteration
