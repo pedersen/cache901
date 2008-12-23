@@ -200,6 +200,7 @@ def sqlexec(con, statements, debug=False):
 def prepdb(dbname, debug=False):
     con = sqlite.connect(database=dbname, timeout=1.0)
     con.create_function("distance", 4, cache901.util.distance_exact)
+    con.row_factory = sqlite.Row
     cur = con.cursor()
     try:
         cur.execute("select version from version")

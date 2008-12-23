@@ -51,17 +51,14 @@ def db(debugging=False):
 updating = False
 def notify(message):
     global updating
-    app = wx.GetApp()
-    if app is not None:
-        f = app.GetTopWindow()
-        if f is not None:
-            s = f.GetStatusBar()
-            if  s is not None:
-                s.SetStatusText(message, 0)
-                if not updating:
-                    updating = True
-                    wx.SafeYield()
-                    updating = False
+    try:
+        wx.GetApp().GetTopWindow().GetStatusBar().SetStatusText(message, 0)
+        if not updating:
+            updating = True
+            wx.SafeYield()
+            updating = False
+    except:
+        print "cache901.notify: %s" % message
 
 class InvalidID(Exception):
     pass

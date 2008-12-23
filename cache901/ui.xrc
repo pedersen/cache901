@@ -2261,4 +2261,43 @@ http://www.justwill.com/</value>
       </XRCED>
     </object>
   </object>
+  <object class="wxDialog" name="GPXSourcesUI">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxNotebook" name="tabs">
+          <object class="notebookpage">
+            <object class="wxPanel" name="fileFolders">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="popServers">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="imapServers">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="gcComWpts">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+        </object>
+      </object>
+    </object>
+    <size>750,400</size>
+    <title>GPX Data Sources</title>
+  </object>
 </resource>

@@ -364,6 +364,33 @@ class xrcCwMenu(wx.Menu):
 
 
 
+class xrcGPXSourcesUI(wx.Dialog):
+#!XRCED:begin-block:xrcGPXSourcesUI.PreCreate
+    def PreCreate(self, pre):
+        """ This function is called during the class's initialization.
+        
+        Override it for custom setup before the window is created usually to
+        set additional window styles using SetWindowStyle() and SetExtraStyle().
+        """
+        pass
+        
+#!XRCED:end-block:xrcGPXSourcesUI.PreCreate
+
+    def __init__(self, parent):
+        # Two stage creation (see http://wiki.wxpython.org/index.cgi/TwoStageCreation)
+        pre = wx.PreDialog()
+        self.PreCreate(pre)
+        get_resources().LoadOnDialog(pre, parent, "GPXSourcesUI")
+        self.PostCreate(pre)
+
+        # Define variables for the controls, bind event handlers
+        self.fileFolders = xrc.XRCCTRL(self, "fileFolders")
+        self.popServers = xrc.XRCCTRL(self, "popServers")
+        self.imapServers = xrc.XRCCTRL(self, "imapServers")
+        self.gcComWpts = xrc.XRCCTRL(self, "gcComWpts")
+
+
+
 
 
 # ------------------------ Resource data ----------------------
@@ -375,7 +402,8 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?><resource>
+<?xml version="1.0" ?>
+<resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -2636,6 +2664,45 @@ http://www.justwill.com/</value>
         <assign_var>1</assign_var>
       </XRCED>
     </object>
+  </object>
+  <object class="wxDialog" name="GPXSourcesUI">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxNotebook" name="tabs">
+          <object class="notebookpage">
+            <object class="wxPanel" name="fileFolders">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="popServers">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="imapServers">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="gcComWpts">
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+          </object>
+        </object>
+      </object>
+    </object>
+    <size>750,400</size>
+    <title>GPX Data Sources</title>
   </object>
 </resource>'''
 
@@ -15472,4 +15539,5 @@ def __gettext_strings():
     _("Cancel")
     _("Send To GPS")
     _("Add To Cache Day")
+    _("GPX Data Sources")
 

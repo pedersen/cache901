@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import pysqlite2
+
 import cache901
 
 class Cache(object):
@@ -28,12 +30,12 @@ class Cache(object):
             if row[0] is None:
                 cid = -1
             else:
-                cid = row[0]-1
+                cid = min(row[0]-1, -1)
             cur.execute("insert into caches(cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html) values(?,'','','','','','',1,0,'',0,'','',1.0,1.0,'','','','',0.0,0.0,0,0)", (cid,))
         cur = cache901.db().cursor()
         cur.execute("select cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html from caches where cache_id=?", (cid, ))
         row = cur.fetchone()
-        if type(row) is not tuple:
+        if type(row) is not pysqlite2.dbapi2.Row:
             raise cache901.InvalidID("Invalid Cache ID: %s" % str(cid))
 
         self.cache_id        = row[ 0]
@@ -114,12 +116,12 @@ class Waypoint(object):
                 if row is None or row[0] is None:
                     cid = -1
                 else:
-                    cid = row[0]-1
+                    cid = min(row[0]-1, -1)
                 cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,0,-1,'','','',0.0,0.0)", (cid, ))
         cur = cache901.db().cursor()
         cur.execute('select loc_type, refers_to, name, desc, comment, lat, lon from locations where wpt_id=?', (cid, ))
         row = cur.fetchone()
-        if type(row) is tuple:
+        if type(row) is pysqlite2.dbapi2.Row:
             self.wpt_id = cid
             self.loc_type = row[0]
             self.refers_to = row[1]
@@ -145,12 +147,12 @@ class Log(object):
             if row[0] is None:
                 lid = -1
             else:
-                lid = row[0]-1
+                lid = min(row[0]-1, -1)
             cur.execute("insert into logs(id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found, my_log_uploaded) values(?,-1,0,'','',0,'',0,0,0,0)", (lid, ))
         cur = cache901.db().cursor()
         cur.execute('select id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found, my_log_uploaded from logs where id=?', (lid, ))
         row = cur.fetchone()
-        if type(row) is tuple:
+        if type(row) is pysqlite2.dbapi2.Row:
             self.id = lid
             self.cache_id = row[1]
             self.date = row[2]
@@ -179,12 +181,12 @@ class TravelBug(object):
             if row[0] is None:
                 bid = -1
             else:
-                bid = row[0]-1
+                bid = min(row[0]-1, -1)
             cur.execute("insert into travelbugs(id, cache_id, name, ref) values(?,-1,'','')", (bid, ))
         cur = cache901.db().cursor()
         cur.execute('select id, cache_id, name, ref from travelbugs where id=?', (bid, ))
         row = cur.fetchone()
-        if type(row) is tuple:
+        if type(row) is pysqlite2.dbapi2.Row:
             self.id = bid
             self.cache_id = row[1]
             self.name = row[2]
@@ -206,12 +208,12 @@ class Note(object):
             if row[0] is None:
                 nid = -1
             else:
-                nid = row[0]-1
+                nid = min(row[0]-1, -1)
             cur.execute("insert into notes(cache_id, note) values(?,'')", (nid, ))
         cur = cache901.db().cursor()
         cur.execute('select cache_id, note from notes where cache_id=?', (nid, ))
         row = cur.fetchone()
-        if type(row) is tuple:
+        if type(row) is pysqlite2.dbapi2.Row:
             self.id = nid
             self.note = row[1]
         else:
@@ -231,12 +233,12 @@ class Hint(object):
             if row[0] is None:
                 hid = -1
             else:
-                hid = row[0]-1
+                hid = min(row[0]-1, -1)
             cur.execute("insert into hints(cache_id, hint) values(?,'')", (hid, ))
         cur = cache901.db().cursor()
         cur.execute('select cache_id, hint from hints where cache_id=?', (hid, ))
         row = cur.fetchone()
-        if type(row) is tuple:
+        if type(row) is pysqlite2.dbapi2.Row:
             self.id = hid
             self.hint = row[1]
         else:
@@ -257,13 +259,13 @@ class PhotoList(object):
             if row[0] is None:
                 plid = -1
             else:
-                plid = row[0]-1
+                plid = min(row[0]-1, -1)
             cur.execute("insert into photos(cache_id, photofile) values(?,'')", (plid, ))
         cur = cache901.db().cursor()
         cur.execute('select cache_id, photofile from photos where cache_id=? order by photofile', (plid, ))
         rowcount = 0
         for row in cur:
-            if type(row) is tuple:
+            if type(row) is pysqlite2.dbapi2.Row:
                 self.id = plid
                 rowcount = rowcount + 1
                 if row[1] != "":

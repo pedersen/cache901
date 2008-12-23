@@ -32,12 +32,12 @@ def scrub(maxlogs=10):
     logcount = 0
     delthese = []
     for row in cur:
-        if row[1] != cache_id:
-            cache_id = row[1]
+        if row['cache_id'] != cache_id:
+            cache_id = row['cache_id']
             logcount = 0
         logcount += 1
-        if logcount > maxlogs and row[2] == 0:
-            delthese.append(str(row[0]))
+        if logcount > maxlogs and row['my_log'] == 0:
+            delthese.append(str(row['id']))
     cur.execute('delete from logs where id in (%s)' % ",".join(delthese))
     con.commit()
     cache901.notify('Recovering free space')

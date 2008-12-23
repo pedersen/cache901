@@ -169,9 +169,27 @@ class GeoCachingComSource(GPXSource):
         self.password = password
         self.wptnames = wptnames
         self.useragent = 'Mozilla/4.0 (compatible; MSIE 5.5; Cache 901)'
+        self.cfilename = os.sep.join([cache901.dbpath, 'gccom_cookie.jar'])
+        self.login()
         
     def __del__(self):
         urllib2.urlopen('http://www.geocaching.com/login/default.aspx?RESET=Y')
+        self.wwwClose()
+        
+    def wwwSetup(self):
+            self.jar = cookielib.LWPCookieJar()
+            try:
+                self.jar.load(self.cfilename)
+            except:
+                pass
+            self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.jar))
+            urllib2.install_opener(self.opener)
+            
+    def wwwClose(self):
+        if self.jar is not None:
+            self.jar.save(self.cfilename)
+        self.opener = None
+        self.jar = None
         
     def setWpts(self, wptnames=[]):
         self.wptnames = wptnames
@@ -179,9 +197,7 @@ class GeoCachingComSource(GPXSource):
     def login(self):
         try:
             cache901.notify('Logging into geocaching.com site')
-            jar = cookielib.LWPCookieJar()
-            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(jar))
-            urllib2.install_opener(opener)
+            self.wwwSetup()
             
             gcmain = 'http://www.geocaching.com/default.aspx'
             
@@ -204,6 +220,7 @@ class GeoCachingComSource(GPXSource):
             if m is None:
                 raise Exception('GeoCaching.com Login Failed, invalid username/password')
             cache901.notify('Login successful')
+            self.wwwClose()
         except IOError, e:
             if hasattr(e, 'code'):
                 raise Exception('GeoCaching.com Login Failed, error code: %s' % e.code)
@@ -216,7 +233,7 @@ class GeoCachingComSource(GPXSource):
         cfind = 'http://www.geocaching.com/seek/cache_details.aspx?wp='
         headers = {'User-agent' : self.useragent }
         if len(self.wptnames) > 0:
-            self.login()
+            self.wwwSetup()
             cname = self.wptnames.pop()
             curl = '%s%s' % (cfind, cname)
             
@@ -235,5 +252,6 @@ class GeoCachingComSource(GPXSource):
             page = urllib2.urlopen(request)
             ptext = page.read()
             cache901.notify('Retrieved GPX file for %s' % cname)
+            self.wwwClose()
             return ptext
         raise StopIteration

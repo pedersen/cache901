@@ -187,7 +187,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         cur.execute('select dayname from cacheday_names order by dayname')
         self.cacheDays.DeleteAllItems()
         for row in cur:
-            self.cacheDays.Append((row[0], ))
+            self.cacheDays.Append((row['dayname'], ))
         if self.cacheDays.GetItemCount() > 0:
             self.cacheDays.Select(0)
             self.OnLoadCacheDay(None)

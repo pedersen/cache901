@@ -89,20 +89,20 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.searchOrigin.Append("None")
         self.searchOrigin.Append("From GPS")
         for row in cache901.util.getSearchLocs():
-            self.searchOrigin.Append(row[1], row[0])
+            self.searchOrigin.Append(row['name'], row['wpt_id'])
         self.searchOrigin.SetSelection(0)
         
     def loadCacheTypes(self):
         self.cacheTypes.DeleteAllItems()
         self.cur.execute("select distinct type from caches order by type")
         for row in self.cur:
-            self.cacheTypes.Append((row[0], ))
+            self.cacheTypes.Append((row['type'], ))
         
     def loadCacheContainers(self):
         self.cacheContainers.DeleteAllItems()
         self.cur.execute("select distinct container from caches order by container")
         for row in self.cur:
-            self.cacheContainers.Append((row[0], ))
+            self.cacheContainers.Append((row['container'], ))
         
     def loadCountries(self):
         self.countriesList.DeleteAllItems()
@@ -110,7 +110,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.countriesList.InsertColumn(0, "Country", width=self.w)
         self.cur.execute("select distinct country from caches order by country")
         for row in self.cur:
-            self.countriesList.Append((row[0], ))
+            self.countriesList.Append((row['country'], ))
             
     def loadStates(self):
         self.statesList.DeleteAllItems()
@@ -118,7 +118,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.statesList.InsertColumn(0, "State / Province", width=self.w)
         self.cur.execute("select distinct state from caches order by state")
         for row in self.cur:
-            self.statesList.Append((row[0], ))
+            self.statesList.Append((row['state'], ))
         
     def loadSavedSearches(self):
         self.savedSearches.DeleteAllItems()
@@ -126,7 +126,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.savedSearches.InsertColumn(0, "Search Name", width = self.w)
         self.cur.execute("SELECT DISTINCT name FROM searches ORDER BY name")
         for row in self.cur:
-            self.savedSearches.Append((row[0], ))
+            self.savedSearches.Append((row['name'], ))
     
     def OnLoadSavedSearch(self, evt):
         item = self.savedSearches.GetNextSelected(-1)
@@ -387,7 +387,7 @@ def loadSavedSearch(sname):
     cur = cache901.db().cursor()
     cur.execute("SELECT name, param, value FROM searches WHERE name = ?", (sname, ))
     for row in cur:
-        params[row[1]] = row[2]
+        params[row['param']] = row['value']
     return params
 
 def execSearch(params):
@@ -507,10 +507,13 @@ def execSearch(params):
     cur = cache901.db().cursor()
     cur.execute(fquery, sqlparams)
     for vals in cur:
-        row = []
-        row.extend(vals)
+        lk = map(lambda x: x[0], cur.description)
+        lk.extend(range(len(lk)))
+        row = dict(zip(lk, map(lambda x: vals[x], lk)))
         if params.has_key("searchScale"):
             row[4] = "%1.1f%s" % (row[4], params["searchScale"])
+            row['distance'] = row[4]
         else:
             row[4] = "%1.1fmi" % row[4]
+            row['distance'] = row[4]
         yield row

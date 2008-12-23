@@ -33,25 +33,25 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.cacheids = caches
         self.found = None
         self.parms = '(%s)' % (','.join(map(lambda x: '%d' % x, self.cacheids)), )
-        
+
         cur = cache901.db().cursor()
-        qry = 'select min(lat), min(lon), max(lat), max(lon) from caches where cache_id in %s' % self.parms
+        qry = 'select min(lat) as minlat, min(lon) as minlon, max(lat) as maxlat, max(lon) as maxlon from caches where cache_id in %s' % self.parms
         cur.execute(qry)
         row = cur.fetchone()
-        self.minlat = float(row[0])
-        self.minlon = float(row[1])
-        self.maxlat = float(row[2])
-        self.maxlon = float(row[3])
-        
-        qry = 'select min(lat), min(lon), max(lat), max(lon) from locations where loc_type=2'
+        self.minlat = float(row['minlat'])
+        self.minlon = float(row['minlon'])
+        self.maxlat = float(row['maxlat'])
+        self.maxlon = float(row['maxlon'])
+
+        qry = 'select min(lat) as minlat, min(lon) as minlon, max(lat) as maxlat, max(lon) as maxlon from locations where loc_type=2'
         cur.execute(qry)
-	row = cur.fetchone()
-	if row[0] is not None:
-            self.minlat = min(self.minlat, float(row[0]))
-            self.minlon = min(self.minlon, float(row[1]))
-            self.maxlat = max(self.maxlat, float(row[2]))
-            self.maxlon = max(self.maxlon, float(row[3]))
-        
+        row = cur.fetchone()
+        if row[0] is not None:
+            self.minlat = min(self.minlat, float(row['minlat']))
+            self.minlon = min(self.minlon, float(row['minlon']))
+            self.maxlat = max(self.maxlat, float(row['maxlat']))
+            self.maxlon = max(self.maxlon, float(row['maxlon']))
+
         if self.minlat == self.maxlat: self.minlat = self.minlat - 1
         if self.minlon == self.maxlon: self.minlon = self.minlon - 1
         cache901.notify('Loading caches')
@@ -62,16 +62,16 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.caches = []
         cur.execute('select cache_id, url_name, name, lat, lon, type, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from caches where cache_id in %s order by url_name' % self.parms)
         for row in cur:
-            r = []
-            r.extend(row)
-            r[3] = float(r[3])
-            r[4] = float(r[4])
+            lk = map(lambda x: x[0], cur.description)
+            r = dict(zip(lk, map(lambda x: row[x], lk)))
+            r['lat'] = float(r['lat'])
+            r['lon'] = float(r['lon'])
             self.caches.append(r)
-            iid = self.cacheList.Append((r[1], ))
-            self.cacheList.SetItemData(iid, r[0])
+            iid = self.cacheList.Append((r['url_name'], ))
+            self.cacheList.SetItemData(iid, r['cache_id'])
             if len(self.caches) % 250 == 0:
-                cache901.notify('Loaded cache %s' % str(cache901.util.forceAscii(self.caches[-1][1])))
-                
+                cache901.notify('Loaded cache %s' % str(cache901.util.forceAscii(self.caches[-1]['url_name'])))
+
         cache901.notify('Loading search origin locations')
         self.originList.DeleteAllItems()
         self.originList.DeleteAllColumns()
@@ -79,29 +79,29 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.searches = []
         cur.execute('select name, lat, lon, wpt_id, 0.0 as x, 0.0 as y, 0.0 as lx, 0.0 as ly from locations where loc_type=2 order by name')
         for row in cur:
-            r=[]
-            r.extend(row)
-            r[1] = float(r[1])
-            r[2] = float(r[2])
+            lk = map(lambda x: x[0], cur.description)
+            r = dict(zip(lk, map(lambda x: row[x], lk)))
+            r['lat'] = float(r['lat'])
+            r['lon'] = float(r['lon'])
             self.searches.append(r)
-            iid = self.originList.Append((r[0], ))
-            self.originList.SetItemData(iid, r[3])
+            iid = self.originList.Append((r['name'], ))
+            self.originList.SetItemData(iid, r['wpt_id'])
             if len(self.searches) % 10 == 0:
-                cache901.notify('Loaded search origin %s' % str(cache901.util.forceAscii(self.searches[-1][0])))
-        
+                cache901.notify('Loaded search origin %s' % str(cache901.util.forceAscii(self.searches[-1]['name'])))
+
         self.mapSplit.SetValidator(cache901.validators.splitValidator("mapSplit"))
-        
+
         self.mapPanel.Bind(wx.EVT_PAINT,       self.OnPaint)
         self.mapPanel.Bind(wx.EVT_LEFT_DCLICK, self.OnMapDoubleClick)
         self.mapPanel.Bind(wx.EVT_MOTION,      self.OnMoveMouse)
-        
+
         self.zoomLevel.Bind(wx.EVT_SCROLL, self.OnChangeZoom)
-        
+
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectCache,  self.cacheList)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectSearch, self.originList)
-        
+
         self.oldZoom = None
-        
+
     def updMap(self):
         # zoom 1 is all caches on-screen, minimum of 5 miles across horizontal
         # zoom 10 is 1mi across horizontal
@@ -131,7 +131,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         dc = wx.MemoryDC(bmp)
         dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
         dc.Clear()
-        
+
         asz = self.mapArea.GetSizeTuple()
         wbar = asz[0] / 16
         hbar = asz[1] / 16
@@ -146,34 +146,34 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             dc.SetBackground(brushes[0])
             dc.SetBrush(brushes[1])
             dc.DrawRectangle(0, 20+i*hbar, 10, hbar)
-            
+
         hprop = float(sz[1]) / float(self.maxlat - self.minlat)
         wprop = float(sz[0]) / float(self.maxlon - self.minlon)
         geo = wx.GetApp().GetTopWindow().geoicons
         for i, cache in enumerate(self.caches):
-            x = int(wprop * (cache[4] - self.minlon))
-            y = sz[1] - int(hprop * (cache[3] - self.minlat))
-            tbmpsz = geo[cache[5]].GetSize()
+            x = int(wprop * (cache['lon'] - self.minlon))
+            y = sz[1] - int(hprop * (cache['lat'] - self.minlat))
+            tbmpsz = geo[cache['type']].GetSize()
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
-            self.caches[i][6] = x
-            self.caches[i][7] = y
-            self.caches[i][8] = x+tbmpsz.width
-            self.caches[i][9] = y+tbmpsz.height
-            dc.DrawBitmap(geo[cache[5]], x, y)
+            self.caches[i]['x'] = x
+            self.caches[i]['y'] = y
+            self.caches[i]['lx'] = x+tbmpsz.width
+            self.caches[i]['ly'] = y+tbmpsz.height
+            dc.DrawBitmap(geo[cache['type']], x, y)
         locbmp = wx.BitmapFromImage(wx.ImageFromBitmap(geo["searchloc"]).Scale(16,16))
         tbmpsz = locbmp.GetSize()
         for i, loc in enumerate(self.searches):
-            x = int(wprop * (loc[2] - self.minlon))
-            y = int(hprop * (loc[1] - self.minlat))
+            x = int(wprop * (loc['lon'] - self.minlon))
+            y = int(hprop * (loc['lat'] - self.minlat))
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
-            self.searches[i][4] = x
-            self.searches[i][5] = y
-            self.searches[i][6] = x+tbmpsz.width
-            self.searches[i][7] = y+tbmpsz.height
+            self.searches[i]['x'] = x
+            self.searches[i]['y'] = y
+            self.searches[i]['lx'] = x+tbmpsz.width
+            self.searches[i]['ly'] = y+tbmpsz.height
             dc.DrawBitmap(locbmp, x, y)
-        
+
         hprop = float(sz[1]) / float(hrange) # pixels per mile
         wprop = float(sz[0]) / float(wrange) # pixels per mile
         #hscale = int(hrange / 16.0 * hprop) # Screen size divided by 4, and then by 4 again for each bar
@@ -184,14 +184,14 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         dc.SelectObject(wx.NullBitmap)
         self.bmp = bmp
         self.oldZoom = self.zoomLevel.GetValue()
-    
+
     def OnPaint(self, evt):
         self.mapArea.SetScrollRate(20, 20)
         if self.oldZoom is None or self.oldZoom != self.zoomLevel.GetValue():
             self.updMap()
         paintdc = wx.PaintDC(self.mapPanel)
         paintdc.DrawBitmap(self.bmp, 0, 0)
-    
+
     def OnChangeZoom(self, evt):
         self.updMap()
         self.Refresh()
@@ -200,31 +200,31 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         cid = evt.GetData()
         self.found = cid
         idx = 0
-        while self.caches[idx][0] != cid: idx = idx+1
+        while self.caches[idx]['cache_id'] != cid: idx = idx+1
         sz = self.mapArea.GetSize()
         sz.width = sz.width/2
         sz.height = sz.height/2
-        xpix = self.caches[idx][6]-sz.width
-        ypix = self.caches[idx][7]-sz.height
+        xpix = self.caches[idx]['x']-sz.width
+        ypix = self.caches[idx]['y']-sz.height
         if xpix < 0: xpix = 0
         if ypix < 0: ypix = 0
         xscr, yscr = self.mapArea.GetScrollPixelsPerUnit()
         self.mapArea.Scroll(xpix/xscr, ypix/yscr)
-    
+
     def OnSelectSearch(self, evt):
         cid = evt.GetData()
         idx = 0
-        while self.searches[idx][3] != cid: idx = idx+1
+        while self.searches[idx]['wpt_id'] != cid: idx = idx+1
         sz = self.mapArea.GetSize()
         sz.width = sz.width/2
         sz.height = sz.height/2
-        xpix = self.searches[idx][4]-sz.width
-        ypix = self.searches[idx][5]-sz.height
+        xpix = self.searches[idx]['x']-sz.width
+        ypix = self.searches[idx]['y']-sz.height
         if xpix < 0: xpix = 0
         if ypix < 0: ypix = 0
         xscr, yscr = self.mapArea.GetScrollPixelsPerUnit()
         self.mapArea.Scroll(xpix/xscr, ypix/yscr)
-    
+
     def OnMapDoubleClick(self, evt):
         isinstance(evt, wx.MouseEvent)
         pos = evt.GetPosition()
@@ -232,12 +232,12 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         y=pos.y
         self.found = None
         for cache in self.caches:
-            if x >= cache[6] and x <= cache[8] and y >= cache[7] and y <= cache[9]:
-                self.mapPanel.SetToolTipString(cache[1])
-                self.found = cache[0]
+            if x >= cache['x'] and x <= cache['lx'] and y >= cache['y'] and y <= cache['ly']:
+                self.mapPanel.SetToolTipString(cache['url_name'])
+                self.found = cache['cache_id']
         if self.found is not None:
             self.EndModal(wx.ID_OK)
-        
+
     def OnMoveMouse(self, evt):
         isinstance(evt, wx.MouseEvent)
         pos = evt.GetPosition()
@@ -245,15 +245,15 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         y=pos.y
         found = False
         for cache in self.caches:
-            if x >= cache[6] and x <= cache[8] and y >= cache[7] and y <= cache[9]:
-                self.mapPanel.SetToolTipString(cache[1])
+            if x >= cache['x'] and x <= cache['lx'] and y >= cache['y'] and y <= cache['ly']:
+                self.mapPanel.SetToolTipString(cache['url_name'])
                 found = True
         for search in self.searches:
-            if x >= search[4] and x <= search[6] and y >= search[5] and y <= search[7]:
-                self.mapPanel.SetToolTipString(search[0])
+            if x >= search['x'] and x <= search['lx'] and y >= search['y'] and y <= search['ly']:
+                self.mapPanel.SetToolTipString(search['name'])
                 found = True
         if not found: self.mapPanel.SetToolTipString('')
-        
+
     def forWingIde(self):
         isinstance(self.mapArea,    wx.ScrolledWindow)
         isinstance(self.mapPanel,   wx.Panel)
@@ -261,4 +261,4 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         isinstance(self.cacheList,  wx.ListCtrl)
         isinstance(self.originList, wx.ListCtrl)
         isinstance(self.zoomLevel,  wx.Slider)
-        
+
