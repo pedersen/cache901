@@ -38,7 +38,7 @@ class GPXSource(object):
     # Objects of this interface must be iterable. Furthermore, they must
     # return the next gpx file in their data set. Callers will only care
     # about the gpx files, so only those get returned.
-    # gpx objects are required to be either files or file like objects
+    # gpx objects are required to be file contents as a single string
     def __iter__(self):
         return self
     
@@ -139,25 +139,36 @@ class IMAPSource(GPXSource):
     def next(self):
         while self.count < len(self.msgnums)-1:
             if self.zfile is None:
-                self.count = self.count + 1
                 cache901.notify('Processing Message %s' % self.msgnums[self.count])
                 typ, pmsg = self.imap4.fetch(self.msgnums[self.count], '(RFC822)')
+                self.count = self.count + 1
                 msg = self.parser.parsestr(pmsg[0][1])
                 isinstance(msg, email.message.Message)
                 if msg.is_multipart():
+                    foundgpx = False
                     for part in msg.get_payload():
                         isinstance(part, email.message.Message)
                         fname = part.get_filename('').lower()
                         if fname.endswith('.gpx'):
+                            cache901.notify('Found gpx file, processing')
                             return part.get_payload(decode=True)
                         if fname.endswith('.zip'):
+                            cache901.notify('Found zip file, trying to load')
                             self.zfile = zipfile.ZipFile(StringIO(part.get_payload(decode=True)))
                             self.gpxlist = filter(lambda x: x.lower().endswith('.gpx'), self.zfile.namelist())
                             if len(self.gpxlist) == 0:
                                 self.zfile = None
+                            else:
+                                self.count = self.count - 1
+                                foundgpx = True
+                    if not foundgpx:
+                        self.imap4.store(self.msgnums[self.count], '-FLAGS', '(\\SEEN)')
+                else:
+                    self.imap4.store(self.msgnums[self.count], '-FLAGS', '(\\SEEN)')
             else:
                 if len(self.gpxlist) == 0:
                     self.zfile = None
+                    self.count = self.count + 1
                     return '<gpx></gpx>'
                 cache901.notify('Processing Message %s, Zip Attachment, File %s' % (self.msgnums[self.count], self.gpxlist[-1]))
                 return self.zfile.read(self.gpxlist.pop())
@@ -173,6 +184,7 @@ class GeoCachingComSource(GPXSource):
         self.login()
         
     def __del__(self):
+        self.wwwSetup()
         urllib2.urlopen('http://www.geocaching.com/login/default.aspx?RESET=Y')
         self.wwwClose()
         
