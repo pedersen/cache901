@@ -61,7 +61,7 @@ if sys.platform == "win32":
     except:
         print "Without win32file, pyserial will fail on Windows. Aborting."
         sys.exit(0)
-    datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico']),'gpsbabel.exe','libexpat.dll'],) ]
+    datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico']), os.sep.join(['osfiles', 'gpsbabel.exe']), os.sep.join(['osfiles', 'libexpat.dll'])],) ]
 elif sys.platform == "darwin":
     datafiles = []
 else:
@@ -106,7 +106,7 @@ setup(name='Cache901',
                 "dll_excludes": ["user32.dll", "ole32.dll", "kernel32.dll", "rpcrt4.dll", "oleaut32.dll", "shell32.dll", "shlwapi.dll", "ntdll.dll", "comdlg32.dll", "wsock32.dll", "comctl32.dll", "advapi32.dll", "ws2_32.dll", "gdi32.dll", "winmm.dll", "ws2help.dll", "mswsock.dll"]
             },
             "py2app" : {
-                "resources": [os.sep.join(['cache901', 'shield.ico']), os.sep.join(['.', 'gpsbabel'])],
+                "resources": [os.sep.join(['cache901', 'shield.ico']), os.sep.join(['osfiles', 'gpsbabel'])],
                 "iconfile": "shield.icns"
             }
         },
