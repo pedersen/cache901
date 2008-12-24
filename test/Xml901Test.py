@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import pysqlite2
 import unittest
 
 import cache901
@@ -38,7 +39,7 @@ class XmlTest(unittest.TestCase):
         self.parser.parse(waypoint)
         cur.execute("select loc_type, refers_to, name, desc, comment, lat, lon from locations")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 1)
         self.failUnless(row[1] == -1)
         self.failUnless(row[2] == "S1EAFC")
@@ -52,7 +53,8 @@ class XmlTest(unittest.TestCase):
         self.parser.parse(cache_simple)
         cur.execute("select cache_id, catid, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html from caches")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        print type(row)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[ 0] == 210735)
         self.failUnless(row[ 1] == None)
         self.failUnless(row[ 2] == "GCMW2V")
@@ -83,7 +85,7 @@ class XmlTest(unittest.TestCase):
         self.parser.parse(hint)
         cur.execute("select cache_id,hint from hints")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 210735)
         self.failUnless(row[1] == "35 mm film canister. You won't need to get wet.")
 
@@ -92,7 +94,7 @@ class XmlTest(unittest.TestCase):
         self.parser.parse(travelbug)
         cur.execute("select id, cache_id,name,ref from travelbugs")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 567295)
         self.failUnless(row[1] == 210735)
         self.failUnless(row[2] == "Got Art?")
@@ -103,7 +105,7 @@ class XmlTest(unittest.TestCase):
         self.parser.parse(log)
         cur.execute("select cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found from logs")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 210735)
         self.failUnless(row[1] == 1214697600, "Expected: 1214697600 and got %s" % str(row[1]))
         self.failUnless(row[2] == "Found it")
@@ -120,20 +122,20 @@ class XmlTest(unittest.TestCase):
         # Check travel bug
         cur.execute("select cache_id,name,ref from travelbugs")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 210735)
         self.failUnless(row[1] == "Got Art?")
         self.failUnless(row[2] == "TB11V3R")
         # Check hint
         cur.execute("select cache_id,hint from hints")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 210735)
         self.failUnless(row[1] == "35 mm film canister. You won't need to get wet.")
         # Check cache
         cur.execute("select cache_id, catid, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html from caches")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[ 0] == 210735)
         self.failUnless(row[ 1] == None)
         self.failUnless(row[ 2] == "GCMW2V")
@@ -161,7 +163,7 @@ class XmlTest(unittest.TestCase):
         # Check logs
         cur.execute("select id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found from logs order by id desc")
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 47487076)
         self.failUnless(row[1] == 210735)
         self.failUnless(row[2] == 1214697600)
@@ -173,7 +175,7 @@ class XmlTest(unittest.TestCase):
         self.failUnless(row[8] == 0)
         self.failUnless(row[9] == 0)
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 47018885)
         self.failUnless(row[1] == 210735)
         self.failUnless(row[2] == 1214092800)
@@ -185,7 +187,7 @@ class XmlTest(unittest.TestCase):
         self.failUnless(row[8] == 0)
         self.failUnless(row[9] == 0)
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 46483069)
         self.failUnless(row[1] == 210735)
         self.failUnless(row[2] == 1213401600)
@@ -197,7 +199,7 @@ class XmlTest(unittest.TestCase):
         self.failUnless(row[8] == 0)
         self.failUnless(row[9] == 0)
         row = cur.fetchone()
-        self.failUnless(type(row) is tuple)
+        self.failUnless(type(row) is pysqlite2.dbapi2.Row)
         self.failUnless(row[0] == 46320319)
         self.failUnless(row[1] == 210735)
         self.failUnless(row[2] == 1213142400)

@@ -10,7 +10,8 @@ proj.directory-list = [{'dirloc': loc('.'),
                         'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True}]
-proj.file-list = [loc('cache901/mapping.py'),
+proj.file-list = [loc('cache901/gpxsource.py'),
+                  loc('cache901/mapping.py'),
                   loc('cache901/search.py'),
                   loc('cache901/validators.py')]
 proj.file-type = 'shared'

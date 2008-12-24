@@ -186,6 +186,41 @@ statements_v003 = [
     """
     ]
 
+statements_v004 = [
+    "DROP TABLE accounts",
+    """
+    CREATE TABLE accounts (
+        accountid integer primary key,
+        sitename  text,
+        username  text,
+        password  text,
+        isteam    integer,
+        ispremium integer
+        )
+    """,
+    """
+    CREATE TABLE emailsources (
+        emailid   integer,
+        svrtype   text,
+        svrname   text,
+        svruser   text,
+        svrpass   text,
+        usessl    integer,
+        deffolder text
+        )
+    """,
+    """
+    CREATE TABLE gpxfolders (
+        foldername text
+        )
+    """,
+    """
+    CREATE TABLE watched_waypoints (
+        waypoint_name text
+        )
+    """
+    ]
+
 allstatements = sorted(filter(lambda x: x.startswith("statements_v"), globals()))
 
 def sqlexec(con, statements, debug=False):

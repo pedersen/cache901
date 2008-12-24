@@ -613,27 +613,135 @@ class CategoryTest(unittest.TestCase):
         pass
 
 class AccountTest(unittest.TestCase):
-    """
-    @todo: write this test case
-    """
     def setUp(self):
         cur = cache901.db().cursor()
-        cur.execute("delete from locations")
-        cur.execute("delete from caches")
-        cur.execute("delete from travelbugs")
-        cur.execute("delete from logs")
-        cur.execute("delete from hints")
+        cur.execute("delete from accounts")
         cache901.db().commit()
 
     def testInitInvalidID(self):
-        pass
+        try:
+            acct = cache901.dbobjects.Account(101)
+            self.fail('Account with invalid ID created')
+        except cache901.InvalidID, e:
+            pass
 
-    def testInitValidID(self):
-        pass
 
     def testMakeNewId(self):
-        pass
+        acct = cache901.dbobjects.Account(-999999)
+        self.failUnless(acct.acctid    == -1)
+        self.failUnless(acct.sitename  == '')
+        self.failUnless(acct.username  == '')
+        self.failUnless(acct.password  == '')
+        self.failUnless(acct.isteam    == False)
+        self.failUnless(acct.ispremium == False)
 
     def testSave(self):
-        pass
+        acct = cache901.dbobjects.Account(-999999)
+        acctid = acct.acctid
+        acct.sitename  = 'http://www.geocaching.com/'
+        acct.username  = 'username'
+        acct.password  = 'password'
+        acct.isteam    = True
+        acct.ispremium = True
+        acct.Save()
+        
+        del acct
+        acct = cache901.dbobjects.Account(acctid)
+        self.failUnless(acct.sitename  == 'http://www.geocaching.com/')
+        self.failUnless(acct.username  == 'username')
+        self.failUnless(acct.password  == 'password')
+        self.failUnless(acct.isteam    == True)
+        self.failUnless(acct.ispremium == True)
+    
+    def testDelete(self):
+        acct = cache901.dbobjects.Account(-999999)
+        acctid = acct.acctid
+        acct.sitename  = 'http://www.geocaching.com/'
+        acct.username  = 'username'
+        acct.password  = 'password'
+        acct.isteam    = True
+        acct.ispremium = True
+        acct.Save()
+        
+        del acct
+        acct = cache901.dbobjects.Account(acctid)
+        acct.Delete()
+        
+        del acct
+        acct = cache901.dbobjects.Account(acctid)
+        self.failUnless(acct.acctid    == -1)
+        self.failUnless(acct.sitename  == '')
+        self.failUnless(acct.username  == '')
+        self.failUnless(acct.password  == '')
+        self.failUnless(acct.isteam    == False)
+        self.failUnless(acct.ispremium == False)
+
+class EmailAccountTest(unittest.TestCase):
+    def setUp(self):
+        cur = cache901.db().cursor()
+        cur.execute("delete from emailsources")
+        cache901.db().commit()
+
+    def testInitInvalidID(self):
+        try:
+            acct = cache901.dbobjects.Email(101)
+            self.fail('Email with invalid ID created')
+        except cache901.InvalidID, e:
+            pass
+
+
+    def testMakeNewId(self):
+        acct = cache901.dbobjects.Email(-999999)
+        self.failUnless(acct.emailid   == -1)
+        self.failUnless(acct.svrtype   == '')
+        self.failUnless(acct.svrname   == '')
+        self.failUnless(acct.username  == '')
+        self.failUnless(acct.password  == '')
+        self.failUnless(acct.usessl    == False)
+        self.failUnless(acct.deffolder == '')
+
+    def testSave(self):
+        acct = cache901.dbobjects.Email(-999999)
+        acctid = acct.emailid
+        acct.svrtype   = 'imap'
+        acct.svrname   = 'localhost'
+        acct.username  = 'username'
+        acct.password  = 'password'
+        acct.usessl    = True
+        acct.deffolder = 'INBOX'
+        acct.Save()
+        
+        del acct
+        acct = cache901.dbobjects.Email(acctid)
+        self.failUnless(acct.svrtype   == 'imap')
+        self.failUnless(acct.svrname   == 'localhost')
+        self.failUnless(acct.username  == 'username')
+        self.failUnless(acct.password  == 'password')
+        self.failUnless(acct.usessl    == True)
+        self.failUnless(acct.deffolder == 'INBOX')
+    
+    def testDelete(self):
+        acct = cache901.dbobjects.Email(-999999)
+        acctid = acct.emailid
+        acct.svrtype   = 'http://www.geocaching.com/'
+        acct.svrname   = 'http://www.geocaching.com/'
+        acct.username  = 'username'
+        acct.password  = 'password'
+        acct.usessl    = True
+        acct.deffolder = 'INBOX'
+        acct.Save()
+        
+        del acct
+        acct = cache901.dbobjects.Email(acctid)
+        acct.Delete()
+        
+        del acct
+        acct = cache901.dbobjects.Email(acctid)
+        self.failUnless(acct.emailid   == -1)
+        self.failUnless(acct.svrtype   == '')
+        self.failUnless(acct.svrname   == '')
+        self.failUnless(acct.username  == '')
+        self.failUnless(acct.password  == '')
+        self.failUnless(acct.usessl    == False)
+        self.failUnless(acct.deffolder == '')
 

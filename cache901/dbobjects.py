@@ -18,21 +18,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 """
 
 import pysqlite2
+import sys
 
 import cache901
 
+minint = 0-sys.maxint
+
 class Cache(object):
-    def __init__(self, cid):
+    def __init__(self, cid=minint):
+        cur=cache901.db().cursor()
         if cid < 0:
-            cur=cache901.db().cursor()
-            cur.execute('select min(cache_id) from caches')
-            row = cur.fetchone()
-            if row[0] is None:
-                cid = -1
-            else:
-                cid = min(row[0]-1, -1)
-            cur.execute("insert into caches(cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html) values(?,'','','','','','',1,0,'',0,'','',1.0,1.0,'','','','',0.0,0.0,0,0)", (cid,))
-        cur = cache901.db().cursor()
+            cur.execute('select cache_id from caches where cache_id=?', (cid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(cache_id) from caches')
+                row = cur.fetchone()
+                if row[0] is None:
+                    cid = -1
+                else:
+                    cid = min(row[0]-1, -1)
+                cur.execute("insert into caches(cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html) values(?,'','','','','','',1,0,'',0,'','',1.0,1.0,'','','','',0.0,0.0,0,0)", (cid,))
         cur.execute("select cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html from caches where cache_id=?", (cid, ))
         row = cur.fetchone()
         if type(row) is not pysqlite2.dbapi2.Row:
@@ -105,20 +109,21 @@ class Cache(object):
         cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html))
 
 class Waypoint(object):
-    def __init__(self, cid):
+    def __init__(self, cid=minint):
+        cur=cache901.db().cursor()
         if cid < 0:
-            cur=cache901.db().cursor()
             cur.execute('select wpt_id from locations where wpt_id=?', (cid, ))
-            row = cur.fetchone()
-            if row is None or row[0] is None:
-                cur.execute('select min(wpt_id) from locations')
+            if cur.fetchone() is None:
+                cur.execute('select wpt_id from locations where wpt_id=?', (cid, ))
                 row = cur.fetchone()
                 if row is None or row[0] is None:
-                    cid = -1
-                else:
-                    cid = min(row[0]-1, -1)
-                cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,0,-1,'','','',0.0,0.0)", (cid, ))
-        cur = cache901.db().cursor()
+                    cur.execute('select min(wpt_id) from locations')
+                    row = cur.fetchone()
+                    if row is None or row[0] is None:
+                        cid = -1
+                    else:
+                        cid = min(row[0]-1, -1)
+                    cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,0,-1,'','','',0.0,0.0)", (cid, ))
         cur.execute('select loc_type, refers_to, name, desc, comment, lat, lon from locations where wpt_id=?', (cid, ))
         row = cur.fetchone()
         if type(row) is pysqlite2.dbapi2.Row:
@@ -139,17 +144,18 @@ class Waypoint(object):
         cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,?,?,?,?,?,?,?)", (self.wpt_id, self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon))
 
 class Log(object):
-    def __init__(self, lid):
+    def __init__(self, lid=minint):
+        cur=cache901.db().cursor()
         if lid < 0:
-            cur=cache901.db().cursor()
-            cur.execute('select min(id) from logs')
-            row = cur.fetchone()
-            if row[0] is None:
-                lid = -1
-            else:
-                lid = min(row[0]-1, -1)
-            cur.execute("insert into logs(id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found, my_log_uploaded) values(?,-1,0,'','',0,'',0,0,0,0)", (lid, ))
-        cur = cache901.db().cursor()
+            cur.execute('select id from logs where id=?', (lid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(id) from logs')
+                row = cur.fetchone()
+                if row[0] is None:
+                    lid = -1
+                else:
+                    lid = min(row[0]-1, -1)
+                cur.execute("insert into logs(id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found, my_log_uploaded) values(?,-1,0,'','',0,'',0,0,0,0)", (lid, ))
         cur.execute('select id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found, my_log_uploaded from logs where id=?', (lid, ))
         row = cur.fetchone()
         if type(row) is pysqlite2.dbapi2.Row:
@@ -173,17 +179,18 @@ class Log(object):
         cur.execute("insert into logs(id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found, my_log_uploaded) values(?,?,?,?,?,?,?,?,?,?,?)", (self.id, self.cache_id, self.date, self.type, self.finder, self.finder_id, self.log_entry, self.log_entry_encoded, self.my_log, self.my_log_found, self.my_log_uploaded))
 
 class TravelBug(object):
-    def __init__(self, bid):
+    def __init__(self, bid=minint):
+        cur=cache901.db().cursor()
         if bid < 0:
-            cur=cache901.db().cursor()
-            cur.execute('select min(id) from travelbugs')
-            row = cur.fetchone()
-            if row[0] is None:
-                bid = -1
-            else:
-                bid = min(row[0]-1, -1)
-            cur.execute("insert into travelbugs(id, cache_id, name, ref) values(?,-1,'','')", (bid, ))
-        cur = cache901.db().cursor()
+            cur.execute('select id from travelbugs where id=?', (bid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(id) from travelbugs')
+                row = cur.fetchone()
+                if row[0] is None:
+                    bid = -1
+                else:
+                    bid = min(row[0]-1, -1)
+                cur.execute("insert into travelbugs(id, cache_id, name, ref) values(?,-1,'','')", (bid, ))
         cur.execute('select id, cache_id, name, ref from travelbugs where id=?', (bid, ))
         row = cur.fetchone()
         if type(row) is pysqlite2.dbapi2.Row:
@@ -200,17 +207,18 @@ class TravelBug(object):
         cur.execute("insert into travelbugs(id, cache_id, name, ref) values(?,?,?,?)", (self.id, self.cache_id, self.name, self.ref))
 
 class Note(object):
-    def __init__(self, nid):
+    def __init__(self, nid=minint):
+        cur=cache901.db().cursor()
         if nid < 0:
-            cur=cache901.db().cursor()
-            cur.execute('select min(cache_id) from notes')
-            row = cur.fetchone()
-            if row[0] is None:
-                nid = -1
-            else:
-                nid = min(row[0]-1, -1)
-            cur.execute("insert into notes(cache_id, note) values(?,'')", (nid, ))
-        cur = cache901.db().cursor()
+            cur.execute('select cache_id from notes where cache_id=?', (nid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(cache_id) from notes')
+                row = cur.fetchone()
+                if row[0] is None:
+                    nid = -1
+                else:
+                    nid = min(row[0]-1, -1)
+                cur.execute("insert into notes(cache_id, note) values(?,'')", (nid, ))
         cur.execute('select cache_id, note from notes where cache_id=?', (nid, ))
         row = cur.fetchone()
         if type(row) is pysqlite2.dbapi2.Row:
@@ -225,17 +233,18 @@ class Note(object):
         cur.execute("insert into notes(cache_id, note) values(?,?)", (self.id, self.note))
 
 class Hint(object):
-    def __init__(self, hid):
+    def __init__(self, hid=minint):
+        cur=cache901.db().cursor()
         if hid < 0:
-            cur=cache901.db().cursor()
-            cur.execute('select min(cache_id) from hints')
-            row = cur.fetchone()
-            if row[0] is None:
-                hid = -1
-            else:
-                hid = min(row[0]-1, -1)
-            cur.execute("insert into hints(cache_id, hint) values(?,'')", (hid, ))
-        cur = cache901.db().cursor()
+            cur.execute('select cache_id from hints where cache_id=?', (hid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(cache_id) from hints')
+                row = cur.fetchone()
+                if row[0] is None:
+                    hid = -1
+                else:
+                    hid = min(row[0]-1, -1)
+                cur.execute("insert into hints(cache_id, hint) values(?,'')", (hid, ))
         cur.execute('select cache_id, hint from hints where cache_id=?', (hid, ))
         row = cur.fetchone()
         if type(row) is pysqlite2.dbapi2.Row:
@@ -250,18 +259,19 @@ class Hint(object):
         cur.execute("insert into hints(cache_id, hint) values(?,?)", (self.id, self.hint))
 
 class PhotoList(object):
-    def __init__(self, plid):
+    def __init__(self, plid=minint):
         self.names = []
+        cur=cache901.db().cursor()
         if plid < 0:
-            cur=cache901.db().cursor()
-            cur.execute('select min(cache_id) from photos')
-            row = cur.fetchone()
-            if row[0] is None:
-                plid = -1
-            else:
-                plid = min(row[0]-1, -1)
-            cur.execute("insert into photos(cache_id, photofile) values(?,'')", (plid, ))
-        cur = cache901.db().cursor()
+            cur.execute('select cache_id from photos where cache_id=?', (plid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(cache_id) from photos')
+                row = cur.fetchone()
+                if row[0] is None:
+                    plid = -1
+                else:
+                    plid = min(row[0]-1, -1)
+                cur.execute("insert into photos(cache_id, photofile) values(?,'')", (plid, ))
         cur.execute('select cache_id, photofile from photos where cache_id=? order by photofile', (plid, ))
         rowcount = 0
         for row in cur:
@@ -314,3 +324,78 @@ class CacheDay(object):
         cur.execute('delete from cacheday where dayname=?', (self.dayname, ))
         cur.execute('delete from cacheday_names where dayname=?', (self.dayname, ))
         cache901.db().commit()
+
+class Account(object):
+    def __init__(self, acctid=minint):
+        cur = cache901.db().cursor()
+        if acctid < 0:
+            cur.execute('select accountid from accounts where accountid=?', (acctid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(accountid) from accounts')
+                row = cur.fetchone()
+                if row[0] is None:
+                    acctid = -1
+                else:
+                    acctid = min(row[0], -1)
+                cur.execute('insert into accounts(accountid, sitename, username, password, isteam, ispremium) values(?, "", "", "", 0, 0)', (acctid, ))
+        cur.execute('select accountid, sitename, username, password, isteam, ispremium from accounts where accountid=?', (acctid, ))
+        row = cur.fetchone()
+        if type(row) is pysqlite2.dbapi2.Row:
+            self.acctid    = row['accountid']
+            self.sitename  = row['sitename']
+            self.username  = row['username']
+            self.password  = row['password']
+            self.isteam    = (row['isteam'] == 1)
+            self.ispremium = (row['ispremium'] == 1)
+        else:
+            raise cache901.InvalidID('Invalid Account ID: %d' % acctid)
+        
+    def Save(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from accounts where accountid=?', (self.acctid, ))
+        cur.execute('insert into accounts(accountid, sitename, username, password, isteam, ispremium) values(?, ?, ?, ?, ?, ?)', (self.acctid, self.sitename, self.username, self.password, self.isteam, self.ispremium))
+        cache901.db().commit()
+        
+    def Delete(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from accounts where accountid=?', (self.acctid, ))
+        cache901.db().commit()
+
+class Email(object):
+    def __init__(self, acctid=minint):
+        cur = cache901.db().cursor()
+        if acctid < 0:
+            cur.execute('select emailid from emailsources where emailid=?', (acctid, ))
+            if cur.fetchone() is None:
+                cur.execute('select min(emailid) from emailsources')
+                row = cur.fetchone()
+                if row[0] is None:
+                    acctid = -1
+                else:
+                    acctid = min(row[0], -1)
+                cur.execute('insert into emailsources(emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder) values(?, "", "", "", "", 0, "")', (acctid, ))
+        cur.execute('select emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder from emailsources where emailid=?', (acctid, ))
+        row = cur.fetchone()
+        if type(row) is pysqlite2.dbapi2.Row:
+            self.emailid   = row['emailid']
+            self.svrtype   = row['svrtype']
+            self.svrname   = row['svrname']
+            self.username  = row['svruser']
+            self.password  = row['svrpass']
+            self.usessl    = (row['usessl'] == 1)
+            self.deffolder = row['deffolder']
+        else:
+            raise cache901.InvalidID('Invalid Account ID: %d' % acctid)
+        
+    def Save(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from emailsources where emailid=?', (self.emailid, ))
+        cur.execute('insert into emailsources(emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder) values(?, ?, ?, ?, ?, ?, ?)', (self.emailid, self.svrtype, self.svrname, self.username, self.password, self.usessl, self.deffolder))
+        cache901.db().commit()
+        
+    def Delete(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from emailsources where emailid=?', (self.emailid, ))
+        cache901.db().commit()
+
+                                
