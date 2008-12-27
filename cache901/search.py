@@ -508,4 +508,5 @@ def execSearch(params):
     fquery = "%s %s %s %s" % (query, where_clause, order_by, limit)
     cur = cache901.db().cursor()
     cur.execute(fquery, sqlparams)
-    return cur.fetchall()
+    for row in cur:
+        yield row

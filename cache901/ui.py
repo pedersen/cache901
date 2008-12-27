@@ -170,8 +170,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
 
         if len(self.search.GetValue()) > 2:
             params["urlname"] = self.search.GetValue()
-        for index, row in enumerate(cache901.search.execSearch(params)):
-            if index % 50 == 0: cache901.notify('Loaded cache %s' % row[3])
+        for row in cache901.search.execSearch(params):
             cache_id = self.caches.Append((row[1], row[2], row[3], row[4]))
             self.caches.SetItemData(cache_id, row[0])
         if self.caches.GetItemCount() > 0:
