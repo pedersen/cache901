@@ -254,6 +254,12 @@ def prepdb(dbname, debug=False):
             vnum = int(stgrp[-3:])
             cur.execute("DELETE FROM version")
             cur.execute("INSERT INTO version(version) VALUES(?)", (vnum, ))
-    cur.execute("vacuum")
-    cur.execute("analyze")
     return con
+
+def maintdb():
+    cur = cache901.db().cursor()
+    cache901.notify('Recovering unused disk space')
+    cur.execute("vacuum")
+    cache901.notify('Rebuilding database indices')
+    cur.execute("analyze")
+    cache901.db().commit()

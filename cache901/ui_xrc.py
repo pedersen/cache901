@@ -87,6 +87,7 @@ class xrcCache901UI(wx.Frame):
         self.photoList = xrc.XRCCTRL(self, "photoList")
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
+        self.mnuFileDbMaint = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileDbMaint"))
         self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
         idx = self.GetMenuBar().FindMenu("&Search")
         if idx != wx.NOT_FOUND:
@@ -1249,6 +1250,12 @@ def __init_resources():
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuFileDbMaint">
+          <label>Database Maintenance</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <object class="wxMenuItem" name="mnuFileExit">
           <label>E&amp;xit</label>
           <accel>Ctrl-Q</accel>
@@ -1580,10 +1587,6 @@ http://www.justwill.com/</value>
           <bitmap>icons_shield_large_png</bitmap>
         </object>
       </object>
-    </object>
-    <object class="wxStatusBar">
-      <fields>1</fields>
-      <widths>-1</widths>
     </object>
   </object>
   <object class="wxDialog" name="OptionsUI">
@@ -15765,6 +15768,7 @@ def __gettext_strings():
     _("Photos")
     _("&File")
     _("&Import GPX File")
+    _("Database Maintenance")
     _("E&xit")
     _("&Search")
     _("Show Map of Caches")

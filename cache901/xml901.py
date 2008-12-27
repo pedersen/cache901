@@ -35,10 +35,7 @@ class XMLParser(object):
         else:
             xml.sax.parse(data, self.handler)
         cache901.db().commit()
-        cur = cache901.db().cursor()
-        cur.execute("vacuum")
-        cur.execute("analyze")
-        cache901.db().commit()
+        cache901.sql.maintdb()
 
 class XMLHandler(xml.sax.handler.ContentHandler):
     def __init__(self):

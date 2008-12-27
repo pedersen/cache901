@@ -68,6 +68,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.points.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuWpts)
 
         self.Bind(wx.EVT_MENU,   self.OnClose,       self.mnuFileExit)
+        self.Bind(wx.EVT_MENU,   self.OnDbMaint,     self.mnuFileDbMaint)
         self.Bind(wx.EVT_MENU,   self.OnImportFile,  self.mnuFileImport)
         self.Bind(wx.EVT_MENU,   self.OnAbout,       self.mnuHelpAbout)
         self.Bind(wx.EVT_MENU,   self.OnSearchLocs,  self.mnuFileLocs)
@@ -184,6 +185,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
 
+    def OnDbMaint(self, evt):
+        cache901.sql.maintdb()
+        self.updStatus()
+        
     def OnClose(self, evt):
         if wx.MessageBox("Are you sure you wish to exit?", "Really Exit?", wx.YES_NO | wx.CENTER, self) == wx.YES:
             cfg=wx.Config.Get()
