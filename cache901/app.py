@@ -55,6 +55,7 @@ class Cache901App(wx.App):
         geoicons = cache901.ui.geoicons()
         splash = cache901.ui_xrc.xrcsplash(None)
         splash.SetIcon(geoicons["appicon"])
+        self.SetTopWindow(splash)
         w,h = splash.GetSizeTuple()
         x = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)/2 - w/2
         y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)/2 - h/2
@@ -77,6 +78,7 @@ class Cache901App(wx.App):
         wx.SafeYield()
         cache901.updating = False
         self.mainwin.updStatus()
+        self.mainwin.SetFocus()
         return(True)
 
 def main():

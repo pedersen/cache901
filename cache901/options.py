@@ -318,3 +318,17 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.cacheDays,    wx.ListCtrl)
         isinstance(self.cachesForDay, wx.ListCtrl)
         isinstance(self.availCaches,  wx.ListCtrl)
+
+        
+        # Accounts Tab
+        isinstance(self.acctTabSplit,   wx.SplitterWindow)
+        isinstance(self.accountNames,   wx.ListCtrl)
+        isinstance(self.btnAddAcount,   wx.Button)
+        isinstance(self.btnRemAccount,  wx.Button)
+        isinstance(self.acctType,       wx.ComboBox)
+        isinstance(self.acctUsername,   wx.TextCtrl)
+        isinstance(self.acctPassword,   wx.TextCtrl)
+        isinstance(self.acctIsTeam,     wx.CheckBox)
+        isinstance(self.acctIsPremium,  wx.CheckBox)
+        isinstance(self.btnSaveAccount, wx.Button)
+        

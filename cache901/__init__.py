@@ -25,7 +25,7 @@ import wx
 
 import cache901.sql
 
-version = "0.2"
+version = "0.5"
 appname = 'Cache901'
 
 if sys.platform == 'win32':

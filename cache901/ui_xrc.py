@@ -253,6 +253,17 @@ class xrcOptionsUI(wx.Dialog):
         self.addCache = xrc.XRCCTRL(self, "addCache")
         self.downCache = xrc.XRCCTRL(self, "downCache")
         self.availCaches = xrc.XRCCTRL(self, "availCaches")
+        self.gcLogAccounts = xrc.XRCCTRL(self, "gcLogAccounts")
+        self.acctTabSplit = xrc.XRCCTRL(self, "acctTabSplit")
+        self.accountNames = xrc.XRCCTRL(self, "accountNames")
+        self.btnAddAcount = xrc.XRCCTRL(self, "btnAddAcount")
+        self.btnRemAccount = xrc.XRCCTRL(self, "btnRemAccount")
+        self.acctType = xrc.XRCCTRL(self, "acctType")
+        self.acctUsername = xrc.XRCCTRL(self, "acctUsername")
+        self.acctPassword = xrc.XRCCTRL(self, "acctPassword")
+        self.acctIsTeam = xrc.XRCCTRL(self, "acctIsTeam")
+        self.acctIsPremium = xrc.XRCCTRL(self, "acctIsPremium")
+        self.btnSaveAccount = xrc.XRCCTRL(self, "btnSaveAccount")
 
 
 
@@ -384,10 +395,10 @@ class xrcGPXSourcesUI(wx.Dialog):
         self.PostCreate(pre)
 
         # Define variables for the controls, bind event handlers
-        self.fileFolders = xrc.XRCCTRL(self, "fileFolders")
+        self.tabs = xrc.XRCCTRL(self, "tabs")
+        self.foldersAndWpts = xrc.XRCCTRL(self, "foldersAndWpts")
         self.popServers = xrc.XRCCTRL(self, "popServers")
         self.imapServers = xrc.XRCCTRL(self, "imapServers")
-        self.gcComWpts = xrc.XRCCTRL(self, "gcComWpts")
 
 
 
@@ -1570,6 +1581,10 @@ http://www.justwill.com/</value>
         </object>
       </object>
     </object>
+    <object class="wxStatusBar">
+      <fields>1</fields>
+      <widths>-1</widths>
+    </object>
   </object>
   <object class="wxDialog" name="OptionsUI">
     <object class="wxBoxSizer">
@@ -1959,6 +1974,148 @@ http://www.justwill.com/</value>
               </XRCED>
             </object>
             <label>Cache Day</label>
+          </object>
+          <object class="notebookpage">
+            <object class="wxPanel" name="gcLogAccounts">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow" name="acctTabSplit">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl" name="accountNames">
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <object class="sizeritem">
+                              <object class="wxButton" name="btnAddAcount">
+                                <label>Add</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>5,5</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton" name="btnRemAccount">
+                                <label>Remove</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                            </object>
+                            <orient>wxHORIZONTAL</orient>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxFlexGridSizer">
+                        <rows>2</rows>
+                        <cols>2</cols>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Account Type:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxComboBox" name="acctType">
+                            <content>
+                              <item>GeoCaching.com</item>
+                            </content>
+                            <selection>0</selection>
+                            <style>wxCB_READONLY</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Username:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="acctUsername">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Password:</label>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="acctPassword">
+                            <style>wxTE_PASSWORD</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxCheckBox" name="acctIsTeam">
+                            <label>Is team account?</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxCheckBox" name="acctIsPremium">
+                            <label>Is Premium Account?</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnSaveAccount">
+                            <label>Save</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                </object>
+              </object>
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
+            </object>
+            <label>Accounts</label>
           </object>
         </object>
         <option>1</option>
@@ -2671,38 +2828,238 @@ http://www.justwill.com/</value>
       <object class="sizeritem">
         <object class="wxNotebook" name="tabs">
           <object class="notebookpage">
-            <object class="wxPanel" name="fileFolders">
+            <object class="wxPanel" name="foldersAndWpts">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>File Folders</label>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl">
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Add</label>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>5,5</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Remove</label>
+                              </object>
+                            </object>
+                            <orient>wxHORIZONTAL</orient>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>GeoCaching.com Waypoints</label>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl">
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Add</label>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>5,5</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Remove</label>
+                              </object>
+                            </object>
+                            <orient>wxHORIZONTAL</orient>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                  <minsize>150</minsize>
+                </object>
+              </object>
               <XRCED>
                 <assign_var>1</assign_var>
               </XRCED>
             </object>
+            <label>File Folders</label>
           </object>
           <object class="notebookpage">
             <object class="wxPanel" name="popServers">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl">
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Add</label>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>5,5</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Remove</label>
+                              </object>
+                            </object>
+                            <orient>wxHORIZONTAL</orient>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxFlexGridSizer">
+                        <rows>2</rows>
+                        <cols>2</cols>
+                        <object class="sizeritem">
+                          <object class="wxFilePickerCtrl"/>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                  <minsize>150</minsize>
+                </object>
+              </object>
               <XRCED>
                 <assign_var>1</assign_var>
               </XRCED>
             </object>
+            <label>POP3 Email</label>
           </object>
           <object class="notebookpage">
             <object class="wxPanel" name="imapServers">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxSplitterWindow">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxListCtrl">
+                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND|wxGROW</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Add</label>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>5,5</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton">
+                                <label>Remove</label>
+                              </object>
+                            </object>
+                            <orient>wxHORIZONTAL</orient>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="wxPanel">
+                      <object class="wxFlexGridSizer">
+                        <rows>2</rows>
+                        <cols>2</cols>
+                        <object class="sizeritem">
+                          <object class="wxFilePickerCtrl"/>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                      </object>
+                    </object>
+                    <orientation>vertical</orientation>
+                  </object>
+                  <option>1</option>
+                  <flag>wxEXPAND|wxGROW</flag>
+                  <minsize>150</minsize>
+                </object>
+              </object>
               <XRCED>
                 <assign_var>1</assign_var>
               </XRCED>
             </object>
+            <label>IMAP Email</label>
           </object>
-          <object class="notebookpage">
-            <object class="wxPanel" name="gcComWpts">
-              <XRCED>
-                <assign_var>1</assign_var>
-              </XRCED>
-            </object>
-          </object>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
         </object>
+        <option>1</option>
+        <flag>wxEXPAND|wxGROW</flag>
+        <minsize>725,375</minsize>
+      </object>
+      <object class="sizeritem">
+        <object class="wxButton" name="wxID_OK">
+          <label>Close GPX Sources Window</label>
+        </object>
+        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
       </object>
     </object>
     <size>750,400</size>
     <title>GPX Data Sources</title>
+    <style>wxDEFAULT_DIALOG_STYLE</style>
   </object>
 </resource>'''
 
@@ -15461,6 +15818,16 @@ def __gettext_strings():
     _("The Caches")
     _("Available Caches")
     _("Cache Day")
+    _("Add")
+    _("Remove")
+    _("Account Type:")
+    _("GeoCaching.com")
+    _("Username:")
+    _("Password:")
+    _("Is team account?")
+    _("Is Premium Account?")
+    _("Save")
+    _("Accounts")
     _("&Okay")
     _("&Cancel")
     _("Cache901 Options")
@@ -15539,5 +15906,19 @@ def __gettext_strings():
     _("Cancel")
     _("Send To GPS")
     _("Add To Cache Day")
+    _("File Folders")
+    _("Add")
+    _("Remove")
+    _("GeoCaching.com Waypoints")
+    _("Add")
+    _("Remove")
+    _("File Folders")
+    _("Add")
+    _("Remove")
+    _("POP3 Email")
+    _("Add")
+    _("Remove")
+    _("IMAP Email")
+    _("Close GPX Sources Window")
     _("GPX Data Sources")
 
