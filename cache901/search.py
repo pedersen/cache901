@@ -420,8 +420,10 @@ def execSearch(params):
         dist = float(params["searchDist"])
     else:
         dist = 12000 # 12,000 miles, roughly one half the circumference of the earth at the equator. *better* be enough
-    if params.has_key("searchScale") and params["searchScale"] != "mi":
-        dist = dist * 1.61
+    if params.has_key("searchScale"):
+        if params["searchScale"] != "mi":
+            dist = dist * 1.61
+    else: params["searchScale"] = "mi"
     if params.has_key("searchOrigin"):
         org = params["searchOrigin"]
         if org == "From GPS":
@@ -438,7 +440,7 @@ def execSearch(params):
         sqlparams.append(float(loc.lat))
         sqlparams.append(float(loc.lon))
         sqlparams.append(dist)
-        query = "select cache_id, difficulty, terrain, url_name, distance(lat, lon, ?, ?) * ? as distance from caches "
+        query = "select cache_id, difficulty, terrain, url_name, cast(distance(lat, lon, ?, ?) * ? as text) || %s as distance from caches " % (params["searchScale"])
         if params.has_key("searchScale") and params["searchScale"] != "mi":
             scale = 1.61
         else:
@@ -506,14 +508,4 @@ def execSearch(params):
     fquery = "%s %s %s %s" % (query, where_clause, order_by, limit)
     cur = cache901.db().cursor()
     cur.execute(fquery, sqlparams)
-    for vals in cur:
-        lk = map(lambda x: x[0], cur.description)
-        lk.extend(range(len(lk)))
-        row = dict(zip(lk, map(lambda x: vals[x], lk)))
-        if params.has_key("searchScale"):
-            row[4] = "%1.1f%s" % (row[4], params["searchScale"])
-            row['distance'] = row[4]
-        else:
-            row[4] = "%1.1fmi" % row[4]
-            row['distance'] = row[4]
-        yield row
+    return cur.fetchall()
