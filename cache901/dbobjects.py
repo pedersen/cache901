@@ -336,7 +336,7 @@ class Account(object):
                 if row[0] is None:
                     acctid = -1
                 else:
-                    acctid = min(row[0], -1)
+                    acctid = min(row[0]-1, -1)
                 cur.execute('insert into accounts(accountid, sitename, username, password, isteam, ispremium) values(?, "", "", "", 0, 0)', (acctid, ))
         cur.execute('select accountid, sitename, username, password, isteam, ispremium from accounts where accountid=?', (acctid, ))
         row = cur.fetchone()
@@ -372,7 +372,7 @@ class Email(object):
                 if row[0] is None:
                     acctid = -1
                 else:
-                    acctid = min(row[0], -1)
+                    acctid = min(row[0]-1, -1)
                 cur.execute('insert into emailsources(emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder) values(?, "", "", "", "", 0, "")', (acctid, ))
         cur.execute('select emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder from emailsources where emailid=?', (acctid, ))
         row = cur.fetchone()

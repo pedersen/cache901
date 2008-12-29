@@ -1,3 +1,9 @@
+cache901 (0.6-1) unstable; urgency=low
+
+  * Fixed startup speed issues
+
+ -- 
+
 cache901 (0.4-1) unstable; urgency=low
 
   * Added code to show map of search results.

@@ -39,11 +39,13 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.gpsType.SetValidator(cache901.validators.gpsTypeValidator())
         self.coordDisplay.SetValidator(cache901.validators.degDisplayValidator())
         self.locSplit.SetValidator(cache901.validators.splitValidator("locSplit"))
+        self.acctTabSplit.SetValidator(cache901.validators.splitValidator("acctTabSplit"))
         
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.cacheDays.InsertColumn(0, 'Cache Day', width=w)
         self.cachesForDay.InsertColumn(0, 'Caches For Day', width=w)
         self.availCaches.InsertColumn(0, 'Available Caches', width=w)
+        self.accountNames.InsertColumn(0, 'GeoCaching Accounts', width=w)
 
         isinstance(listOfCaches, wx.ListCtrl)
         idx = 0
@@ -56,6 +58,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         
         self.loadOrigins()
         self.listCacheDays()
+        self.loadAccounts()
         
         self.Bind(wx.EVT_BUTTON, self.OnRemoveOrigin,   self.remLoc)
         self.Bind(wx.EVT_BUTTON, self.OnAddOrigin,      self.addLoc)
@@ -67,12 +70,36 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.Bind(wx.EVT_BUTTON, self.OnCacheDown,      self.downCache)
         self.Bind(wx.EVT_BUTTON, self.OnAddCache,       self.addCache)
         self.Bind(wx.EVT_BUTTON, self.OnRemCache,       self.remCache)
+        self.Bind(wx.EVT_BUTTON, self.OnAddAccount,     self.btnAddAcount)
+        self.Bind(wx.EVT_BUTTON, self.OnRemAccount,     self.btnRemAccount)
+        self.Bind(wx.EVT_BUTTON, self.OnSaveAccount,    self.btnSaveAccount)
         
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadOrigin,   self.locations)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadCacheDay, self.cacheDays)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadAccount,  self.accountNames)
         
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnAddCache, self.availCaches)
         
+    def loadAccounts(self):
+        self.accountNames.DeleteAllItems()
+        cur = cache901.db().cursor()
+        cur.execute('select username || "@" || sitename as acctname, accountid from accounts order by acctname')
+        for row in cur:
+            aid = self.accountNames.Append((row['acctname'], ))
+            self.accountNames.SetItemData(aid, row['accountid'])
+        self.btnRemAccount.Disable()
+        self.acctType.Disable()
+        self.acctType.SetSelection(0)
+        self.acctUsername.Disable()
+        self.acctUsername.SetValue('')
+        self.acctPassword.Disable()
+        self.acctPassword.SetValue('')
+        self.acctIsPremium.Disable()
+        self.acctIsPremium.SetValue(False)
+        self.acctIsTeam.Disable()
+        self.acctIsTeam.SetValue(False)
+        self.btnSaveAccount.Disable()
+    
     def loadOrigins(self):
         self.locations.DeleteAllItems()
         self.locations.DeleteAllColumns()
@@ -81,7 +108,51 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         for row in cache901.util.getSearchLocs():
             sid = self.locations.Append((row[1],))
             self.locations.SetItemData(sid, row[0])
+
+    def OnAddAccount(self, evt):
+        acct = cache901.dbobjects.Account(cache901.dbobjects.minint)
+        acct.username = 'unknown'
+        acct.sitename = self.acctType.GetItems()[0]
+        acct.Save()
+        self.loadAccounts()
+        self.accountNames.Select(self.accountNames.FindItemData(0, acct.acctid))
+    
+    def OnRemAccount(self, evt):
+        acctid = self.accountNames.GetFirstSelected()
+        if acctid > -1:
+            acct = cache901.dbobjects.Account(self.accountNames.GetItemData(acctid))
+            acct.Delete()
+            self.loadAccounts()
+    
+    def OnLoadAccount(self, evt):
+        acctid = self.accountNames.GetFirstSelected()
+        if acctid > -1:
+            acct = cache901.dbobjects.Account(self.accountNames.GetItemData(acctid))
+            self.btnRemAccount.Enable()
+            self.acctType.Enable()
+            self.acctType.SetValue(acct.sitename)
+            self.acctUsername.Enable()
+            self.acctUsername.SetValue(acct.username)
+            self.acctPassword.Enable()
+            self.acctPassword.SetValue(acct.password)
+            self.acctIsPremium.Enable()
+            self.acctIsPremium.SetValue(acct.ispremium)
+            self.acctIsTeam.Enable()
+            self.acctIsTeam.SetValue(acct.isteam)
+            self.btnSaveAccount.Enable()
         
+    def OnSaveAccount(self, evt):
+        acctid = self.accountNames.GetFirstSelected()
+        if acctid > -1:
+            acct = cache901.dbobjects.Account(self.accountNames.GetItemData(acctid))
+            acct.sitename = self.acctType.GetValue()
+            acct.username = self.acctUsername.GetValue()
+            acct.password = self.acctPassword.GetValue()
+            acct.ispremium = self.acctIsPremium.GetValue()
+            acct.isteam = self.acctIsTeam.GetValue()
+            acct.Save()
+            self.loadAccounts()
+    
     def showGeneral(self):
         self.tabs.ChangeSelection(0)
         self.ShowModal()
@@ -92,6 +163,10 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     
     def showCacheDay(self):
         self.tabs.ChangeSelection(2)
+        self.ShowModal()
+        
+    def showGeoAccounts(self):
+        self.tabs.ChangeSelection(3)
         self.ShowModal()
         
     def OnRemoveOrigin(self, evt):

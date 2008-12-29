@@ -81,6 +81,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnLogCache,    self.mnuLogThisCache)
         self.Bind(wx.EVT_MENU,   self.OnSendToGPS,   self.mnuSendToGPS)
         self.Bind(wx.EVT_MENU,   self.OnCacheDay,    self.mnuPrefsCacheDay)
+        self.Bind(wx.EVT_MENU,   self.OnGeoAccounts, self.mnuPrefsAccounts)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle,     self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,       self.encText)
@@ -391,6 +392,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
+    def OnGeoAccounts(self, evt):
+        opts = cache901.options.OptionsUI(self.caches, self)
+        opts.showGeoAccounts()
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
+        
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
