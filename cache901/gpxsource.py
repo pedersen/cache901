@@ -362,6 +362,8 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
             self.loadFolders()
     
     def OnRemFolder(self, evt):
+        if wx.MessageBox('Warning! This operation cannot be undone!', 'Really Delete?', wx.YES_NO) == wx.NO:
+            return
         fid = self.folderNames.GetFirstSelected()
         if fid > -1:
             fname = self.folderNames.GetItemText(fid)
