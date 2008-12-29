@@ -84,6 +84,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.Bind(wx.EVT_MENU,   self.OnCacheDay,    self.mnuPrefsCacheDay)
         self.Bind(wx.EVT_MENU,   self.OnGeoAccounts, self.mnuPrefsAccounts)
         self.Bind(wx.EVT_MENU,   self.OnGpxSync,     self.mnuGpxSync)
+        self.Bind(wx.EVT_MENU,   self.OnGpxSources,  self.mnuGpxSources)
 
         self.Bind(wx.EVT_BUTTON, self.OnHintsToggle,     self.hintsCoding)
         self.Bind(wx.EVT_BUTTON, self.OnLogToggle,       self.encText)
@@ -130,6 +131,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
 
     def OnGpxSync(self, evt):
         cache901.gpxsource.gpxSyncAll()
+        self.updStatus()
+    
+    def OnGpxSources(self, evt):
+        gpx = cache901.gpxsource.GPXSourceUI(self)
+        gpx.ShowModal()
         self.updStatus()
         
     def updPhotoList(self):

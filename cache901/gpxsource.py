@@ -38,6 +38,7 @@ import wx
 
 import cache901
 import cache901.ui_xrc
+import cache901.validators
 
 class GPXSource(object):
     # Objects of this interface must be iterable. Furthermore, they must
@@ -284,7 +285,98 @@ def gpxSyncAll():
 class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcGPXSourcesUI.__init__(self, parent)
+        self.foldersWaypointSplitter.SetValidator(cache901.validators.splitValidator('foldersWptsSplit'))
+        self.pop3Splitter.SetValidator(cache901.validators.splitValidator('pop3Split'))
+        self.imap4Splitter.SetValidator(cache901.validators.splitValidator('imap4Split'))
         
+        w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
+        self.folderNames.InsertColumn(0, 'Folder Name', width=w)
+        self.geoWpts.InsertColumn(0, 'Watched Waypoints', width=w)
+        self.pop3Servers.InsertColumn(0, 'POP3 Server', width=w)
+        self.imap4SvrList.InsertColumn(0, 'IMAP Server', width=w)
+        
+        self.loadFolders()
+        self.loadWpts()
+        self.loadPopAccounts()
+        self.loadImapAccounts()
+        
+        self.Bind(wx.EVT_BUTTON, self.OnAddFolder, self.btnAddFolder)
+        self.Bind(wx.EVT_BUTTON, self.OnRemFolder, self.btnRemFolder)
+        self.Bind(wx.EVT_BUTTON, self.OnAddWpt,    self.btnAddWpt)
+        self.Bind(wx.EVT_BUTTON, self.OnRemWpt,    self.btnRemWpt)
+        self.Bind(wx.EVT_BUTTON, self.OnAddPop,    self.btnAddPop3Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnRemPop,    self.btnRemPop3Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnSavePop,   self.pop3Save)
+        self.Bind(wx.EVT_BUTTON, self.OnAddImap,   self.btnAddImap4Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnRemImap,   self.btnRemImap4Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnSaveImap,  self.imap4Save)
+        
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadPop,  self.pop3Servers)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadImap, self.imap4SvrList)
+        
+    def OnAddImap(self, evt):
+        pass
+    
+    def OnRemImap(self, evt):
+        pass
+    
+    def OnLoadImap(self, evt):
+        pass
+    
+    def OnSaveImap(self, evt):
+        pass
+    
+    def loadImapAccounts(self):
+        pass
+    
+    def OnAddPop(self, evt):
+        pass
+    
+    def OnRemPop(self, evt):
+        pass
+    
+    def OnLoadPop(self, evt):
+        pass
+    
+    def OnSavePop(self, evt):
+        pass
+    
+    def loadPopAccounts(self):
+        pass
+    
+    def OnAddWpt(self, evt):
+        pass
+    
+    def OnRemWpt(self, evt):
+        pass
+    
+    def loadWpts(self):
+        pass
+    
+    def OnAddFolder(self, evt):
+        dirpath = wx.DirSelector('Add Watched Folder')
+        if dirpath != "":
+            cur = cache901.db().cursor()
+            cur.execute('insert into gpxfolders(foldername) values(?)', (dirpath, ))
+            cache901.db().commit()
+            self.loadFolders()
+    
+    def OnRemFolder(self, evt):
+        fid = self.folderNames.GetFirstSelected()
+        if fid > -1:
+            fname = self.folderNames.GetItemText(fid)
+            cur = cache901.db().cursor()
+            cur.execute('delete from gpxfolders where foldername=?', (fname, ))
+            cache901.db().commit()
+            self.loadFolders()
+    
+    def loadFolders(self):
+        self.folderNames.DeleteAllItems()
+        cur = cache901.db().cursor()
+        cur.execute('select foldername from gpxfolders order by foldername')
+        for row in cur:
+            self.folderNames.Append((row['foldername'], ))
+    
     def forWingIde(self):
         isinstance(self.tabs, wx.Notebook)
         

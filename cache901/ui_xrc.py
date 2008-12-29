@@ -116,6 +116,7 @@ class xrcCache901UI(wx.Frame):
         self.mnuFilePrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFilePrefs"))
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
         self.mnuPrefsAccounts = self.GetMenuBar().FindItemById(xrc.XRCID("mnuPrefsAccounts"))
+        self.mnuGpxSources = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGpxSources"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
         self.statusBar = xrc.XRCCTRL(self, "statusBar")
 
@@ -1388,6 +1389,12 @@ def __init_resources():
         </object>
         <object class="wxMenuItem" name="mnuPrefsAccounts">
           <label>GeoCaching Accounts</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuGpxSources">
+          <label>GPX Sources</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -2887,7 +2894,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="folderNames">
-                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <style>wxLC_REPORT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2933,7 +2940,7 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="geoWpts">
-                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <style>wxLC_REPORT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2995,7 +3002,7 @@ http://www.justwill.com/</value>
                         <orient>wxVERTICAL</orient>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="pop3Servers">
-                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <style>wxLC_REPORT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -3128,7 +3135,7 @@ http://www.justwill.com/</value>
                         <orient>wxVERTICAL</orient>
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="imap4SvrList">
-                            <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <style>wxLC_REPORT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -16008,6 +16015,7 @@ def __gettext_strings():
     _("&Preferences")
     _("&Search Locations")
     _("GeoCaching Accounts")
+    _("GPX Sources")
     _("&Help")
     _("&About")
     _("Cache 901 - Caching At The Upper Levels")
