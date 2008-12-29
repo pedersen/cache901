@@ -1,6 +1,7 @@
 cache901 (0.6-1) unstable; urgency=low
 
   * Fixed startup speed issues
+  * Added management of geocaching.com accounts
 
  -- 
 

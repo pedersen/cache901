@@ -24,15 +24,20 @@ import email.parser
 import imaplib
 import os
 import os.path
-import re
 import poplib
+import random
+import re
+import time
 import urllib
 import urllib2
 import zipfile
 
 from cStringIO import StringIO
 
+import wx
+
 import cache901
+import cache901.ui_xrc
 
 class GPXSource(object):
     # Objects of this interface must be iterable. Furthermore, they must
@@ -214,6 +219,7 @@ class GeoCachingComSource(GPXSource):
             gcmain = 'http://www.geocaching.com/default.aspx'
             
             page = urllib2.urlopen(gcmain)
+            time.sleep((random.random()*2)+0.5)
             m = re.match(r'.+?id="__VIEWSTATE"\s+value="(.+?)"', page.read(), re.S)
             fromvalues = urllib.urlencode({
                 '__VIEWSTATE': m.group(1),
@@ -226,6 +232,7 @@ class GeoCachingComSource(GPXSource):
 
             request = urllib2.Request(gcmain, fromvalues, headers)
             page = urllib2.urlopen(request)
+            time.sleep((random.random()*2)+0.5)
 
             m = re.match('.+%s.+' % self.username, page.read(), re.S)
     
@@ -252,6 +259,7 @@ class GeoCachingComSource(GPXSource):
             # Get __VIEWSTATE
             cache901.notify('Retrieving cache page for %s' % cname)
             page = urllib2.urlopen(curl)
+            time.sleep((random.random()*2)+0.5)
             m = re.match(r'.+?id="__VIEWSTATE"\s+value="(.+?)"', page.read(), re.S)
             fromvalues = urllib.urlencode({
                 '__VIEWSTATE': m.group(1),
@@ -262,8 +270,62 @@ class GeoCachingComSource(GPXSource):
             cache901.notify('Retrieving GPX file for %s' % cname)
             request = urllib2.Request(curl, fromvalues, headers)
             page = urllib2.urlopen(request)
+            time.sleep((random.random()*2)+0.5)
             ptext = page.read()
             cache901.notify('Retrieved GPX file for %s' % cname)
             self.wwwClose()
             return ptext
         raise StopIteration
+    
+def gpxSyncAll():
+    # @todo: Implement this routine
+    cache901.notify('todo: implement this routine')
+
+class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
+    def __init__(self, parent=None):
+        cache901.ui_xrc.xrcGPXSourcesUI.__init__(self, parent)
+        
+    def forWingIde(self):
+        isinstance(self.tabs, wx.Notebook)
+        
+        # Folders and Waypoints Tab
+        isinstance(self.foldersAndWpts,          wx.Panel)
+        isinstance(self.foldersWaypointSplitter, wx.SplitterWindow)
+        
+        isinstance(self.folderNames,  wx.ListCtrl)
+        isinstance(self.btnAddFolder, wx.Button)
+        isinstance(self.btnRemFolder, wx.Button)
+        
+        isinstance(self.geoWpts,   wx.ListCtrl)
+        isinstance(self.btnAddWpt, wx.Button)
+        isinstance(self.btnRemWpt, wx.Button)
+        
+        # POP3 Servers Tab
+        isinstance(self.popServers,   wx.Panel)
+        isinstance(self.pop3Splitter, wx.SplitterWindow)
+        
+        isinstance(self.pop3Servers,   wx.ListCtrl)
+        isinstance(self.btnAddPop3Svr, wx.Button)
+        isinstance(self.btnRemPop3Svr, wx.Button)
+        
+        isinstance(self.pop3ServerName, wx.TextCtrl)
+        isinstance(self.pop3Username,   wx.TextCtrl)
+        isinstance(self.pop3Password,   wx.TextCtrl)
+        isinstance(self.pop3UseSSL,     wx.CheckBox)
+        isinstance(self.pop3Save,       wx.Button)
+        
+        # IMAP4 Servers Tab
+        isinstance(self.imapServers, wx.Panel)
+        isinstance(self.imap4Splitter, wx.SplitterWindow)
+        
+        isinstance(self.imap4SvrList, wx.ListCtrl)
+        isinstance(self.btnAddImap4Svr, wx.Button)
+        isinstance(self.btnRemImap4Svr, wx.Button)
+        
+        isinstance(self.imap4ServerName, wx.TextCtrl)
+        isinstance(self.imap4Username,   wx.TextCtrl)
+        isinstance(self.imap4Password,   wx.TextCtrl)
+        isinstance(self.imap4Folder,     wx.Choice)
+        isinstance(self.imap4UseSSL,     wx.CheckBox)
+        isinstance(self.imap4Save,       wx.Button)
+

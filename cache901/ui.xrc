@@ -834,6 +834,12 @@
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuGpxSync">
+          <label>Synchronize GPX Sources</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <object class="wxMenuItem" name="mnuFileDbMaint">
           <label>Database Maintenance</label>
           <XRCED>
@@ -2425,7 +2431,7 @@ http://www.justwill.com/</value>
               <object class="wxBoxSizer">
                 <orient>wxVERTICAL</orient>
                 <object class="sizeritem">
-                  <object class="wxSplitterWindow">
+                  <object class="wxSplitterWindow" name="foldersWaypointSplitter">
                     <object class="wxPanel">
                       <object class="wxBoxSizer">
                         <orient>wxVERTICAL</orient>
@@ -2436,8 +2442,11 @@ http://www.justwill.com/</value>
                           <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxListCtrl">
+                          <object class="wxListCtrl" name="folderNames">
                             <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
                           </object>
                           <option>1</option>
                           <flag>wxEXPAND|wxGROW</flag>
@@ -2445,16 +2454,22 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxBoxSizer">
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnAddFolder">
                                 <label>Add</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <object class="spacer">
                               <size>5,5</size>
                             </object>
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnRemFolder">
                                 <label>Remove</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <orient>wxHORIZONTAL</orient>
@@ -2473,8 +2488,11 @@ http://www.justwill.com/</value>
                           <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxListCtrl">
+                          <object class="wxListCtrl" name="geoWpts">
                             <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
                           </object>
                           <option>1</option>
                           <flag>wxEXPAND|wxGROW</flag>
@@ -2482,16 +2500,22 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxBoxSizer">
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnAddWpt">
                                 <label>Add</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <object class="spacer">
                               <size>5,5</size>
                             </object>
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnRemWpt">
                                 <label>Remove</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <orient>wxHORIZONTAL</orient>
@@ -2501,6 +2525,9 @@ http://www.justwill.com/</value>
                       </object>
                     </object>
                     <orientation>vertical</orientation>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
                   </object>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
@@ -2511,20 +2538,23 @@ http://www.justwill.com/</value>
                 <assign_var>1</assign_var>
               </XRCED>
             </object>
-            <label>File Folders</label>
+            <label>File Folders &amp;&amp; Waypoints</label>
           </object>
           <object class="notebookpage">
             <object class="wxPanel" name="popServers">
               <object class="wxBoxSizer">
                 <orient>wxVERTICAL</orient>
                 <object class="sizeritem">
-                  <object class="wxSplitterWindow">
+                  <object class="wxSplitterWindow" name="pop3Splitter">
                     <object class="wxPanel">
                       <object class="wxBoxSizer">
                         <orient>wxVERTICAL</orient>
                         <object class="sizeritem">
-                          <object class="wxListCtrl">
+                          <object class="wxListCtrl" name="pop3Servers">
                             <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
                           </object>
                           <option>1</option>
                           <flag>wxEXPAND|wxGROW</flag>
@@ -2532,16 +2562,22 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxBoxSizer">
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnAddPop3Svr">
                                 <label>Add</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <object class="spacer">
                               <size>5,5</size>
                             </object>
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnRemPop3Svr">
                                 <label>Remove</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <orient>wxHORIZONTAL</orient>
@@ -2552,16 +2588,79 @@ http://www.justwill.com/</value>
                     </object>
                     <object class="wxPanel">
                       <object class="wxFlexGridSizer">
-                        <rows>2</rows>
-                        <cols>2</cols>
                         <object class="sizeritem">
-                          <object class="wxFilePickerCtrl"/>
+                          <object class="wxStaticText">
+                            <label>POP 3 Server Name:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="pop3ServerName">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
                           <option>1</option>
                           <flag>wxEXPAND</flag>
                         </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>POP3 User Name:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="pop3Username">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText" name="">
+                            <label>Password:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="pop3Password">
+                            <style>wxTE_PASSWORD</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxCheckBox" name="pop3UseSSL">
+                            <label>Use SSL?</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="pop3Save">
+                            <label>Save</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <cols>2</cols>
+                        <rows>2</rows>
+                        <growablecols>1</growablecols>
                       </object>
                     </object>
                     <orientation>vertical</orientation>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
                   </object>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
@@ -2579,13 +2678,16 @@ http://www.justwill.com/</value>
               <object class="wxBoxSizer">
                 <orient>wxVERTICAL</orient>
                 <object class="sizeritem">
-                  <object class="wxSplitterWindow">
+                  <object class="wxSplitterWindow" name="imap4Splitter">
                     <object class="wxPanel">
                       <object class="wxBoxSizer">
                         <orient>wxVERTICAL</orient>
                         <object class="sizeritem">
-                          <object class="wxListCtrl">
+                          <object class="wxListCtrl" name="imap4SvrList">
                             <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
                           </object>
                           <option>1</option>
                           <flag>wxEXPAND|wxGROW</flag>
@@ -2593,16 +2695,22 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxBoxSizer">
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnAddImap4Svr">
                                 <label>Add</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <object class="spacer">
                               <size>5,5</size>
                             </object>
                             <object class="sizeritem">
-                              <object class="wxButton">
+                              <object class="wxButton" name="btnRemImap4Svr">
                                 <label>Remove</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
                               </object>
                             </object>
                             <orient>wxHORIZONTAL</orient>
@@ -2613,16 +2721,94 @@ http://www.justwill.com/</value>
                     </object>
                     <object class="wxPanel">
                       <object class="wxFlexGridSizer">
-                        <rows>2</rows>
-                        <cols>2</cols>
                         <object class="sizeritem">
-                          <object class="wxFilePickerCtrl"/>
+                          <object class="wxStaticText">
+                            <label>IMAP 4 Server Name:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="imap4ServerName">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
                           <option>1</option>
                           <flag>wxEXPAND</flag>
                         </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>IMAP 4 User Name:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="imap4Username">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText" name="">
+                            <label>Password:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="imap4Password">
+                            <style>wxTE_PASSWORD</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Pocket Query Folder:</label>
+                          </object>
+                          <flag>wxALIGN_RIGHT</flag>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxChoice" name="imap4Folder">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxCheckBox" name="imap4UseSSL">
+                            <label>Use SSL?</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="imap4Save">
+                            <label>Save</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <cols>2</cols>
+                        <rows>2</rows>
+                        <growablecols>1</growablecols>
                       </object>
                     </object>
                     <orientation>vertical</orientation>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
                   </object>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
