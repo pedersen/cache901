@@ -349,7 +349,7 @@ def gpxSyncAll(callingwin):
             parser.parse(gpxfile)
             
     # Synchronize watched waypoints
-    if gcuser is not None and gcpass is not None:
+    if gcuser is not None and gcpass is not None and len(wpts) > 0:
         gcsrc = GeoCachingComSource(gcuser, gcpass, wpts)
         for gpxfile in gcsrc:
             parser.parse(gpxfile)

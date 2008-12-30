@@ -1,8 +1,8 @@
 cache901 (0.6-1) unstable; urgency=low
 
   * Fixed startup speed issues
+  * Added online integration (read email, geocaching.com, and local folders)
   * Added management of geocaching.com accounts
-
  -- 
 
 cache901 (0.4-1) unstable; urgency=low
