@@ -37,8 +37,10 @@ from cStringIO import StringIO
 import wx
 
 import cache901
+import cache901.options
 import cache901.ui_xrc
 import cache901.validators
+import cache901.xml901
 
 class GPXSource(object):
     # Objects of this interface must be iterable. Furthermore, they must
@@ -278,9 +280,79 @@ class GeoCachingComSource(GPXSource):
             return ptext
         raise StopIteration
     
-def gpxSyncAll():
-    # @todo: Implement this routine
-    cache901.notify('todo: implement this routine')
+def gpxSyncAll(callingwin):
+    cur = cache901.db().cursor()
+    
+    # First, validate we have a premium geocaching.com account
+    cur.execute('select count(ispremium) as premaccounts from accounts where ispremium != 0')
+    row = cur.fetchone()
+    if row['premaccounts'] == 0:
+        wx.MessageBox('Warning: Without a premium account,\nGeoCaching.com cannot be queried\nfor GPX files.', 'No Premium Accounts', wx.ICON_EXCLAMATION | wx.OK)
+        opts = cache901.options.OptionsUI(callingwin.caches, callingwin)
+        opts.showGeoAccounts()
+    cur.execute('select username, password from accounts where sitename="GeoCaching.com" and ispremium != 0')
+    row = cur.fetchone()
+    if row is not None:
+        gcuser = row['username']
+        gcpass = row['password']
+    else:
+        gcuser = None
+        gcpass = None
+    
+    # Second, validate that we have some sources to synchronize
+    cur.execute('select (select count(emailid) from emailsources)+(select count(foldername) from gpxfolders)+(select count(waypoint_name) from watched_waypoints) as total_sources')
+    row = cur.fetchone()
+    if row['total_sources'] == 0:
+        wx.MessageBox('Warning: No GPX Sources have been defined yet.\nPlease define some now.', 'No GPX Sources', wx.ICON_EXCLAMATION | wx.OK)
+        gpxsrc = GPXSourceUI()
+        gpxsrc.ShowModal()
+    
+    # Third, gather gpx sources lists
+    folders = []
+    wpts = []
+    popaccts = []
+    imapaccts = []
+    cur.execute('select foldername from gpxfolders order by foldername')
+    for row in cur:
+        folders.append(row['foldername'])
+    cur.execute('select waypoint_name from watched_waypoints order by waypoint_name')
+    for row in cur:
+        wpts.append(row['waypoint_name'])
+    cur.execute('select emailid from emailsources where svrtype="pop"')
+    for row in cur:
+        popaccts.append(row['emailid'])
+    cur.execute('select emailid from emailsources where svrtype="imap"')
+    for row in cur:
+        imapaccts.append(row['emailid'])
+        
+    # Build parser
+    parser = cache901.xml901.XMLParser()
+    
+    # Synchronize folders
+    for folder in folders:
+        fld = FolderSource(folder)
+        for gpxfile in fld:
+            parser.parse(gpxfile)
+    
+    # Synchronize POP3 sources
+    for popid in popaccts:
+        email = cache901.dbobjects.Email(popid)
+        popsrc = PopSource(email.svrname, email.username, email.password, email.usessl)
+        for gpxfile in popsrc:
+            parser.parse(gpxfile)
+            
+    # Synchronize IMAP4 sources
+    for imapid in imapaccts:
+        email = cache901.dbobjects.Email(imapid)
+        imapsrc = IMAPSource(email.svrname, email.username, email.password, email.usessl, email.deffolder)
+        for gpxfile in imapsrc:
+            parser.parse(gpxfile)
+            
+    # Synchronize watched waypoints
+    if gcuser is not None and gcpass is not None:
+        gcsrc = GeoCachingComSource(gcuser, gcpass, wpts)
+        for gpxfile in gcsrc:
+            parser.parse(gpxfile)
 
 class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def __init__(self, parent=None):
@@ -300,63 +372,201 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         self.loadPopAccounts()
         self.loadImapAccounts()
         
-        self.Bind(wx.EVT_BUTTON, self.OnAddFolder, self.btnAddFolder)
-        self.Bind(wx.EVT_BUTTON, self.OnRemFolder, self.btnRemFolder)
-        self.Bind(wx.EVT_BUTTON, self.OnAddWpt,    self.btnAddWpt)
-        self.Bind(wx.EVT_BUTTON, self.OnRemWpt,    self.btnRemWpt)
-        self.Bind(wx.EVT_BUTTON, self.OnAddPop,    self.btnAddPop3Svr)
-        self.Bind(wx.EVT_BUTTON, self.OnRemPop,    self.btnRemPop3Svr)
-        self.Bind(wx.EVT_BUTTON, self.OnSavePop,   self.pop3Save)
-        self.Bind(wx.EVT_BUTTON, self.OnAddImap,   self.btnAddImap4Svr)
-        self.Bind(wx.EVT_BUTTON, self.OnRemImap,   self.btnRemImap4Svr)
-        self.Bind(wx.EVT_BUTTON, self.OnSaveImap,  self.imap4Save)
+        self.Bind(wx.EVT_BUTTON, self.OnAddFolder,          self.btnAddFolder)
+        self.Bind(wx.EVT_BUTTON, self.OnRemFolder,          self.btnRemFolder)
+        self.Bind(wx.EVT_BUTTON, self.OnAddWpt,             self.btnAddWpt)
+        self.Bind(wx.EVT_BUTTON, self.OnRemWpt,             self.btnRemWpt)
+        self.Bind(wx.EVT_BUTTON, self.OnAddPop,             self.btnAddPop3Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnRemPop,             self.btnRemPop3Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnSavePop,            self.pop3Save)
+        self.Bind(wx.EVT_BUTTON, self.OnAddImap,            self.btnAddImap4Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnRemImap,            self.btnRemImap4Svr)
+        self.Bind(wx.EVT_BUTTON, self.OnSaveImap,           self.imap4Save)
+        self.Bind(wx.EVT_BUTTON, self.OnRefreshImapFolders, self.btnRefreshFolders)
         
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadPop,  self.pop3Servers)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadImap, self.imap4SvrList)
         
     def OnAddImap(self, evt):
-        pass
+        email = cache901.dbobjects.Email(cache901.dbobjects.minint)
+        email.svrname = 'unknownhost.com'
+        email.username = 'unknown'
+        email.imap = True
+        email.Save()
+        self.loadImapAccounts()
+        self.imap4SvrList.Select(self.imap4SvrList.FindItemData(0, email.emailid))
     
     def OnRemImap(self, evt):
-        pass
+        if wx.MessageBox('Warning! This operation cannot be undone!', 'Really Delete?', wx.YES_NO) == wx.NO:
+            return
+        eid = self.imap4SvrList.GetFirstSelected()
+        if eid > -1:
+            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
+            email.Delete()
+            self.loadImapAccounts()
     
     def OnLoadImap(self, evt):
-        pass
+        eid = self.imap4SvrList.GetFirstSelected()
+        if eid > -1:
+            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
+            self.btnRemImap4Svr.Enable()
+            self.btnRefreshFolders.Enable()
+            self.imap4Save.Enable()
+            self.imap4ServerName.Enable()
+            self.imap4Username.Enable()
+            self.imap4Password.Enable()
+            self.imap4Folder.Enable()
+            self.imap4UseSSL.Enable()
+            self.imap4ServerName.SetValue(email.svrname)
+            self.imap4Username.SetValue(email.username)
+            self.imap4Password.SetValue(email.password)
+            self.imap4Folder.SetItems([email.deffolder])
+            self.imap4Folder.SetSelection(0)
+            self.imap4UseSSL.SetValue(email.usessl)
     
     def OnSaveImap(self, evt):
-        pass
+        eid = self.imap4SvrList.GetFirstSelected()
+        if eid > -1:
+            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
+            email.svrname   = self.imap4ServerName.GetValue()
+            email.username  = self.imap4Username.GetValue()
+            email.password  = self.imap4Password.GetValue()
+            email.deffolder = self.imap4Folder.GetItems()[self.imap4Folder.GetSelection()]
+            email.usessl    = self.imap4UseSSL.GetValue()
+            email.Save()
+            self.loadImapAccounts()
+    
+    def OnRefreshImapFolders(self, evt):
+        eid = self.imap4SvrList.GetFirstSelected()
+        if eid > -1:
+            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
+            email.svrname   = self.imap4ServerName.GetValue()
+            email.username  = self.imap4Username.GetValue()
+            email.password  = self.imap4Password.GetValue()
+            email.usessl    = self.imap4UseSSL.GetValue()
+            cdef = self.imap4Folder.GetItems()[self.imap4Folder.GetSelection()]
+            imapc = None
+            try:
+                if email.usessl: imapc = imaplib.IMAP4_SSL(email.svrname)
+                else: imapc = imaplib.IMAP4(email.svrname)
+            except Exception, e:
+                wx.MessageBox(str(e), 'Invalid Hostname')
+                return
+            try:
+                imapc.login(email.username, email.password)
+            except Exception, e:
+                wx.MessageBox(str(e), 'Invalid User/Password')
+                return
+            self.imap4Folder.SetItems(sorted(map(lambda x: x[x.rfind(' ')+1:].strip('"'), imapc.list()[1])))
+            idx = self.imap4Folder.FindString(cdef)
+            if idx == wx.NOT_FOUND: idx=0
+            self.imap4Folder.Select(idx)
     
     def loadImapAccounts(self):
-        pass
+        self.imap4SvrList.DeleteAllItems()
+        cur = cache901.db().cursor()
+        cur.execute('select emailid, svruser || "@" || svrname as email from emailsources where svrtype="imap" order by email')
+        for row in cur:
+            eid = self.imap4SvrList.Append((row['email'], ))
+            self.imap4SvrList.SetItemData(eid, row['emailid'])
+        self.btnRemImap4Svr.Disable()
+        self.imap4ServerName.Disable()
+        self.imap4Username.Disable()
+        self.imap4Password.Disable()
+        self.imap4Folder.Disable()
+        self.btnRefreshFolders.Disable()
+        self.imap4UseSSL.Disable()
+        self.imap4Save.Disable()
     
     def OnAddPop(self, evt):
-        pass
+        email = cache901.dbobjects.Email(cache901.dbobjects.minint)
+        email.svrname = 'unknownhost.com'
+        email.username = 'unknown'
+        email.Save()
+        self.loadPopAccounts()
+        self.pop3Servers.Select(self.pop3Servers.FindItemData(0, email.emailid))
     
     def OnRemPop(self, evt):
-        pass
+        if wx.MessageBox('Warning! This operation cannot be undone!', 'Really Delete?', wx.YES_NO) == wx.NO:
+            return
+        eid = self.pop3Servers.GetFirstSelected()
+        if eid > -1:
+            email = cache901.dbobjects.Email(self.pop3Servers.GetItemData(eid))
+            email.Delete()
+            self.loadPopAccounts()
     
     def OnLoadPop(self, evt):
-        pass
+        eid = self.pop3Servers.GetFirstSelected()
+        if eid > -1:
+            email = cache901.dbobjects.Email(self.pop3Servers.GetItemData(eid))
+            self.pop3ServerName.SetValue(email.svrname)
+            self.pop3ServerName.Enable()
+            self.pop3Username.SetValue(email.username)
+            self.pop3Username.Enable()
+            self.pop3Password.SetValue(email.password)
+            self.pop3Password.Enable()
+            self.pop3UseSSL.SetValue(email.usessl)
+            self.pop3UseSSL.Enable()
+            self.btnRemPop3Svr.Enable()
+            self.pop3Save.Enable()
     
     def OnSavePop(self, evt):
-        pass
+        eid = self.pop3Servers.GetFirstSelected()
+        if eid > -1:
+            email = cache901.dbobjects.Email(self.pop3Servers.GetItemData(eid))
+            email.svrname  = self.pop3ServerName.GetValue()
+            email.username = self.pop3Username.GetValue()
+            email.password = self.pop3Password.GetValue()
+            email.usessl   = self.pop3UseSSL.GetValue()
+            email.Save()
+            self.loadPopAccounts()
     
     def loadPopAccounts(self):
-        pass
+        self.pop3Servers.DeleteAllItems()
+        cur = cache901.db().cursor()
+        cur.execute('select emailid, svruser || "@" || svrname as email from emailsources where svrtype="pop" order by email')
+        for row in cur:
+            eid = self.pop3Servers.Append((row['email'], ))
+            self.pop3Servers.SetItemData(eid, row['emailid'])
+        self.btnRemPop3Svr.Disable()
+        self.pop3ServerName.Disable()
+        self.pop3Username.Disable()
+        self.pop3Password.Disable()
+        self.pop3UseSSL.Disable()
+        self.pop3Save.Disable()
     
     def OnAddWpt(self, evt):
-        pass
+        wpt = wx.GetTextFromUser('Enter the waypoint name:', 'Enter Waypoint Name').upper()
+        if wpt != '':
+            cur=cache901.db().cursor()
+            cur.execute('delete from watched_waypoints where waypoint_name=?', (wpt, ))
+            cur.execute('insert into watched_waypoints(waypoint_name) values(?)', (wpt, ))
+            cache901.db().commit()
+            self.loadWpts()
     
     def OnRemWpt(self, evt):
-        pass
+        if wx.MessageBox('Warning! This operation cannot be undone!', 'Really Delete?', wx.YES_NO) == wx.NO:
+            return
+        wptid = self.geoWpts.GetFirstSelected()
+        if wptid > -1:
+            fname = self.geoWpts.GetItemText(wptid)
+            cur = cache901.db().cursor()
+            cur.execute('delete from watched_waypoints where waypoint_name=?', (fname, ))
+            cache901.db().commit()
+            self.loadWpts()
     
     def loadWpts(self):
-        pass
+        self.geoWpts.DeleteAllItems()
+        cur = cache901.db().cursor()
+        cur.execute('select waypoint_name from watched_waypoints order by waypoint_name')
+        for row in cur:
+            self.geoWpts.Append((row['waypoint_name'], ))
     
     def OnAddFolder(self, evt):
         dirpath = wx.DirSelector('Add Watched Folder')
         if dirpath != "":
             cur = cache901.db().cursor()
+            cur.execute('delete from gpxfolders where foldername=?', (dirpath, ))
             cur.execute('insert into gpxfolders(foldername) values(?)', (dirpath, ))
             cache901.db().commit()
             self.loadFolders()
@@ -416,10 +626,11 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         isinstance(self.btnAddImap4Svr, wx.Button)
         isinstance(self.btnRemImap4Svr, wx.Button)
         
-        isinstance(self.imap4ServerName, wx.TextCtrl)
-        isinstance(self.imap4Username,   wx.TextCtrl)
-        isinstance(self.imap4Password,   wx.TextCtrl)
-        isinstance(self.imap4Folder,     wx.Choice)
-        isinstance(self.imap4UseSSL,     wx.CheckBox)
-        isinstance(self.imap4Save,       wx.Button)
+        isinstance(self.imap4ServerName,   wx.TextCtrl)
+        isinstance(self.imap4Username,     wx.TextCtrl)
+        isinstance(self.imap4Password,     wx.TextCtrl)
+        isinstance(self.imap4Folder,       wx.Choice)
+        isinstance(self.btnRefreshFolders, wx.Button)
+        isinstance(self.imap4UseSSL,       wx.CheckBox)
+        isinstance(self.imap4Save,         wx.Button)
 

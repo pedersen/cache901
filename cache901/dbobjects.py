@@ -373,7 +373,7 @@ class Email(object):
                     acctid = -1
                 else:
                     acctid = min(row[0]-1, -1)
-                cur.execute('insert into emailsources(emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder) values(?, "", "", "", "", 0, "")', (acctid, ))
+                cur.execute('insert into emailsources(emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder) values(?, "pop", "", "", "", 0, "INBOX")', (acctid, ))
         cur.execute('select emailid, svrtype, svrname, svruser, svrpass, usessl, deffolder from emailsources where emailid=?', (acctid, ))
         row = cur.fetchone()
         if type(row) is pysqlite2.dbapi2.Row:
@@ -398,4 +398,20 @@ class Email(object):
         cur.execute('delete from emailsources where emailid=?', (self.emailid, ))
         cache901.db().commit()
 
+    def setPop(self, popval):
+        if popval: self.svrtype = 'pop'
+        else: self.svrtype = 'imap'
+        
+    def getPop(self):
+        return self.svrtype == 'pop'
+    
+    def setImap(self, imapval):
+        if imapval: self.svrtype = 'imap'
+        else: self.svrtype = 'pop'
+        
+    def getImap(self):
+        return self.svrtype == 'imap'
+    
+    pop=property(getPop, setPop)
+    imap=property(getImap, setImap)
                                 

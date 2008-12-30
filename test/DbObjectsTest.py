@@ -693,12 +693,12 @@ class EmailAccountTest(unittest.TestCase):
     def testMakeNewId(self):
         acct = cache901.dbobjects.Email(-999999)
         self.failUnless(acct.emailid   == -1)
-        self.failUnless(acct.svrtype   == '')
+        self.failUnless(acct.svrtype   == 'pop')
         self.failUnless(acct.svrname   == '')
         self.failUnless(acct.username  == '')
         self.failUnless(acct.password  == '')
         self.failUnless(acct.usessl    == False)
-        self.failUnless(acct.deffolder == '')
+        self.failUnless(acct.deffolder == 'INBOX')
 
     def testSave(self):
         acct = cache901.dbobjects.Email(-999999)
@@ -738,10 +738,30 @@ class EmailAccountTest(unittest.TestCase):
         del acct
         acct = cache901.dbobjects.Email(acctid)
         self.failUnless(acct.emailid   == -1)
-        self.failUnless(acct.svrtype   == '')
+        self.failUnless(acct.svrtype   == 'pop')
         self.failUnless(acct.svrname   == '')
         self.failUnless(acct.username  == '')
         self.failUnless(acct.password  == '')
         self.failUnless(acct.usessl    == False)
-        self.failUnless(acct.deffolder == '')
+        self.failUnless(acct.deffolder == 'INBOX')
+    
+    def testPopImapProperty(self):
+        acct=cache901.dbobjects.Email(-999999)
+        self.failUnless(acct.pop == True)
+        
+        acct.pop = False
+        self.failUnless(acct.pop == False)
+        self.failUnless(acct.imap == True)
+        
+        acct.imap = False
+        self.failUnless(acct.pop == True)
+        self.failUnless(acct.imap == False)
+        
+        acct.imap = True
+        self.failUnless(acct.pop == False)
+        self.failUnless(acct.imap == True)
 
+        acct.pop = True
+        self.failUnless(acct.pop == True)
+        self.failUnless(acct.imap == False)
+        

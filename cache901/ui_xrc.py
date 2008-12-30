@@ -427,6 +427,7 @@ class xrcGPXSourcesUI(wx.Dialog):
         self.imap4Username = xrc.XRCCTRL(self, "imap4Username")
         self.imap4Password = xrc.XRCCTRL(self, "imap4Password")
         self.imap4Folder = xrc.XRCCTRL(self, "imap4Folder")
+        self.btnRefreshFolders = xrc.XRCCTRL(self, "btnRefreshFolders")
         self.imap4UseSSL = xrc.XRCCTRL(self, "imap4UseSSL")
         self.imap4Save = xrc.XRCCTRL(self, "imap4Save")
 
@@ -3232,6 +3233,16 @@ http://www.justwill.com/</value>
                           </object>
                           <option>1</option>
                           <flag>wxEXPAND</flag>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnRefreshFolders">
+                            <label>Refresh Folder List</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
                         </object>
                         <object class="spacer"/>
                         <object class="sizeritem">
@@ -16161,6 +16172,7 @@ def __gettext_strings():
     _("IMAP 4 User Name:")
     _("Password:")
     _("Pocket Query Folder:")
+    _("Refresh Folder List")
     _("Use SSL?")
     _("Save")
     _("IMAP Email")

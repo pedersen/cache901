@@ -2790,6 +2790,16 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="spacer"/>
                         <object class="sizeritem">
+                          <object class="wxButton" name="btnRefreshFolders">
+                            <label>Refresh Folder List</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                        </object>
+                        <object class="spacer"/>
+                        <object class="sizeritem">
                           <object class="wxCheckBox" name="imap4UseSSL">
                             <label>Use SSL?</label>
                             <XRCED>

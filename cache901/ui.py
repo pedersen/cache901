@@ -130,7 +130,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
     def OnGpxSync(self, evt):
-        cache901.gpxsource.gpxSyncAll()
+        cache901.gpxsource.gpxSyncAll(self)
         self.updStatus()
     
     def OnGpxSources(self, evt):
