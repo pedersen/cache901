@@ -31,20 +31,22 @@ import wx.xrc as xrc
 import wx.html
 
 import cache901
-import cache901.ui_xrc
 import cache901.dbobjects
-import cache901.util as util
-import cache901.xml901
 import cache901.dbm
+import cache901.gpxsource
+import cache901.mapping
 import cache901.options
 import cache901.search
-import cache901.mapping
-import cache901.gpxsource
+import cache901.sql
+import cache901.ui_xrc
+import cache901.util as util
+import cache901.xml901
 
 class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcCache901UI.__init__(self, parent)
         self.geoicons = geoicons()
+        self.logtrans = logTrans()
         self.SetIcon(self.geoicons["appicon"])
         self.clearAllGui()
 
@@ -245,9 +247,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.logList.DeleteAllItems()
         self.logEntry.SetValue("")
         self.logDate.SetValue("")
-        self.logType.SetValue("")
-        self.logMine.SetValue(False)
-        self.logMineFound.SetValue(False)
+        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
+        self.logFinder.SetLabel('Cacher: ')
         # set up notes
         self.currNotes.SetValue("")
         # set up photos
@@ -311,9 +312,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.logList.SetItemData(log_id, log.id)
         self.logEntry.SetValue("")
         self.logDate.SetValue("")
-        self.logType.SetValue("")
-        self.logMine.SetValue(False)
-        self.logMineFound.SetValue(False)
+        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
+        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
         self.currNotes.SetValue(self.ld_cache.note.note)
         self.updPhotoList()
         cn = urlparse(self.ld_cache.url)[1]
@@ -360,9 +360,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         log = cache901.dbobjects.Log(evt.GetData())
         self.logEntry.SetValue(log.log_entry)
         self.logDate.SetValue(datetime.date.fromtimestamp(log.date).isoformat())
-        self.logType.SetValue(log.type)
-        self.logMine.SetValue(log.my_log)
-        self.logMineFound.SetValue(log.my_log_found)
+        self.logType.Select(self.logtrans.getIdx(log.type))
+        self.logFinder.SetLabel('Cacher: %s' % log.finder)
         self.saveLogs.Enable(log.my_log)
 
     def OnImportFile(self, evt):
@@ -379,7 +378,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 parser = cache901.xml901.XMLParser()
                 parser.parse(infile)
                 cache901.notify('Completed processing %s' % path)
-            cache901.dbm.scrub()
+            cache901.sql.maintdb()
             self.loadData()
         self.updStatus()
 
@@ -550,6 +549,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         log.cache_id = self.ld_cache.cache_id
         log.my_log = True
         log.date = time.mktime(datetime.datetime.now().timetuple())
+        cur = cache901.db().cursor()
+        cur.execute('select username from accounts where sitename="GeoCaching.com" and ispremium=1 and isteam=0')
+        row = cur.fetchone()
+        log.finder = row['username']
         log.Save()
         cache901.db().commit()
         iid = self.caches.GetFirstSelected()
@@ -560,16 +563,19 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnSaveLog(self, evt):
         log = cache901.dbobjects.Log(self.logList.GetItemData(self.logList.GetFirstSelected()))
         log.log_entry = self.logEntry.GetValue()
-        log.type = self.logType.GetValue()
-        log.my_log_found = self.logMineFound.GetValue()
+        log.type = self.logtrans.getType(self.logType.GetSelection())
+        cur = cache901.db().cursor()
+        cur.execute('select username from accounts where sitename="GeoCaching.com" and ispremium=1 and isteam=0')
+        row = cur.fetchone()
+        log.finder = row['username']
 
         (year, mon, day)=map(lambda x: int(x), self.logDate.GetValue().split('-'))
         d = datetime.datetime(year, mon, day, 0, 0, 0)
         log.date = time.mktime(d.timetuple())
         if time.daylight:
-            log.date -= time.altzone
+            log.date += time.altzone
         else:
-            log.date -= time.timezone
+            log.date += time.timezone
         log.Save()
         cache901.db().commit()
 
@@ -715,9 +721,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.cacheDescShort, wx.html.HtmlWindow)
         isinstance(self.cacheDescLong, wx.html.HtmlWindow)
         isinstance(self.logDate, wx.TextCtrl)
-        isinstance(self.logType, wx.TextCtrl)
-        isinstance(self.logMine, wx.CheckBox)
-        isinstance(self.logMineFound, wx.CheckBox)
+        isinstance(self.logType, wx.Choice)
+        isinstance(self.logFinder, wx.StaticText)
         isinstance(self.logList, wx.ListCtrl)
         isinstance(self.logEntry, wx.TextCtrl)
         isinstance(self.encText, wx.Button)
@@ -734,6 +739,45 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.CacheSearchMenu, wx.Menu)
         isinstance(self.saveLogs, wx.Button)
         isinstance(self.mnuLogThisCache, wx.MenuItem)
+
+class logTrans(object):
+    def __init__(self):
+        self.weblognums = {
+            "Found It" : 2,
+            "Didn't Find It" : 3,
+            "Write Note" : 4,
+            "Needs Archived" : 7,
+            "Needs Maintenance" : 45
+            }
+        self.opts = [
+            "Found It",
+            "Didn't Find It",
+            "Write Note",
+            "Needs Archived",
+            "Needs Maintenance"
+            ]
+        
+    def getWeb(self, ltype):
+        ltype = ltype.title()
+        if self.weblognums.has_key(ltype): return self.weblognums[ltype]
+        else: return self.weblognums["Didn't Find It"]
+    
+    def getIdx(self, ltype):
+        idx = 1
+        ltype = ltype.title()
+        try:
+            idx = self.opts.index(ltype)
+        except:
+            pass
+        return idx
+    
+    def getType(self, idx):
+        retval = self.opts[1]
+        try:
+            retval = self.opts[idx]
+        except:
+            pass
+        return retval
 
 class geoicons(cache901.ui_xrc.xrcgeoIcons):
     def __init__(self):

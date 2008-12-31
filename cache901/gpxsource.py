@@ -210,6 +210,7 @@ class GeoCachingComSource(GPXSource):
             self.jar.save(self.cfilename)
         self.opener = None
         self.jar = None
+        time.sleep((random.random()*2)+0.5)
         
     def setWpts(self, wptnames=[]):
         self.wptnames = wptnames
@@ -280,6 +281,10 @@ class GeoCachingComSource(GPXSource):
             return ptext
         raise StopIteration
     
+    def postCacheLog(self, logEntry):
+        isinstance(logEntry, cache901.dbobjects.Log)
+        pass
+    
 def gpxSyncAll(callingwin):
     cur = cache901.db().cursor()
     
@@ -332,27 +337,30 @@ def gpxSyncAll(callingwin):
     for folder in folders:
         fld = FolderSource(folder)
         for gpxfile in fld:
-            parser.parse(gpxfile)
+            parser.parse(gpxfile, False)
     
     # Synchronize POP3 sources
     for popid in popaccts:
         email = cache901.dbobjects.Email(popid)
         popsrc = PopSource(email.svrname, email.username, email.password, email.usessl)
         for gpxfile in popsrc:
-            parser.parse(gpxfile)
+            parser.parse(gpxfile, False)
             
     # Synchronize IMAP4 sources
     for imapid in imapaccts:
         email = cache901.dbobjects.Email(imapid)
         imapsrc = IMAPSource(email.svrname, email.username, email.password, email.usessl, email.deffolder)
         for gpxfile in imapsrc:
-            parser.parse(gpxfile)
+            parser.parse(gpxfile, False)
             
     # Synchronize watched waypoints
     if gcuser is not None and gcpass is not None and len(wpts) > 0:
         gcsrc = GeoCachingComSource(gcuser, gcpass, wpts)
         for gpxfile in gcsrc:
-            parser.parse(gpxfile)
+            parser.parse(gpxfile, False)
+            
+    # Finally, perform all database maintenance
+    cache901.sql.maintdb()
 
 class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def __init__(self, parent=None):

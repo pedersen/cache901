@@ -17,15 +17,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import wx
+
 import cache901
 
-def scrub(maxlogs=10):
+def scrub():
+    cfg = wx.Config.Get()
+    isinstance(cfg, wx.Config)
+    cfg.SetPath('/PerMachine')
+    maxlogs = cfg.ReadInt("maxLogs", 10)
     cache901.notify('Scrubbing database of old/invalid data')
     con = cache901.db()
     cur = con.cursor()
     cur.execute("delete from travelbugs where cache_id not in (select cache_id from caches)")
     cur.execute("delete from hints where cache_id not in (select cache_id from caches)")
     cur.execute("delete from logs where cache_id not in (select cache_id from caches)")
+    # update logs to show my_log for any logs where finder is in gpx accounts
+    cache901.notify('Ensuring my logs are noted properly')
+    cur.execute('update logs set my_log=1 where finder in (select username from accounts)')
     # delete logs after maxlogs entries for a given cache, keeping only the newest (and the my_log)
     cur.execute('select distinct id, cache_id, my_log from logs order by cache_id, id desc')
     cache_id = -1

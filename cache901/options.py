@@ -40,6 +40,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.coordDisplay.SetValidator(cache901.validators.degDisplayValidator())
         self.locSplit.SetValidator(cache901.validators.splitValidator("locSplit"))
         self.acctTabSplit.SetValidator(cache901.validators.splitValidator("acctTabSplit"))
+        self.maxLogs.SetValidator(cache901.validators.spinCtlValidator("maxLogs"))
         
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.cacheDays.InsertColumn(0, 'Cache Day', width=w)
@@ -370,6 +371,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.gpsPort,      wx.Choice)
         isinstance(self.gpsbabelLoc,  wx.FilePickerCtrl)
         isinstance(self.getFromGPS,   wx.Button)
+        isinstance(self.maxLogs,      wx.SpinCtrl)
         
         # Search Tab
         isinstance(self.search,    wx.Panel)

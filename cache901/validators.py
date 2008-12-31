@@ -30,6 +30,36 @@ import cache901.util
 
 import gpsbabel
 
+class spinCtlValidator(wx.PyValidator):
+    def __init__(self, varname):
+        wx.PyValidator.__init__(self)
+        self.varname = varname
+        
+    def Clone(self):
+        return spinCtlValidator(self.varname)
+    
+    def Validate(self, win):
+        return True
+    
+    def TransferToWindow(self):
+        fp = self.GetWindow()
+        cfg = wx.Config.Get()
+        cfg.SetPath('/PerMachine')
+        isinstance(fp, wx.SpinCtrl)
+        isinstance(cfg, wx.Config)
+        spinnum = cfg.ReadInt(self.varname, 10)
+        fp.SetValue(spinnum)
+        fp.Refresh()
+        
+    def TransferFromWindow(self):
+        fp = self.GetWindow()
+        cfg = wx.Config.Get()
+        cfg.SetPath('/PerMachine')
+        isinstance(fp, wx.SpinCtrl)
+        isinstance(cfg, wx.Config)
+        spinnum = fp.GetValue()
+        cfg.WriteInt(self.varname, spinnum)
+        
 class cmdValidator(wx.PyValidator):
     def Clone(self):
         return cmdValidator()

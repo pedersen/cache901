@@ -69,8 +69,7 @@ class xrcCache901UI(wx.Frame):
         self.cacheLogs = xrc.XRCCTRL(self, "cacheLogs")
         self.logDate = xrc.XRCCTRL(self, "logDate")
         self.logType = xrc.XRCCTRL(self, "logType")
-        self.logMine = xrc.XRCCTRL(self, "logMine")
-        self.logMineFound = xrc.XRCCTRL(self, "logMineFound")
+        self.logFinder = xrc.XRCCTRL(self, "logFinder")
         self.splitLogsandLog = xrc.XRCCTRL(self, "splitLogsandLog")
         self.splitLogsAndBugs = xrc.XRCCTRL(self, "splitLogsAndBugs")
         self.logList = xrc.XRCCTRL(self, "logList")
@@ -237,6 +236,7 @@ class xrcOptionsUI(wx.Dialog):
         self.gpsType = xrc.XRCCTRL(self, "gpsType")
         self.gpsPort = xrc.XRCCTRL(self, "gpsPort")
         self.gpsbabelLoc = xrc.XRCCTRL(self, "gpsbabelLoc")
+        self.maxLogs = xrc.XRCCTRL(self, "maxLogs")
         self.search = xrc.XRCCTRL(self, "search")
         self.locSplit = xrc.XRCCTRL(self, "locSplit")
         self.locations = xrc.XRCCTRL(self, "locations")
@@ -1042,34 +1042,30 @@ def __init_resources():
                           </object>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxTextCtrl" name="logType">
+                          <object class="wxChoice" name="logType">
+                            <content>
+                              <item>Found It</item>
+                              <item>Didn't Find it</item>
+                              <item>Write Note</item>
+                              <item>Needs Archived</item>
+                              <item>Needs Maintenance</item>
+                            </content>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
-                          <option>1</option>
-                          <flag>wxEXPAND</flag>
                         </object>
                         <orient>wxHORIZONTAL</orient>
+                        
                         <object class="sizeritem">
-                          <object class="wxCheckBox" name="logMine">
-                            <label>My Log?</label>
+                          <object class="wxStaticText" name="logFinder">
+                            <label>Cacher:</label>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
-                          <option>1</option>
-                          <flag>wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>
-                        </object>
-                        <object class="sizeritem">
-                          <object class="wxCheckBox" name="logMineFound">
-                            <label>Found It?</label>
-                            <XRCED>
-                              <assign_var>1</assign_var>
-                            </XRCED>
-                          </object>
-                          <option>1</option>
-                          <flag>wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>
+                          <option>3</option>
+                          <flag>wxEXPAND</flag>
                         </object>
                       </object>
                       <option>0</option>
@@ -1729,6 +1725,24 @@ http://www.justwill.com/</value>
                   <option>1</option>
                   <flag>wxEXPAND|wxGROW</flag>
                   <cellpos>0,4</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>Max Number Of Logs / Cache:</label>
+                  </object>
+                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  <cellpos>3,0</cellpos>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxSpinCtrl" name="maxLogs">
+                    <min>0</min>
+                    <max>100</max>
+                    <style>wxSP_ARROW_KEYS</style>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                  <cellpos>3,1</cellpos>
                 </object>
                 <vgap>2</vgap>
                 <hgap>2</hgap>
@@ -15993,8 +16007,12 @@ def __gettext_strings():
     _("Description")
     _("Date:")
     _("Type:")
-    _("My Log?")
-    _("Found It?")
+    _("Found It")
+    _("Didn't Find it")
+    _("Write Note")
+    _("Needs Archived")
+    _("Needs Maintenance")
+    _("Cacher:")
     _("Log Entries")
     _("Travel Bugs")
     _("Encode / Decode Text")
@@ -16047,6 +16065,7 @@ def __gettext_strings():
     _("GPS Port:")
     _("GPSBabel Location:")
     _("gpsbabel")
+    _("Max Number Of Logs / Cache:")
     _("&General")
     _("Locations:")
     _("&Remove")

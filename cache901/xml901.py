@@ -28,14 +28,15 @@ class XMLParser(object):
     def __init__(self):
         self.handler = XMLHandler()
 
-    def parse(self, data):
+    def parse(self, data, maint=True):
         self.handler.reset()
         if (type(data) is str):
             xml.sax.parseString(data, self.handler)
         else:
             xml.sax.parse(data, self.handler)
         cache901.db().commit()
-        cache901.sql.maintdb()
+        if maint:
+            cache901.sql.maintdb()
 
 class XMLHandler(xml.sax.handler.ContentHandler):
     def __init__(self):

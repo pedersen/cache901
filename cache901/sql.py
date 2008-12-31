@@ -22,6 +22,7 @@ try:
 except ImportError, e:
     import sqlite3 as sqlite
 
+import cache901.dbm
 import cache901.util
 import cache901.sql
 
@@ -257,6 +258,7 @@ def prepdb(dbname, debug=False):
     return con
 
 def maintdb():
+    cache901.dbm.scrub()
     cur = cache901.db().cursor()
     cache901.notify('Recovering unused disk space')
     cur.execute("vacuum")
