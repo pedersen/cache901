@@ -145,7 +145,7 @@ class IMAPSource(GPXSource):
         self.imap4.close()
         
     def next(self):
-        while self.count < len(self.msgnums)-1:
+        while self.count <= len(self.msgnums)-1:
             if self.zfile is None:
                 cache901.notify('Processing Message %s' % self.msgnums[self.count])
                 typ, pmsg = self.imap4.fetch(self.msgnums[self.count], '(RFC822)')
