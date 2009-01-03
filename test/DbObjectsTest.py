@@ -562,31 +562,6 @@ class CacheDayTest(unittest.TestCase):
             daydelete = False
         self.failUnless(daydelete == True, "Entry still exists in cacheday")
         
-class AttributeTest(unittest.TestCase):
-    """
-    @todo: write this test case
-    """
-    def setUp(self):
-        cur = cache901.db().cursor()
-        cur.execute("delete from locations")
-        cur.execute("delete from caches")
-        cur.execute("delete from travelbugs")
-        cur.execute("delete from logs")
-        cur.execute("delete from hints")
-        cache901.db().commit()
-
-    def testInitInvalidID(self):
-        pass
-
-    def testInitValidID(self):
-        pass
-
-    def testMakeNewId(self):
-        pass
-
-    def testSave(self):
-        pass
-
 class CategoryTest(unittest.TestCase):
     """
     @todo: write this test case

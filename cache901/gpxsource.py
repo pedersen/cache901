@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 """
 
 import cookielib
+import datetime
 import email
 import email.message
 import email.parser
@@ -35,9 +36,11 @@ import zipfile
 from cStringIO import StringIO
 
 import wx
+import wx.grid
 
 import cache901
 import cache901.options
+import cache901.ui
 import cache901.ui_xrc
 import cache901.validators
 import cache901.xml901
@@ -189,6 +192,7 @@ class GeoCachingComSource(GPXSource):
         self.wptnames = wptnames
         self.useragent = 'Mozilla/4.0 (compatible; MSIE 5.5; Cache 901)'
         self.cfilename = os.sep.join([cache901.dbpath, 'gccom_cookie.jar'])
+        self.ltrans = cache901.ui.logTrans()
         self.login()
         
     def __del__(self):
@@ -282,8 +286,52 @@ class GeoCachingComSource(GPXSource):
         raise StopIteration
     
     def postCacheLog(self, logEntry):
+        # @todo: test this code!
         isinstance(logEntry, cache901.dbobjects.Log)
-        pass
+        
+        # prep timestamps for loading
+        now = datetime.datetime.now()
+        isinstance(now, datetime.datetime)
+        month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][now.month-1]
+        nowstr='%s/%02d/%d' % (month, now.day, now.year)
+        if time.daylight:
+            logEntry.date += time.altzone
+        else:
+            logEntry.date += time.timezone
+        logdate = datetime.datetime.fromtimestamp(logEntry.date)
+        isinstance(logdate, datetime.datetime)
+        
+        # prep web access
+        dbocache = cache901.dbobjects.Cache(logEntry.cache_id)
+        cachename = '%s - %s' % (dbocache.name, dbocache.url_name)
+        headers = {'User-agent' : self.useragent }
+        self.wwwSetup()
+        cfind = 'http://www.geocaching.com/seek/log.aspx?ID='
+        curl = '%s%d' % (cfind, logEntry.cache_id)
+        
+        # download log posting page to retrieve __VIEWSTATE
+        cache901.notify('Retrieving log page for cache id %d' % cachename)
+        page = urllib2.urlopen(curl)
+        time.sleep((random.random()*2)+0.5)
+        
+        # post log entry, filling in all necessary fields
+        cache901.notify('Posting log entry for cache id %d' % cachename)
+        m = re.match(r'.+?id="__VIEWSTATE"\s+value="(.+?)"', page.read(), re.S)
+        postdata = {
+            '__VIEWSTATE': m.group(1),
+            'LogBookPanel1$DateTimeLogged' : nowstr,
+            'LogBookPanel1$DateTimeLogged$Day' : logdate.day,
+            'LogBookPanel1$DateTimeLogged$Month' : logdate.month,
+            'LogBookPanel1$DateTimeLogged$Year' : logdate.year,
+            'LogBookPanel1$LogButton' : 'Submit log entry',
+            'LogBookPanel1$ddLogType' : self.ltrans.getIdx(logEntry.type),
+            'LogBookPanel1$tbLogInfo' : logEntry.log_entry
+            }
+        fromvalues = urllib.urlencode(postdata)
+        request = urllib2.Request(curl, fromvalues, headers)
+        page = urllib2.urlopen(request)
+        self.wwwClose()
+        cache901.notify('Posted log entry for cache id %d' % cachename)
     
 def gpxSyncAll(callingwin):
     cur = cache901.db().cursor()
@@ -304,7 +352,7 @@ def gpxSyncAll(callingwin):
         gcuser = None
         gcpass = None
     
-    # Second, validate that we have some sources to synchronize
+    # Next, validate that we have some sources to synchronize
     cur.execute('select (select count(emailid) from emailsources)+(select count(foldername) from gpxfolders)+(select count(waypoint_name) from watched_waypoints) as total_sources')
     row = cur.fetchone()
     if row['total_sources'] == 0:
@@ -312,7 +360,23 @@ def gpxSyncAll(callingwin):
         gpxsrc = GPXSourceUI()
         gpxsrc.ShowModal()
     
-    # Third, gather gpx sources lists
+    # Next, check if we have logs to upload, and show the log upload window if we do
+    loguploadtable = LogUploadTable()
+    if len(loguploadtable.logs) > 0:
+        uploadergui = LogUploadGUI(loguploadtable, callingwin)
+        if uploadergui.ShowModal() == wx.ID_OK:
+            acct = None
+            for acctidx in range(len(loguploadtable.accounts)):
+                for logidx in range(len(loguploadtable.logs)):
+                    if loguploadtable.uploads[logidx][acctidx]:
+                        # @todo: login to gc.com if necessary
+                        # @todo: post log
+                        # @todo: mark the log as uploaded
+                        pass
+            del acct
+    return
+    
+    # Next, gather gpx sources lists
     folders = []
     wpts = []
     popaccts = []
@@ -642,3 +706,86 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         isinstance(self.imap4UseSSL,       wx.CheckBox)
         isinstance(self.imap4Save,         wx.Button)
 
+class LogUploadTable(wx.grid.PyGridTableBase):
+    def __init__(self):
+        wx.grid.PyGridTableBase.__init__(self)
+        self.accounts = []
+        self.logs = []
+        self.caches = {}
+        cur = cache901.db().cursor()
+        cur.execute('select accountid from accounts order by ispremium desc, isteam desc')
+        for row in cur:
+            self.accounts.append(cache901.dbobjects.Account(row['accountid']))
+        cur.execute('select id from logs where finder in (select username from accounts) and my_log_uploaded=0 order by date asc')
+        for row in cur:
+            self.logs.append(cache901.dbobjects.Log(row['id']))
+            cid = self.logs[-1].cache_id
+            self.caches[cid] = cache901.dbobjects.Cache(cid)
+        self.uploads = map(lambda x: map(lambda y: False, self.accounts), self.logs)
+        self.centercell = wx.grid.GridCellAttr()
+        self.centercell.SetAlignment(wx.ALIGN_CENTER, wx.ALIGN_CENTER)
+        self.nullattr = wx.grid.GridCellAttr()
+    
+    def GetNumberRows(self):
+        return len(self.logs)
+    
+    def GetNumberCols(self):
+        return 2+len(self.accounts)
+    
+    def IsEmptyCell(self, row, col):
+        return False
+    
+    def GetValue(self, row, col):
+        if col == 0:
+            return self.caches[self.logs[row].cache_id].url_name
+        if col == 1:
+            logdate = datetime.datetime.fromtimestamp(self.logs[row].date).date()
+            isinstance(logdate, datetime.date)
+            return logdate.isoformat()
+        return self.uploads[row][col-2]
+    
+    def SetValue(self, row, col, value):
+        if col >= 2:
+            self.uploads[row][col-2] = value
+    
+    def GetColLabelValue(self, col):
+        if col == 0:
+            return 'Cache Name'
+        elif col == 1:
+            return 'Log Date'
+        else:
+            acct = self.accounts[col-2]
+            if acct.isteam:
+                team = 'Team '
+            else:
+                team = ''
+            return '%s%s @\n%s' % (team, acct.username, acct.sitename)
+    
+    def GetRowLabelValue(self, row):
+        return self.caches[self.logs[row].cache_id].name
+    
+    def GetTypeName(self, row, col):
+        if col == 0 or col == 1:
+            return wx.grid.GRID_VALUE_STRING
+        else:
+            return wx.grid.GRID_VALUE_BOOL
+    
+    def GetAttr(self, row, col, kind):
+        if col >= 2:
+            self.centercell.IncRef()
+            return self.centercell
+        else:
+            self.nullattr.IncRef()
+            return self.nullattr
+        
+class LogUploadGUI(cache901.ui_xrc.xrcLogUploadUI):
+    def __init__(self, table, parent=None):
+        cache901.ui_xrc.xrcLogUploadUI.__init__(self, parent)
+        self.logGrid.SetTable(table)
+        self.logGrid.AutoSize()
+        self.logGrid.EnableDragGridSize()
+    
+    def forWingIde(self):
+        isinstance(self.logGrid, wx.grid.Grid)
+        
+        

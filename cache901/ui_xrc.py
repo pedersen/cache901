@@ -433,6 +433,30 @@ class xrcGPXSourcesUI(wx.Dialog):
 
 
 
+class xrcLogUploadUI(wx.Dialog):
+#!XRCED:begin-block:xrcLogUploadUI.PreCreate
+    def PreCreate(self, pre):
+        """ This function is called during the class's initialization.
+        
+        Override it for custom setup before the window is created usually to
+        set additional window styles using SetWindowStyle() and SetExtraStyle().
+        """
+        pass
+        
+#!XRCED:end-block:xrcLogUploadUI.PreCreate
+
+    def __init__(self, parent):
+        # Two stage creation (see http://wiki.wxpython.org/index.cgi/TwoStageCreation)
+        pre = wx.PreDialog()
+        self.PreCreate(pre)
+        get_resources().LoadOnDialog(pre, parent, "LogUploadUI")
+        self.PostCreate(pre)
+
+        # Define variables for the controls, bind event handlers
+        self.logGrid = xrc.XRCCTRL(self, "logGrid")
+
+
+
 
 
 # ------------------------ Resource data ----------------------
@@ -1029,12 +1053,12 @@ def __init_resources():
                           </object>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxTextCtrl" name="logDate">
+                          <object class="wxDatePickerCtrl" name="logDate">
+                            <style>wxDP_DEFAULT|wxDP_SHOWCENTURY</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
-                          <option>1</option>
                         </object>
                         <object class="sizeritem">
                           <object class="wxStaticText">
@@ -3315,6 +3339,40 @@ http://www.justwill.com/</value>
     <size>750,400</size>
     <title>GPX Data Sources</title>
     <style>wxDEFAULT_DIALOG_STYLE</style>
+  </object>
+  <object class="wxDialog" name="LogUploadUI">
+    <title>Cache Logs To Upload</title>
+    <style>wxDEFAULT_DIALOG_STYLE</style>
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxGrid" name="logGrid">
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <option>1</option>
+        <flag>wxEXPAND|wxGROW</flag>
+        <minsize>700,400</minsize>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_OK">
+              <label>OK</label>
+            </object>
+          </object>
+          <object class="spacer"/>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_CANCEL">
+              <label>Cancel</label>
+            </object>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+        <flag>wxALIGN_CENTRE</flag>
+      </object>
+    </object>
   </object>
 </resource>'''
 
@@ -16197,4 +16255,7 @@ def __gettext_strings():
     _("IMAP Email")
     _("Close GPX Sources Window")
     _("GPX Data Sources")
+    _("Cache Logs To Upload")
+    _("OK")
+    _("Cancel")
 

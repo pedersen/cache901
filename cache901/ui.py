@@ -246,7 +246,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         # set up log listings
         self.logList.DeleteAllItems()
         self.logEntry.SetValue("")
-        self.logDate.SetValue("")
+        self.logDate.SetValue(wx.DateTime_Now())
         self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
         self.logFinder.SetLabel('Cacher: ')
         # set up notes
@@ -294,6 +294,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.lon.SetValue(util.lonToDMS(self.ld_cache.lon))
         self.cacheDescLong.SetPage('<p>' + self.ld_cache.comment.replace('\n', '</p><p>') + '</p>')
 
+    def reloadLogList(self):
+        self.logList.DeleteAllItems()
+        for log in self.ld_cache.logs:
+            s=datetime.date.fromtimestamp(log.date).isoformat()
+            log_id = self.logList.Append((s, ))
+            self.logList.SetItemData(log_id, log.id)
+        self.logEntry.SetValue("")
+        self.logDate.SetValue(wx.DateTime_Now())
+        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
+        
     def OnLoadCache(self, evt):
         iid = self.points.GetFirstSelected()
         while iid != -1:
@@ -305,15 +315,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for bug in self.ld_cache.bugs:
             self.travelbugs.Append((bug.name, ))
         # set up log listings
-        self.logList.DeleteAllItems()
-        for log in self.ld_cache.logs:
-            s=datetime.date.fromtimestamp(log.date).isoformat()
-            log_id = self.logList.Append((s, ))
-            self.logList.SetItemData(log_id, log.id)
-        self.logEntry.SetValue("")
-        self.logDate.SetValue("")
-        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
-        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
+        self.reloadLogList()
         self.currNotes.SetValue(self.ld_cache.note.note)
         self.updPhotoList()
         cn = urlparse(self.ld_cache.url)[1]
@@ -359,7 +361,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnLoadLog(self, evt):
         log = cache901.dbobjects.Log(evt.GetData())
         self.logEntry.SetValue(log.log_entry)
-        self.logDate.SetValue(datetime.date.fromtimestamp(log.date).isoformat())
+        self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
         self.logType.Select(self.logtrans.getIdx(log.type))
         self.logFinder.SetLabel('Cacher: %s' % log.finder)
         self.saveLogs.Enable(log.my_log)
@@ -569,8 +571,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         row = cur.fetchone()
         log.finder = row['username']
 
-        (year, mon, day)=map(lambda x: int(x), self.logDate.GetValue().split('-'))
-        d = datetime.datetime(year, mon, day, 0, 0, 0)
+        dt = self.logDate.GetValue()
+        d = datetime.datetime(dt.GetYear(), dt.GetMonth()+1, dt.GetDay(), 0, 0, 0)
         log.date = time.mktime(d.timetuple())
         if time.daylight:
             log.date += time.altzone
@@ -578,6 +580,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             log.date += time.timezone
         log.Save()
         cache901.db().commit()
+        self.ld_cache = cache901.dbobjects.Cache(log.cache_id)
+        self.reloadLogList()
 
     def OnPopupMenu(self, evt):
         self.mnu = cache901.ui_xrc.xrcCwMenu()
@@ -720,7 +724,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.travelbugs, wx.ListCtrl)
         isinstance(self.cacheDescShort, wx.html.HtmlWindow)
         isinstance(self.cacheDescLong, wx.html.HtmlWindow)
-        isinstance(self.logDate, wx.TextCtrl)
+        isinstance(self.logDate, wx.DatePickerCtrl)
         isinstance(self.logType, wx.Choice)
         isinstance(self.logFinder, wx.StaticText)
         isinstance(self.logList, wx.ListCtrl)
