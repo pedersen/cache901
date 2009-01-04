@@ -311,10 +311,6 @@ class xrcSearchUI(wx.Dialog):
         self.found = xrc.XRCCTRL(self, "found")
         self.notOwned = xrc.XRCCTRL(self, "notOwned")
         self.owned = xrc.XRCCTRL(self, "owned")
-        self.genAvail = xrc.XRCCTRL(self, "genAvail")
-        self.memAvail = xrc.XRCCTRL(self, "memAvail")
-        self.notIgnored = xrc.XRCCTRL(self, "notIgnored")
-        self.ignored = xrc.XRCCTRL(self, "ignored")
         self.foundLast7 = xrc.XRCCTRL(self, "foundLast7")
         self.notFound = xrc.XRCCTRL(self, "notFound")
         self.hasBugs = xrc.XRCCTRL(self, "hasBugs")
@@ -2539,7 +2535,6 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notFoundByMe">
                     <label>I haven't found</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2548,7 +2543,6 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="found">
                     <label>I have found</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2557,7 +2551,6 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notOwned">
                     <label>I don't own</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2566,48 +2559,15 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="owned">
                     <label>I own</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
                   </object>
                 </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="genAvail">
-                    <label>Are available to all users</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="memAvail">
-                    <label>Are for members only</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="notIgnored">
-                    <label>Are not on my ignore list</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="ignored">
-                    <label>Are on my watch list</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
+                
+                
+                
+                
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="foundLast7">
                     <label>Found in the last 7 days</label>
@@ -16203,10 +16163,6 @@ def __gettext_strings():
     _("I have found")
     _("I don't own")
     _("I own")
-    _("Are available to all users")
-    _("Are for members only")
-    _("Are not on my ignore list")
-    _("Are on my watch list")
     _("Found in the last 7 days")
     _("Have not been found")
     _("Have travel bugs")

@@ -2069,7 +2069,6 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notFoundByMe">
                     <label>I haven't found</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2078,7 +2077,6 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="found">
                     <label>I have found</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2087,7 +2085,6 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="notOwned">
                     <label>I don't own</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -2096,48 +2093,15 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="owned">
                     <label>I own</label>
-                    <enabled>0</enabled>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
                   </object>
                 </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="genAvail">
-                    <label>Are available to all users</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="memAvail">
-                    <label>Are for members only</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="notIgnored">
-                    <label>Are not on my ignore list</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="ignored">
-                    <label>Are on my watch list</label>
-                    <enabled>0</enabled>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                </object>
+                
+                
+                
+                
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="foundLast7">
                     <label>Found in the last 7 days</label>

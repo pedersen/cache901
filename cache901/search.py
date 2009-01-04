@@ -78,8 +78,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.countriesCheck.SetValue(False)
         self.deselectList(self.cacheContainers)
         self.deselectList(self.cacheTypes)
-        for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
-                  'memAvail', 'notIgnored', 'ignored', 'foundLast7',
+        for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'foundLast7',
                   'notFound', 'hasBugs', 'updatedLast7', 'notActive',
                   'active']:
             getattr(self, i).SetValue(False)
@@ -180,8 +179,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
                         idx = self.cacheContainers.FindItem(-1, ctype)
                         if idx != -1: self.cacheContainers.Select(idx)
                 else:
-                    for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
-                              'memAvail', 'notIgnored', 'ignored', 'foundLast7',
+                    for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'foundLast7',
                               'notFound', 'hasBugs', 'updatedLast7', 'notActive',
                               'active']:
                         if param == i.lower():
@@ -214,8 +212,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
                 params['searchScale'] = self.distanceScale.GetItems()[self.distanceScale.GetSelection()]
             else:
                 del params['searchDist']
-        for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'genAvail',
-                  'memAvail', 'notIgnored', 'ignored', 'foundLast7',
+        for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'foundLast7',
                   'notFound', 'hasBugs', 'updatedLast7', 'notActive',
                   'active']:
             if getattr(self, i).GetValue(): params[i.lower()] = 1
@@ -329,10 +326,6 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         isinstance(self.found, wx.CheckBox)
         isinstance(self.notOwned, wx.CheckBox)
         isinstance(self.owned, wx.CheckBox)
-        isinstance(self.genAvail, wx.CheckBox)
-        isinstance(self.memAvail, wx.CheckBox)
-        isinstance(self.notIgnored, wx.CheckBox)
-        isinstance(self.ignored, wx.CheckBox)
         isinstance(self.foundLast7, wx.CheckBox)
         isinstance(self.notFound, wx.CheckBox)
         isinstance(self.hasBugs, wx.CheckBox)
@@ -467,21 +460,13 @@ def execSearch(params):
         where.append('container in (%s)' % ','.join(map(lambda x: '?', containers)))
         sqlparams.extend(containers)
     if params.has_key('notFoundByMe'):
-        pass
+        where.append("cache_id not in (select cache_id from logs where lower(type)='found it' and finder in (select username from accounts))")
     if params.has_key('found'):
-        pass
+        where.append("cache_id in (select cache_id from logs where lower(type)='found it' and finder in (select username from accounts))")
     if params.has_key('notOwned'):
-        pass
+        where.append('owner_name not in (select username from accounts)')
     if params.has_key('owned'):
-        pass
-    if params.has_key('genAvail'):
-        pass
-    if params.has_key('memAvail'):
-        pass
-    if params.has_key('notIgnored'):
-        pass
-    if params.has_key('ignored'):
-        pass
+        where.append('owner_name in (select username from accounts)')
     if params.has_key('foundLast7'):
         where.append("cache_id in (select distinct cache_id from logs where date >= ? and logs.cache_id in (select distinct cache_id from logs where type='Found it'))")
         sqlparams.append(now-seconds)

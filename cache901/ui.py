@@ -196,6 +196,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for row in cache901.util.getWaypoints(wpt_params):
             wpt_id = self.points.Append((row[1], row[2]))
             self.points.SetItemData(wpt_id, row[0])
+        self.updStatus()
 
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
