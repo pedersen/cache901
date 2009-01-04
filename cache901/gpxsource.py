@@ -286,7 +286,6 @@ class GeoCachingComSource(GPXSource):
         raise StopIteration
     
     def postCacheLog(self, logEntry):
-        # @todo: test this code!
         isinstance(logEntry, cache901.dbobjects.Log)
         
         # prep timestamps for loading
@@ -360,21 +359,30 @@ def gpxSyncAll(callingwin):
         gpxsrc = GPXSourceUI()
         gpxsrc.ShowModal()
     
-    # Next, check if we have logs to upload, and show the log upload window if we do
+    # Next, check if we have logs to upload, show the log upload window if we do, and upload any results
     loguploadtable = LogUploadTable()
     if len(loguploadtable.logs) > 0:
         uploadergui = LogUploadGUI(loguploadtable, callingwin)
         if uploadergui.ShowModal() == wx.ID_OK:
-            acct = None
             for acctidx in range(len(loguploadtable.accounts)):
+                acct = None
+                dbacct = loguploadtable.accounts[acctidx]
                 for logidx in range(len(loguploadtable.logs)):
-                    if loguploadtable.uploads[logidx][acctidx]:
-                        # @todo: login to gc.com if necessary
-                        # @todo: post log
-                        # @todo: mark the log as uploaded
-                        pass
-            del acct
-    return
+                    uplog = loguploadtable.logs[logidx]
+                    savedentry = uplog.log_entry
+                    if loguploadtable.marks[logidx]:
+                        uplog.my_log_uploaded = True
+                        uplog.Save()
+                    elif loguploadtable.uploads[logidx][acctidx]:
+                        if acct is None:
+                            acct = GeoCachingComSource(dbacct.username, dbacct.password)
+                        if dbacct.isteam:
+                            uplog.log_entry = 'Team %s logging the cache' % dbacct.username
+                        acct.postCacheLog(uplog)
+                        uplog.log_entry = savedentry
+                        uplog.my_log_uploaded = True
+                        uplog.Save()
+                del acct
     
     # Next, gather gpx sources lists
     folders = []
@@ -722,6 +730,7 @@ class LogUploadTable(wx.grid.PyGridTableBase):
             cid = self.logs[-1].cache_id
             self.caches[cid] = cache901.dbobjects.Cache(cid)
         self.uploads = map(lambda x: map(lambda y: False, self.accounts), self.logs)
+        self.marks = map(lambda x: False, self.logs)
         self.centercell = wx.grid.GridCellAttr()
         self.centercell.SetAlignment(wx.ALIGN_CENTER, wx.ALIGN_CENTER)
         self.nullattr = wx.grid.GridCellAttr()
@@ -730,7 +739,7 @@ class LogUploadTable(wx.grid.PyGridTableBase):
         return len(self.logs)
     
     def GetNumberCols(self):
-        return 2+len(self.accounts)
+        return 3+len(self.accounts)
     
     def IsEmptyCell(self, row, col):
         return False
@@ -742,19 +751,26 @@ class LogUploadTable(wx.grid.PyGridTableBase):
             logdate = datetime.datetime.fromtimestamp(self.logs[row].date).date()
             isinstance(logdate, datetime.date)
             return logdate.isoformat()
-        return self.uploads[row][col-2]
+        if col == 2:
+            return self.marks[row]
+        return self.uploads[row][col-3]
     
     def SetValue(self, row, col, value):
-        if col >= 2:
-            self.uploads[row][col-2] = value
+        if col == 2:
+            self.marks[row] = value
+            self.uploads[row] = map(lambda x: False, self.accounts)
+        if col >= 3:
+            self.uploads[row][col-3] = value
     
     def GetColLabelValue(self, col):
         if col == 0:
             return 'Cache Name'
         elif col == 1:
             return 'Log Date'
+        elif col == 2:
+            return 'Mark As\nUploaded'
         else:
-            acct = self.accounts[col-2]
+            acct = self.accounts[col-3]
             if acct.isteam:
                 team = 'Team '
             else:
