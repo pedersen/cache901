@@ -310,12 +310,12 @@ class GeoCachingComSource(GPXSource):
         curl = '%s%d' % (cfind, logEntry.cache_id)
         
         # download log posting page to retrieve __VIEWSTATE
-        cache901.notify('Retrieving log page for cache id %d' % cachename)
+        cache901.notify('Retrieving log page for cache id %s' % cachename)
         page = urllib2.urlopen(curl)
         time.sleep((random.random()*2)+0.5)
         
         # post log entry, filling in all necessary fields
-        cache901.notify('Posting log entry for cache id %d' % cachename)
+        cache901.notify('Posting log entry for cache id %s' % cachename)
         m = re.match(r'.+?id="__VIEWSTATE"\s+value="(.+?)"', page.read(), re.S)
         postdata = {
             '__VIEWSTATE': m.group(1),
@@ -324,14 +324,14 @@ class GeoCachingComSource(GPXSource):
             'LogBookPanel1$DateTimeLogged$Month' : logdate.month,
             'LogBookPanel1$DateTimeLogged$Year' : logdate.year,
             'LogBookPanel1$LogButton' : 'Submit log entry',
-            'LogBookPanel1$ddLogType' : self.ltrans.getIdx(logEntry.type),
+            'LogBookPanel1$ddLogType' : self.ltrans.getWeb(logEntry.type),
             'LogBookPanel1$tbLogInfo' : logEntry.log_entry
             }
         fromvalues = urllib.urlencode(postdata)
         request = urllib2.Request(curl, fromvalues, headers)
         page = urllib2.urlopen(request)
         self.wwwClose()
-        cache901.notify('Posted log entry for cache id %d' % cachename)
+        cache901.notify('Posted log entry for cache id %s' % cachename)
     
 def gpxSyncAll(callingwin):
     cur = cache901.db().cursor()
