@@ -44,12 +44,41 @@ import cache901.xml901
 
 class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def __init__(self, parent=None):
-        cache901.ui_xrc.xrcCache901UI.__init__(self, parent)
+        super(Cache901UI, self).__init__(parent)
+
         self.geoicons = geoicons()
         self.logtrans = logTrans()
         self.SetIcon(self.geoicons["appicon"])
-        self.clearAllGui()
 
+        # do all the GUI config stuff - creating extra controls and binding objects to events
+        self.createStatusBarSearchField()
+        self.miscBinds()        
+        self.bindButtonEvents()
+        self.bindListItemSelectedEvents()
+        self.setSashPositionsFromConfig()
+
+        self.clearAllGui()
+        self.configureListBoxes()
+
+        self.pop = None
+        self.ld_cache = None
+
+        self.loadData()
+        self.updSearchMenu()
+        self.updPhotoList()
+        # The following is done last, since some menu items are dynamically generated.
+        self.bindMenuOptions()
+
+
+    def miscBinds(self):
+        # these three are in here because they don't fold nicely into another method
+        self.Bind(wx.EVT_CLOSE,  self.OnClose)
+        self.caches.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuCaches)
+        self.points.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuWpts)
+    
+
+    def createStatusBarSearchField(self):
+        # add the search field to the program's status bar
         rect = self.statusBar.GetFieldRect(1)
         self.searchlabel = wx.StaticText(self.statusBar, label="Search:", pos=(rect.x+8, rect.y+2))
         w,h = self.searchlabel.GetSizeTuple()
@@ -65,80 +94,159 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             w,h = self.search.GetTextExtent('lq')
             self.search.SetFont(font)
 
-        self.Bind(wx.EVT_CLOSE,  self.OnClose)
-
-        self.caches.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuCaches)
-        self.points.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuWpts)
-
-        self.Bind(wx.EVT_MENU,   self.OnClose,       self.mnuFileExit)
-        self.Bind(wx.EVT_MENU,   self.OnDbMaint,     self.mnuFileDbMaint)
-        self.Bind(wx.EVT_MENU,   self.OnImportFile,  self.mnuFileImport)
-        self.Bind(wx.EVT_MENU,   self.OnAbout,       self.mnuHelpAbout)
-        self.Bind(wx.EVT_MENU,   self.OnSearchLocs,  self.mnuFileLocs)
-        self.Bind(wx.EVT_MENU,   self.OnPrefs,       self.mnuFilePrefs)
-        self.Bind(wx.EVT_MENU,   self.OnShowMap,     self.showMap)
-        self.Bind(wx.EVT_MENU,   self.OnAddPhoto,    self.mnuAddPhoto)
-        self.Bind(wx.EVT_MENU,   self.OnRemovePhoto, self.mnuRemovePhoto)
-        self.Bind(wx.EVT_MENU,   self.OnSaveNotes,   self.mnuSaveNote)
-        self.Bind(wx.EVT_MENU,   self.OnClearNotes,  self.mnuClearNote)
-        self.Bind(wx.EVT_MENU,   self.OnLogCache,    self.mnuLogThisCache)
-        self.Bind(wx.EVT_MENU,   self.OnSendToGPS,   self.mnuSendToGPS)
-        self.Bind(wx.EVT_MENU,   self.OnCacheDay,    self.mnuPrefsCacheDay)
-        self.Bind(wx.EVT_MENU,   self.OnGeoAccounts, self.mnuPrefsAccounts)
-        self.Bind(wx.EVT_MENU,   self.OnGpxSync,     self.mnuGpxSync)
-        self.Bind(wx.EVT_MENU,   self.OnGpxSources,  self.mnuGpxSources)
-
-        self.Bind(wx.EVT_BUTTON, self.OnHintsToggle,     self.hintsCoding)
-        self.Bind(wx.EVT_BUTTON, self.OnLogToggle,       self.encText)
-        self.Bind(wx.EVT_BUTTON, self.OnSaveNotes,       self.saveNotes)
-        self.Bind(wx.EVT_BUTTON, self.OnUndoNoteChanges, self.undoNotes)
-        self.Bind(wx.EVT_BUTTON, self.OnSaveLog,         self.saveLogs)
-
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadCache,   self.caches)
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadWpt,     self.points)
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadLog,     self.logList)
-        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSwitchPhoto, self.photoList)
-
+        # bind the key up event to the event handler
         self.search.Bind(wx.EVT_KEY_UP, self.OnChangeSearch)
 
-        cfg=wx.Config.Get()
+
+    def bindMenuOptions(self):
+        # bind the menu options to their event handlers
+        menuOptions = [
+                        (self.OnClose,       self.mnuFileExit),
+                        (self.OnDbMaint,     self.mnuFileDbMaint),
+                        (self.OnImportFile,  self.mnuFileImport),
+                        (self.OnAbout,       self.mnuHelpAbout),
+                        (self.OnSearchLocs,  self.mnuFileLocs),
+                        (self.OnPrefs,       self.mnuFilePrefs),
+                        (self.OnShowMap,     self.showMap),
+                        (self.OnAddPhoto,    self.mnuAddPhoto),
+                        (self.OnRemovePhoto, self.mnuRemovePhoto),
+                        (self.OnSaveNotes,   self.mnuSaveNote),
+                        (self.OnClearNotes,  self.mnuClearNote),
+                        (self.OnLogCache,    self.mnuLogThisCache),
+                        (self.OnSendToGPS,   self.mnuSendToGPS),
+                        (self.OnCacheDay,    self.mnuPrefsCacheDay),
+                        (self.OnGeoAccounts, self.mnuPrefsAccounts),
+                        (self.OnGpxSync,     self.mnuGpxSync),
+                        (self.OnGpxSources,  self.mnuGpxSources)
+                      ] 
+
+        for option in menuOptions:
+            self.Bind(wx.EVT_MENU, option[0], option[1])
+        
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
+
+            
+    def bindButtonEvents(self):
+        # bind the button events to their event handlers
+        buttonEvents = [
+                           (self.OnHintsToggle,     self.decodeButton),
+                           (self.OnLogToggle,       self.logDecodeButton),
+                           (self.OnSaveNotes,       self.saveNotes),
+                           (self.OnUndoNoteChanges, self.undoNotes),
+                           (self.OnSaveLog,         self.logSaveButton)
+                       ] 
+        for buttonEvent in buttonEvents:
+            self.Bind(wx.EVT_BUTTON, buttonEvent[0], buttonEvent[1])
+
+        
+    def bindListItemSelectedEvents(self):
+        # bind the list items to their item selected event handlers
+        listItems = [
+                        (self.OnLoadCache,   self.caches),
+                        (self.OnLoadWpt,     self.points),
+                        (self.OnLoadLog,     self.logDateList),
+                        (self.OnSwitchPhoto, self.photoList)
+                    ]
+        for item in listItems:
+            self.Bind(wx.EVT_LIST_ITEM_SELECTED, item[0], item[1])
+
+
+    def setSashPositionsFromConfig(self):
+        #-----------------------------------------------------------------------------------------
+        # The following code block is a prime candidate for refactoring out into a separate object
+        #-----------------------------------------------------------------------------------------
+        # read the config file and set all the splitter window sash positions to their previous values
+        cfg = wx.Config.Get()
         isinstance(cfg, wx.Config)
         cfg.SetPath("/MainWin")
         if cfg.HasEntry("Width") and cfg.HasEntry("Height"):
             self.SetSize((cfg.ReadInt("Width"), cfg.ReadInt("Height")))
         if cfg.HasEntry("DetailSplitPos"):
             self.splitListsAndDetails.SetSashPosition(cfg.ReadInt("DetailSplitPos"))
+            
         self.splitLists.SetSashPosition(cfg.ReadInt("ListSplitPos"), 370)
-        self.splitLogsAndBugs.SetSashPosition(cfg.ReadInt("BugLogSplitPos"), 200)
-        self.splitLogsandLog.SetSashPosition(cfg.ReadInt("LogDateLogSplitPos"), 200)
+        self.descriptionSplitter.SetSashPosition(cfg.ReadInt("DescriptionSplitPos"),150)
+        self.logsSplitter.SetSashPosition(cfg.ReadInt("LogSplitPos"), 200)
+        self.picSplitter.SetSashPosition(cfg.ReadInt("PicSplitPos"), 300)
 
-        self.logList.DeleteAllColumns()
+
+    def clearAllGui(self):
+        self.ld_cache = None
+        
+        # dummy strings to allow for decent layout with no text
+        notSpecifiedLong = "Not Specified     "
+        notSpecifiedShort = "None"
+        
+        # update the basics tab
+        self.cacheTypeIcon.SetBitmap(self.geoicons["Unknown"])
+        self.cacheName.SetLabel(notSpecifiedLong)
+        self.waypointLink.SetLabel(notSpecifiedShort)
+        self.waypointLink.SetURL(notSpecifiedShort)
+        self.waypointLink.SetVisited(False)
+        self.waypointLink.Refresh()
+        self.coordinateText.SetLabel(notSpecifiedLong)
+        self.placedByText.SetLabel(notSpecifiedLong)
+        self.ownerText.SetLabel(notSpecifiedLong)
+        self.difficultyText.SetLabel(notSpecifiedShort)
+        self.terrainText.SetLabel(notSpecifiedShort)
+        self.stateText.SetLabel(notSpecifiedLong)
+        self.countryText.SetLabel(notSpecifiedLong)
+        self.available.SetValue(True)
+        self.archived.SetValue(False)
+        self.hintText.SetValue("")
+        
+        # Clear the descriptions tab
+        self.cacheDescriptionShort.SetPage("")
+        self.cacheDescriptionLong.SetPage("")
+        
+        # Clear the log listings
+        self.logDateList.DeleteAllItems()
+        self.logCacherNameText.SetLabel("")
+        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
+        self.logText.SetValue("")
+        self.logText.SetEditable(False)
+        self.logSaveButton.Enable(False)
+        
+        # Clear the travel bug listings
+        self.trackableListCtrl.DeleteAllColumns()
+        self.trackableListCtrl.DeleteAllItems()
+        w,h = self.GetTextExtent("QQQQQQQQQQQQQQ")
+        self.trackableListCtrl.InsertColumn(0, "Travel Bug Name", width=w)
+        
+        # Clear the notes
+        self.currNotes.SetValue("")
+        
+        # Clear the photos
+        self.updPhotoList()
+        
+        self.Layout()
+
+
+    def configureListBoxes(self):
+        # set up the columns on the appropriate list boxes
+        self.logDateList.DeleteAllColumns()
         w,h = self.GetTextExtent("QQQQ/QQ/QQQQQ")
-        self.logList.InsertColumn(0, "Log Date", width=w)
+        self.logDateList.InsertColumn(0, "Log Date", width=w)
         w,h = self.GetTextExtent("QQQQQQQ")
         self.points.InsertColumn(0, "Wpt Name", width=w)
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.points.InsertColumn(1, "Wpt Desc", width=w)
 
-        self.pop = None
-        self.ld_cache = None
-
-        self.loadData()
-        self.updSearchMenu()
-        self.updPhotoList()
-        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
-            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
-        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
-            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
-
+    
     def OnGpxSync(self, evt):
         cache901.gpxsource.gpxSyncAll(self)
         self.updStatus()
+    
     
     def OnGpxSources(self, evt):
         gpx = cache901.gpxsource.GPXSourceUI(self)
         gpx.ShowModal()
         self.updStatus()
+        
         
     def updPhotoList(self):
         if not hasattr(self, "photoImageList"):
@@ -156,6 +264,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 self.photoList.InsertImageItem(pnum, pnum)
             if self.photoList.GetItemCount() > 0:
                 self.photoList.Select(0)
+
 
     def updSearchMenu(self):
         for item in self.CacheSearchMenu.GetMenuItems():
@@ -175,6 +284,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for i in cur:
             item = self.CacheSearchMenu.Append(-1, 'Cache Day: %s' % i[0])
             self.Bind(wx.EVT_MENU, self.OnSearch, item)
+
 
     def loadData(self, params={}, wpt_params={}):
         self.caches.DeleteAllItems()
@@ -196,24 +306,30 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for row in cache901.util.getWaypoints(wpt_params):
             wpt_id = self.points.Append((row[1], row[2]))
             self.points.SetItemData(wpt_id, row[0])
-        self.updStatus()
+
 
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
+
 
     def OnDbMaint(self, evt):
         cache901.sql.maintdb()
         self.updStatus()
         
+        
     def OnClose(self, evt):
         if wx.MessageBox("Are you sure you wish to exit?", "Really Exit?", wx.YES_NO | wx.CENTER, self) == wx.YES:
+            #-----------------------------------------------------------------------------------------
+            # The following code block is a prime candidate for refactoring out into a separate object
+            #-----------------------------------------------------------------------------------------
             cfg=wx.Config.Get()
             isinstance(cfg, wx.Config)
             cfg.SetPath("/MainWin")
             cfg.WriteInt("ListSplitPos", self.splitLists.GetSashPosition())
             cfg.WriteInt("DetailSplitPos", self.splitListsAndDetails.GetSashPosition())
-            cfg.WriteInt("BugLogSplitPos", self.splitLogsAndBugs.GetSashPosition())
-            cfg.WriteInt("LogDateLogSplitPos", self.splitLogsandLog.GetSashPosition())
+            cfg.WriteInt("DescriptionSplitPos", self.descriptionSplitter.GetSashPosition())
+            cfg.WriteInt("LogSplitPos", self.logsSplitter.GetSashPosition())
+            cfg.WriteInt("PicSplitPos", self.picSplitter.GetSashPosition())
             (w, h) = self.GetSize()
             cfg.WriteInt("Width", w)
             cfg.WriteInt("Height", h)
@@ -225,60 +341,20 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         else:
             if isinstance(evt, wx.CloseEvent): evt.Veto()
 
+
     def OnLogToggle(self, evt):
         try:
-            self.logEntry.SetValue(self.logEntry.GetValue().encode('rot13'))
+            self.logText.SetValue(self.logText.GetValue().encode('rot13'))
         except:
-            self.logEntry.SetValue(cache901.util.forceAscii(self.ld_cache.hint.hint))
+            pass
+
 
     def OnHintsToggle(self, evt):
         try:
-            self.hints.SetValue(self.hints.GetValue().encode('rot13'))
+            self.hintText.SetValue(self.hintText.GetValue().encode('rot13'))
         except:
-            self.hints.SetValue(util.forceAscii(self.ld_cache.hint.hint))
+            self.hintText.SetValue(util.forceAscii(self.ld_cache.hint.hint).encode('rot13'))
 
-    def clearAllGui(self):
-        self.ld_cache = None
-        # Set up travel bug listings
-        self.travelbugs.DeleteAllColumns()
-        self.travelbugs.DeleteAllItems()
-        w,h = self.GetTextExtent("QQQQQQQQQQQQQQ")
-        self.travelbugs.InsertColumn(0, "Travel Bug Name", width=w)
-        # set up log listings
-        self.logList.DeleteAllItems()
-        self.logEntry.SetValue("")
-        self.logDate.SetValue(wx.DateTime_Now())
-        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
-        self.logFinder.SetLabel('Cacher: ')
-        # set up notes
-        self.currNotes.SetValue("")
-        # set up photos
-        self.updPhotoList()
-        self.cacheSiteIcon.SetBitmap(self.geoicons["Unknown"])
-        self.cacheSiteName.SetLabel("")
-        self.waypointId.SetLabel("")
-        self.urlName.SetValue("")
-        self.urlDesc.SetValue("")
-        self.difficulty.SetValue("")
-        self.cacheType.SetValue("")
-        self.terrain.SetValue("")
-        self.available.SetValue(False)
-        self.archived.SetValue(False)
-        self.lat.SetValue("")
-        self.lon.SetValue("")
-        self.cacheUrl.URL = ""
-        self.cacheUrl.Label = ""
-        self.cacheUrl.Refresh()
-        self.placedBy.SetValue("")
-        self.owner.SetValue("")
-        self.state.SetValue("")
-        self.country.SetValue("")
-        self.hints.SetValue("")
-        self.cacheDescShort.SetPage("")
-        self.cacheDescLong.SetPage("")
-        self.containerIcon.SetBitmap(self.geoicons["Unknown"])
-        self.containerType.SetLabel("")
-        self.Layout()
 
     def OnLoadWpt(self, evt):
         iid = self.caches.GetFirstSelected()
@@ -287,85 +363,84 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             iid = self.caches.GetFirstSelected()
         self.clearAllGui()
         self.ld_cache = cache901.dbobjects.Waypoint(evt.GetData())
-        self.waypointId.SetLabel(self.ld_cache.name)
-        self.waypointId.SetSize(self.GetTextExtent(self.ld_cache.name))
-        self.waypointId.GetContainingSizer().Layout()
-        self.urlName.SetValue(self.ld_cache.name)
-        self.lat.SetValue(util.latToDMS(self.ld_cache.lat))
-        self.lon.SetValue(util.lonToDMS(self.ld_cache.lon))
-        self.cacheDescLong.SetPage('<p>' + self.ld_cache.comment.replace('\n', '</p><p>') + '</p>')
+        self.cacheName.SetLabel(self.ld_cache.name)
+        self.waypointLink.Label = self.ld_cache.name
+        self.waypointLink.Refresh()
+        self.coordinateText.SetLabel('%s %s' % (cache901.util.latToDMS(self.ld_cache.lat), cache901.util.lonToDMS(self.ld_cache.lon)))
+        self.cacheDescriptionLong.SetPage('<p>' + self.ld_cache.comment.replace('\n', '</p><p>') + '</p>')
 
-    def reloadLogList(self):
-        self.logList.DeleteAllItems()
-        for log in self.ld_cache.logs:
-            s=datetime.date.fromtimestamp(log.date).isoformat()
-            log_id = self.logList.Append((s, ))
-            self.logList.SetItemData(log_id, log.id)
-        self.logEntry.SetValue("")
-        self.logDate.SetValue(wx.DateTime_Now())
-        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
-        
+
     def OnLoadCache(self, evt):
         iid = self.points.GetFirstSelected()
         while iid != -1:
             self.points.Select(iid, 0)
             iid = self.points.GetFirstSelected()
+        self.clearAllGui()
         self.ld_cache = cache901.dbobjects.Cache(evt.GetData())
         # Set up travel bug listings
-        self.travelbugs.DeleteAllItems()
+        self.trackableListCtrl.DeleteAllItems()
         for bug in self.ld_cache.bugs:
-            self.travelbugs.Append((bug.name, ))
+            self.trackableListCtrl.Append((bug.name, ))
         # set up log listings
-        self.reloadLogList()
+        self.logDateList.DeleteAllItems()
+        for log in self.ld_cache.logs:
+            s=datetime.date.fromtimestamp(log.date).isoformat()
+            log_id = self.logDateList.Append((s, ))
+            self.logDateList.SetItemData(log_id, log.id)
+        self.logText.SetValue("")
+        self.logDate.SetValue(wx.DateTime_Now())
+        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
         self.currNotes.SetValue(self.ld_cache.note.note)
         self.updPhotoList()
-        cn = urlparse(self.ld_cache.url)[1]
-        bmp = wx.ImageFromBitmap(self.geoicons[cn]).Scale(16,16)
-        self.cacheSiteIcon.SetBitmap(wx.BitmapFromImage(bmp))
-        self.cacheSiteName.SetLabel(cn)
-        self.waypointId.SetLabel(self.ld_cache.name)
-        self.waypointId.SetSize(self.GetTextExtent(self.ld_cache.name))
-        self.waypointId.GetContainingSizer().Layout()
-        self.urlName.SetValue(self.ld_cache.url_name)
-        self.urlDesc.SetValue(self.ld_cache.url_desc)
-        self.difficulty.SetValue(str(self.ld_cache.difficulty))
-        self.cacheType.SetValue(self.ld_cache.type.split("|")[-1])
-        self.terrain.SetValue(str(self.ld_cache.terrain))
+        self.cacheName.SetLabel(self.ld_cache.url_name)
+        self.waypointLink.URL = self.ld_cache.url
+        self.waypointLink.Label = self.ld_cache.name
+        self.waypointLink.Refresh()
+        self.difficultyText.SetLabel(str(self.ld_cache.difficulty))
+        self.terrainText.SetLabel(str(self.ld_cache.terrain))
+        self.coordinateText.SetLabel('%s %s' % (cache901.util.latToDMS(self.ld_cache.lat), cache901.util.lonToDMS(self.ld_cache.lon)))
+        self.placedByText.SetLabel(self.ld_cache.placed_by)
+        self.ownerText.SetLabel(self.ld_cache.owner_name)
+        bmp = wx.ImageFromBitmap(self.geoicons[self.ld_cache.type]).Scale(32,32)
+        self.cacheTypeIcon.SetBitmap(wx.BitmapFromImage(bmp))
+        self.stateText.SetLabel(self.ld_cache.state)
+        self.countryText.SetLabel(self.ld_cache.country)
         self.available.SetValue(self.ld_cache.available)
         self.archived.SetValue(self.ld_cache.archived)
-        self.lat.SetValue(util.latToDMS(self.ld_cache.lat))
-        self.lon.SetValue(util.lonToDMS(self.ld_cache.lon))
-        self.cacheUrl.URL = self.ld_cache.url
-        self.cacheUrl.Label = self.ld_cache.url
-        self.cacheUrl.Refresh()
-        self.placedBy.SetValue(self.ld_cache.placed_by)
-        self.owner.SetValue(self.ld_cache.owner_name)
-        self.state.SetValue(self.ld_cache.state)
-        self.country.SetValue(self.ld_cache.country)
+        self.cacheType.SetLabel(self.ld_cache.type.split("|")[-1])
         try:
-            self.hints.SetValue(self.ld_cache.hint.hint.encode('rot13'))
+            self.hintText.SetValue(self.ld_cache.hint.hint.encode('rot13'))
         except:
-            self.hints.SetValue(self.ld_cache.hint.hint)
+            self.hintText.SetValue(self.ld_cache.hint.hint)
+        cache901.notify('Updating short cache description')
         if self.ld_cache.short_desc_html:
-            self.cacheDescShort.SetPage(self.ld_cache.short_desc)
+            self.cacheDescriptionShort.SetPage(self.ld_cache.short_desc)
         else:
-            self.cacheDescShort.SetPage('<p>' + self.ld_cache.short_desc.replace('\n', '</p><p>') + '</p>')
+            self.cacheDescriptionShort.SetPage('<p>' + self.ld_cache.short_desc.replace('\n', '</p><p>') + '</p>')
+        cache901.notify('Updating long cache description')
         if self.ld_cache.long_desc_html:
-            self.cacheDescLong.SetPage(self.ld_cache.long_desc)
+            self.cacheDescriptionLong.SetPage(self.ld_cache.long_desc)
         else:
-            self.cacheDescLong.SetPage('<p>' + self.ld_cache.long_desc.replace('\n', '</p><p>') + '</p>')
-        bmp = wx.ImageFromBitmap(self.geoicons[self.ld_cache.type]).Scale(16,16)
-        self.containerIcon.SetBitmap(wx.BitmapFromImage(bmp))
-        self.containerType.SetLabel(self.ld_cache.type.split("|")[-1])
-        self.Layout()
+            self.cacheDescriptionLong.SetPage('<p>' + self.ld_cache.long_desc.replace('\n', '</p><p>') + '</p>')
+        self.updStatus()
 
     def OnLoadLog(self, evt):
         log = cache901.dbobjects.Log(evt.GetData())
-        self.logEntry.SetValue(log.log_entry)
+        self.logText.SetEditable(log.finder in self.listGCAccounts())
+        self.logSaveButton.Enable(self.logText.IsEditable())
+        self.logText.SetValue(log.log_entry)
         self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
         self.logType.Select(self.logtrans.getIdx(log.type))
-        self.logFinder.SetLabel('Cacher: %s' % log.finder)
-        self.saveLogs.Enable(log.my_log)
+        self.logCacherNameText.SetLabel('Cacher: %s' % log.finder)
+        self.logSaveButton.Enable(log.my_log)
+
+    def listGCAccounts(self):
+        cur = cache901.db().cursor()
+        usernames = []
+        cur.execute('select username from accounts')
+        for row in cur:
+            usernames.append(row['username'])
+        return usernames
 
     def OnImportFile(self, evt):
         fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX Files (*.gpx)|*.gpx|All Files (*.*)|*.*")
@@ -385,6 +460,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.loadData()
         self.updStatus()
 
+
     def OnChangeSearch(self, evt):
         if len(self.search.GetValue()) > 2 or len(self.search.GetValue()) == 0:
             self.loadData()
@@ -392,11 +468,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.search.SetSelection(0, 0)
             self.search.SetInsertionPointEnd()
 
+
     def OnAbout(self, evt):
         abt = cache901.ui_xrc.xrcAboutBox(self)
         abt.version.SetLabel("Version: %s" % cache901.version)
         abt.SetIcon(self.geoicons["appicon"])
         abt.ShowModal()
+
 
     def OnSearchLocs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
@@ -406,6 +484,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
+
     def OnGeoAccounts(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeoAccounts()
@@ -413,6 +492,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
+        
         
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
@@ -422,6 +502,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
+
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
@@ -429,6 +510,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
+
 
     def OnSearch(self, evt):
         isinstance(evt, wx.CommandEvent)
@@ -471,6 +553,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
+
     def OnShowMap(self, evt):
         i = 0
         cacheids = []
@@ -490,6 +573,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
                 self.caches.EnsureVisible(item)
         self.updStatus()
 
+
     def OnClearNotes(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             self.currNotes.SetValue("")
@@ -497,14 +581,17 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.ld_cache.note.Save()
             cache901.db().commit()
 
+
     def OnSaveNotes(self, evt):
         self.ld_cache.note.note = self.currNotes.GetValue()
         self.ld_cache.note.Save()
         cache901.db().commit()
 
+
     def OnUndoNoteChanges(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             self.currNotes.SetValue(self.ld_cache.note.note)
+
 
     def OnAddPhoto(self, evt):
         fdg = wx.FileDialog(self, "Select Image File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="Photo Files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|All Files (*.*)|*.*")
@@ -529,6 +616,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.updPhotoList()
         self.updStatus()
 
+
     def OnSwitchPhoto(self, evt):
         idx = evt.GetImage()
         fname = os.sep.join([cache901.dbpath, self.ld_cache.photolist.names[idx]])
@@ -547,6 +635,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             cache901.db().commit()
             self.updPhotoList()
 
+
     def OnLogCache(self, evt):
         log = cache901.dbobjects.Log(-99999999)
         log.cache_id = self.ld_cache.cache_id
@@ -561,11 +650,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         iid = self.caches.GetFirstSelected()
         self.caches.Select(iid, 0)
         self.caches.Select(iid, 1)
-        self.logList.Select(0)
+        self.logText.SetEditable(True)
+        self.logSaveButton.Enable(self.logText.IsEditable())
+        self.logDateList.Select(0)
+
 
     def OnSaveLog(self, evt):
-        log = cache901.dbobjects.Log(self.logList.GetItemData(self.logList.GetFirstSelected()))
-        log.log_entry = self.logEntry.GetValue()
+        self.logText.SetEditable(False)
+        self.logSaveButton.Enable(self.logText.IsEditable())
+        log = cache901.dbobjects.Log(self.logDateList.GetItemData(self.logDateList.GetFirstSelected()))
+        log.log_entry = self.logText.GetValue()
         log.type = self.logtrans.getType(self.logType.GetSelection())
         cur = cache901.db().cursor()
         cur.execute('select username from accounts where sitename="GeoCaching.com" and ispremium=1 and isteam=0')
@@ -583,6 +677,18 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         cache901.db().commit()
         self.ld_cache = cache901.dbobjects.Cache(log.cache_id)
         self.reloadLogList()
+        
+        
+    def reloadLogList(self):
+        self.logDateList.DeleteAllItems()
+        for log in self.ld_cache.logs:
+            s=datetime.date.fromtimestamp(log.date).isoformat()
+            log_id = self.logDateList.Append((s, ))
+            self.logDateList.SetItemData(log_id, log.id)
+        self.logText.SetValue("")
+        self.logDate.SetValue(wx.DateTime_Now())
+        self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
+
 
     def OnPopupMenu(self, evt):
         self.mnu = cache901.ui_xrc.xrcCwMenu()
@@ -597,13 +703,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.mnu.Destroy()
         self.mnu = None
 
+
     def OnPopupMenuCaches(self, evt):
         self.pop = self.caches
         self.OnPopupMenu(evt)
 
+
     def OnPopupMenuWpts(self, evt):
         self.pop = self.points
         self.OnPopupMenu(evt)
+
 
     def OnSendToGPS(self, evt):
         isinstance(evt, wx.CommandEvent)
@@ -623,6 +732,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, parseOutput=False)
         self.pop = None
         self.updStatus()
+
 
     def OnAddToCacheDay(self, evt):
         isinstance(evt, wx.CommandEvent)
@@ -657,6 +767,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
+
     def OnSendCacheDayToGPS(self, evt):
         isinstance(evt, wx.CommandEvent)
         self.search.SetValue("")
@@ -672,6 +783,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, route=True, parseOutput=False)
         self.updStatus()
 
+
     def updCacheDayMenus(self, menu, includenew=True):
         isinstance(menu, wx.Menu)
         for item in menu.GetMenuItems():
@@ -686,18 +798,20 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             mitems.append(menu.Append(-1, row[0]))
         return mitems
 
+
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)
         isinstance(cwmenu.popAddCurrentToCacheDay, wx.Menu)
+        isinstance(self.cacheName, wx.StaticText)
+        isinstance(self.waypointLink, wx.HyperlinkCtrl)
+        isinstance(self.coordinateText, wx.StaticText)
         isinstance(self.mnuAddCurrentToCacheDay, wx.MenuItem)
         isinstance(self.mnuSendToGPS, wx.MenuItem)
         isinstance(self.mnuAddPhoto, wx.MenuItem)
         isinstance(self.mnuClearNote, wx.MenuItem)
         isinstance(self.mnuRemovePhoto, wx.MenuItem)
         isinstance(self.mnuSaveNote, wx.MenuItem)
-        isinstance(self.cacheSiteIcon, wx.StaticBitmap)
-        isinstance(self.cacheSiteName, wx.StaticText)
         isinstance(self.containerIcon, wx.StaticBitmap)
         isinstance(self.containerType, wx.StaticText)
         isinstance(self.splitLists, wx.SplitterWindow)
@@ -710,26 +824,26 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.urlName, wx.TextCtrl)
         isinstance(self.urlDesc, wx.TextCtrl)
         isinstance(self.difficulty, wx.TextCtrl)
-        isinstance(self.cacheType, wx.TextCtrl)
+        isinstance(self.cacheType, wx.StaticText)
         isinstance(self.terrain, wx.TextCtrl)
         isinstance(self.available, wx.CheckBox)
         isinstance(self.archived, wx.CheckBox)
         isinstance(self.lat, wx.TextCtrl)
         isinstance(self.lon, wx.TextCtrl)
-        isinstance(self.placedBy, wx.TextCtrl)
-        isinstance(self.owner, wx.TextCtrl)
-        isinstance(self.state, wx.TextCtrl)
-        isinstance(self.country, wx.TextCtrl)
-        isinstance(self.hints, wx.TextCtrl)
+        isinstance(self.placedByText, wx.StaticText)
+        isinstance(self.ownerText, wx.StaticText)
+        isinstance(self.stateText, wx.StaticText)
+        isinstance(self.countryText, wx.StaticText)
+        isinstance(self.hintText, wx.TextCtrl)
         isinstance(self.hintsCoding, wx.Button)
-        isinstance(self.travelbugs, wx.ListCtrl)
-        isinstance(self.cacheDescShort, wx.html.HtmlWindow)
-        isinstance(self.cacheDescLong, wx.html.HtmlWindow)
+        isinstance(self.trackableListCtrl, wx.ListCtrl)
+        isinstance(self.cacheDescriptionShort, wx.html.HtmlWindow)
+        isinstance(self.cacheDescriptionLong, wx.html.HtmlWindow)
         isinstance(self.logDate, wx.DatePickerCtrl)
         isinstance(self.logType, wx.Choice)
-        isinstance(self.logFinder, wx.StaticText)
-        isinstance(self.logList, wx.ListCtrl)
-        isinstance(self.logEntry, wx.TextCtrl)
+        isinstance(self.logCacherNameText, wx.StaticText)
+        isinstance(self.logDateList, wx.ListCtrl)
+        isinstance(self.logText, wx.TextCtrl)
         isinstance(self.encText, wx.Button)
         isinstance(self.cacheUrl, wx.HyperlinkCtrl)
         isinstance(self.waypointId, wx.StaticText)
@@ -742,8 +856,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         isinstance(self.currPhoto, wx.StaticBitmap)
         isinstance(self.photoList, wx.ListCtrl)
         isinstance(self.CacheSearchMenu, wx.Menu)
-        isinstance(self.saveLogs, wx.Button)
+        isinstance(self.logSaveButton, wx.Button)
         isinstance(self.mnuLogThisCache, wx.MenuItem)
+
 
 class logTrans(object):
     def __init__(self):
