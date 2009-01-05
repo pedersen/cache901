@@ -246,15 +246,15 @@ def prepdb(dbname, debug=False):
             stmts = globals()[stgrp]
             sqlexec(con, stmts, debug)
             vnum = int(stgrp[-3:])
-            cur.execute("DELETE FROM version")
-            cur.execute("INSERT INTO version(version) VALUES(?)", (vnum, ))
+            cur.execute("UPDATE version SET version=?", (vnum, ))
+            con.commit()
     except sqlite.OperationalError:
         for stgrp in allstatements:
             stmts = globals()[stgrp]
             sqlexec(con, stmts, debug)
             vnum = int(stgrp[-3:])
-            cur.execute("DELETE FROM version")
-            cur.execute("INSERT INTO version(version) VALUES(?)", (vnum, ))
+            cur.execute("UPDATE version SET version=?", (vnum, ))
+            con.commit()
     return con
 
 def maintdb():
