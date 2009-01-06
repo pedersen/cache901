@@ -104,6 +104,14 @@ class XMLHandler(xml.sax.handler.ContentHandler):
                     wpt = self.logwpt
                 if name == 'name':
                     wpt.name = self.chdata
+                elif name == 'time':
+                    (year, mon, day)=map(lambda x: int(x), self.chdata.split('T')[0].split('-'))
+                    d = datetime.datetime(year, mon, day, 0, 0, 0)
+                    self.wpt.hidden = time.mktime(d.timetuple())
+                    if time.daylight:
+                        self.wpt.hidden -= time.altzone
+                    else:
+                        self.wpt.hidden -= time.timezone
                 elif name == 'cmt':
                     wpt.comment = self.chdata
                 elif name == 'desc':

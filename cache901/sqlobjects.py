@@ -31,7 +31,7 @@ class xmlWaypointSaver(object):
                 'url_desc', 'sym', 'type', 'placed_by', 'owner_name',
                 'container', 'country', 'state', 'short_desc', 'long_desc']:
             setattr(self, strs, "")
-        for ints in ['loc_type', 'refers_to', 'id', 'catid', 'owner_id' ]:
+        for ints in ['loc_type', 'refers_to', 'id', 'catid', 'owner_id', 'hidden']:
             setattr(self, ints, 0)
         for floats in ['lat', 'lon', 'difficulty', 'terrain' ]:
             setattr(self, floats, 0.00)
@@ -45,12 +45,12 @@ class xmlWaypointSaver(object):
         if not self.isCache():
             wpt_id = -1
             cur.execute("delete from locations where name=?", (self.name, ))
-            r=cur.execute("insert into locations(loc_type, refers_to, name, desc, comment, lat, lon) values(?,?,?,?,?,?,?)", (self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon))
+            r=cur.execute("insert into locations(loc_type, refers_to, name, desc, comment, lat, lon, hidden) values(?,?,?,?,?,?,?,?)", (self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon, self.hidden))
             ret=r.lastrowid
         else:
             ret = self.cache_id
             cur.execute("delete from caches where cache_id=?", (self.cache_id, ))
-            cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html))
+            cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html, hidden) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html, self.hidden))
         self.Clear()
         return ret
 

@@ -37,7 +37,7 @@ class Cache(object):
                 else:
                     cid = min(row[0]-1, -1)
                 cur.execute("insert into caches(cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html) values(?,'','','','','','',1,0,'',0,'','',1.0,1.0,'','','','',0.0,0.0,0,0)", (cid,))
-        cur.execute("select cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html from caches where cache_id=?", (cid, ))
+        cur.execute("select cache_id, url, url_name, url_desc, name, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, long_desc, lat, lon, short_desc_html, long_desc_html, hidden from caches where cache_id=?", (cid, ))
         row = cur.fetchone()
         if type(row) is not pysqlite2.dbapi2.Row:
             raise cache901.InvalidID("Invalid Cache ID: %s" % str(cid))
@@ -65,6 +65,7 @@ class Cache(object):
         self.lon             = row[20]
         self.short_desc_html = (row[21] == 1)
         self.long_desc_html  = (row[22] == 1)
+        self.hidden          = row['hidden']
 
         # Load hint information
         try:
@@ -106,7 +107,7 @@ class Cache(object):
     def Save(self):
         cur = cache901.db().cursor()
         cur.execute("delete from caches where cache_id=?", (self.cache_id, ))
-        cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html))
+        cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html, hidden) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html, self.hidden))
 
 class Waypoint(object):
     def __init__(self, cid=minint):
@@ -124,7 +125,7 @@ class Waypoint(object):
                     else:
                         cid = min(row[0]-1, -1)
                     cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,0,-1,'','','',0.0,0.0)", (cid, ))
-        cur.execute('select loc_type, refers_to, name, desc, comment, lat, lon from locations where wpt_id=?', (cid, ))
+        cur.execute('select loc_type, refers_to, name, desc, comment, lat, lon, hidden from locations where wpt_id=?', (cid, ))
         row = cur.fetchone()
         if type(row) is pysqlite2.dbapi2.Row:
             self.wpt_id = cid
@@ -135,13 +136,14 @@ class Waypoint(object):
             self.comment = row[4]
             self.lat = row[5]
             self.lon = row[6]
+            self.hidden = row[7]
         else:
             raise cache901.InvalidID('Invalid waypoint ID: %d', cid)
 
     def Save(self):
         cur = cache901.db().cursor()
         cur.execute('delete from locations where wpt_id=?', (self.wpt_id,))
-        cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon) values(?,?,?,?,?,?,?,?)", (self.wpt_id, self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon))
+        cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon, hidden) values(?,?,?,?,?,?,?,?,?)", (self.wpt_id, self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon, self.hidden))
 
 class Log(object):
     def __init__(self, lid=minint):

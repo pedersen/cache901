@@ -210,6 +210,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.logText.SetValue("")
         self.logText.SetEditable(False)
         self.logSaveButton.Enable(False)
+        self.logType.Enable(self.logText.IsEditable())
+        self.logDate.Enable(self.logText.IsEditable())
         
         # Clear the travel bug listings
         self.trackableListCtrl.DeleteAllColumns()
@@ -412,6 +414,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.hintText.SetValue(self.ld_cache.hint.hint.encode('rot13'))
         except:
             self.hintText.SetValue(self.ld_cache.hint.hint)
+        self.Disable()
         cache901.notify('Updating short cache description')
         if self.ld_cache.short_desc_html:
             self.cacheDescriptionShort.SetPage(self.ld_cache.short_desc)
@@ -422,11 +425,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.cacheDescriptionLong.SetPage(self.ld_cache.long_desc)
         else:
             self.cacheDescriptionLong.SetPage('<p>' + self.ld_cache.long_desc.replace('\n', '</p><p>') + '</p>')
+        self.Enable()
         self.updStatus()
+        self.caches.Enable()
+        self.points.Enable()
 
     def OnLoadLog(self, evt):
         log = cache901.dbobjects.Log(evt.GetData())
         self.logText.SetEditable(log.finder in self.listGCAccounts())
+        self.logType.Enable(self.logText.IsEditable())
+        self.logDate.Enable(self.logText.IsEditable())
         self.logSaveButton.Enable(self.logText.IsEditable())
         self.logText.SetValue(log.log_entry)
         self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
@@ -651,12 +659,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.caches.Select(iid, 0)
         self.caches.Select(iid, 1)
         self.logText.SetEditable(True)
+        self.logType.Enable(self.logText.IsEditable())
+        self.logDate.Enable(self.logText.IsEditable())
         self.logSaveButton.Enable(self.logText.IsEditable())
         self.logDateList.Select(0)
 
 
     def OnSaveLog(self, evt):
         self.logText.SetEditable(False)
+        self.logType.Enable(self.logText.IsEditable())
+        self.logDate.Enable(self.logText.IsEditable())
         self.logSaveButton.Enable(self.logText.IsEditable())
         log = cache901.dbobjects.Log(self.logDateList.GetItemData(self.logDateList.GetFirstSelected()))
         log.log_entry = self.logText.GetValue()

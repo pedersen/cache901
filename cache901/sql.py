@@ -28,6 +28,7 @@ import cache901.sql
 
 statements_v001 = [
     "CREATE TABLE version (version integer)",
+    "INSERT INTO version(version) VALUES(1)",
     """
     CREATE TABLE categories (
         catid integer primary key autoincrement,
@@ -222,6 +223,21 @@ statements_v004 = [
     """
     ]
 
+statements_v005 = [
+    "ALTER TABLE caches ADD COLUMN hidden integer default 0",
+    "ALTER TABLE locations ADD COLUMN hidden integer default 0",
+    """
+    CREATE TABLE alt_coords (
+        cache_id     integer,
+        sequence_num integer,
+        name         text,
+        lat          real,
+        lon          real,
+        setdefault   integer
+        )
+    """
+    ]
+
 allstatements = sorted(filter(lambda x: x.startswith("statements_v"), globals()))
 
 def sqlexec(con, statements, debug=False):
@@ -244,7 +260,7 @@ def prepdb(dbname, debug=False):
         vname = 'statements_v%03d' % row[0]
         for stgrp in allstatements[allstatements.index(vname)+1:]:
             stmts = globals()[stgrp]
-            sqlexec(con, stmts, debug)
+            sqlexec(con, stmts, True)
             vnum = int(stgrp[-3:])
             cur.execute("UPDATE version SET version=?", (vnum, ))
             con.commit()
