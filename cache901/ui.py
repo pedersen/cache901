@@ -258,7 +258,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.photoList.AssignImageList(self.photoImageList, wx.IMAGE_LIST_NORMAL)
         self.photoList.DeleteAllItems()
         self.photoImageList.RemoveAll()
-        self.currPhoto.SetBitmap(wx.NullBitmap)
+        sz = self.currPhoto.GetSize()
+        bmp = wx.EmptyBitmap(sz.width, sz.height)
+        dc = wx.MemoryDC(bmp)
+        dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
+        dc.Clear()
+        dc.SelectObject(wx.NullBitmap)
+        self.currPhoto.SetBitmap(bmp)
 
         if self.ld_cache is not None:
             for fname in self.ld_cache.photolist.names:
