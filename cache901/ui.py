@@ -499,6 +499,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnSearchLocs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showSearch()
+        iid = self.caches.GetFirstSelected()
+        if iid == -1:
+            iid = self.points.GetFirstSelected()
+            self.points.Select(iid, 0)
+            self.points.Select(iid, 1)
+        else:
+            self.caches.Select(iid, 0)
+            self.caches.Select(iid, 1)
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
@@ -508,6 +516,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnGeoAccounts(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeoAccounts()
+        iid = self.caches.GetFirstSelected()
+        if iid == -1:
+            iid = self.points.GetFirstSelected()
+            self.points.Select(iid, 0)
+            self.points.Select(iid, 1)
+        else:
+            self.caches.Select(iid, 0)
+            self.caches.Select(iid, 1)
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
@@ -517,6 +533,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
+        iid = self.caches.GetFirstSelected()
+        if iid == -1:
+            iid = self.points.GetFirstSelected()
+            self.points.Select(iid, 0)
+            self.points.Select(iid, 1)
+        else:
+            self.caches.Select(iid, 0)
+            self.caches.Select(iid, 1)
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
@@ -526,6 +550,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
+        iid = self.caches.GetFirstSelected()
+        if iid == -1:
+            iid = self.points.GetFirstSelected()
+            self.points.Select(iid, 0)
+            self.points.Select(iid, 1)
+        else:
+            self.caches.Select(iid, 0)
+            self.caches.Select(iid, 1)
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):

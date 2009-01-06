@@ -50,7 +50,7 @@ def decToDM(decDegree):
     decDegree = abs(decDegree)
     d = int(decDegree)
     m = (decDegree - d) * 60
-    return (plus, "%3d%s %2d'" % (d, degsym, m,))
+    return (plus, "%3d%s %2.3f'" % (d, degsym, m,))
 
 def decToDMS(decDegree):
     plus = (decDegree >= 0)
