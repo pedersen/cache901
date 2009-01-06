@@ -695,7 +695,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
 
 
     def OnLogCache(self, evt):
-        log = cache901.dbobjects.Log(-99999999)
+        log = cache901.dbobjects.Log(cache901.dbobjects.minint)
         log.cache_id = self.ld_cache.cache_id
         log.my_log = True
         log.date = time.mktime(datetime.datetime.now().timetuple())
