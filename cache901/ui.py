@@ -433,6 +433,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             self.cacheDescriptionLong.SetPage(self.ld_cache.long_desc)
         else:
             self.cacheDescriptionLong.SetPage('<p>' + self.ld_cache.long_desc.replace('\n', '</p><p>') + '</p>')
+        if self.logDateList.GetItemCount() > 0:
+            self.logDateList.Select(0)
         self.Enable()
         self.updStatus()
         self.caches.Enable()
