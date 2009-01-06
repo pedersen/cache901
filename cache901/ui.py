@@ -23,6 +23,8 @@ import os.path
 import shutil
 import sys
 import time
+import zipfile
+
 from urlparse import urlparse
 
 import gpsbabel
@@ -451,7 +453,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         return usernames
 
     def OnImportFile(self, evt):
-        fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX Files (*.gpx)|*.gpx|All Files (*.*)|*.*")
+        fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX Files (*.gpx)|*.gpx|Zip Files(*.zip)|*.zip|All Files (*.*)|*.*")
         cfg = wx.Config.Get()
         isinstance(cfg, wx.Config)
         cfg.SetPath("/Files")
@@ -459,11 +461,21 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             fdg.SetDirectory(cfg.Read("LastImportDir"))
         if fdg.ShowModal() == wx.ID_OK:
             cfg.Write("LastImportDir", fdg.GetDirectory())
+            parser = cache901.xml901.XMLParser()
             for path in fdg.GetPaths():
-                infile = open(path)
-                parser = cache901.xml901.XMLParser()
-                parser.parse(infile)
-                cache901.notify('Completed processing %s' % path)
+                if path.lower().endswith('.zip'):
+                    cache901.notify('Examining %s for gpx files' % path)
+                    zfile = zipfile.ZipFile(path)
+                    gpxziplist = filter(lambda x: x.lower().endswith('.gpx'), zfile.namelist())
+                    for gpxname in gpxziplist:
+                        cache901.notify('Processing %s%s%s' % (path, os.sep, gpxname))
+                        parser.parse(zfile.read(gpxname), False)
+                        cache901.notify('Completed processing %s%s%s' % (path, os.sep, gpxname))
+                else:
+                    cache901.notify('Processing %s' % path)
+                    infile = open(path)
+                    parser.parse(infile, False)
+                    cache901.notify('Completed processing %s' % path)
             cache901.sql.maintdb()
             self.loadData()
         self.updStatus()
