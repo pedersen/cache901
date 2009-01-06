@@ -172,7 +172,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             
         self.splitLists.SetSashPosition(cfg.ReadInt("ListSplitPos"), 370)
         self.descriptionSplitter.SetSashPosition(cfg.ReadInt("DescriptionSplitPos"),150)
-        self.logsSplitter.SetSashPosition(cfg.ReadInt("LogSplitPos"), 200)
+        self.logsSplitter.SetSashPosition(cfg.ReadInt("LogSplitPos"), 150)
         self.picSplitter.SetSashPosition(cfg.ReadInt("PicSplitPos"), 300)
 
 
@@ -191,6 +191,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.waypointLink.SetVisited(False)
         self.waypointLink.Refresh()
         self.coordinateText.SetLabel(notSpecifiedLong)
+        self.sizeText.SetLabel(notSpecifiedShort)
         self.placedByText.SetLabel(notSpecifiedLong)
         self.ownerText.SetLabel(notSpecifiedLong)
         self.difficultyText.SetLabel(notSpecifiedShort)
@@ -409,8 +410,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.difficultyText.SetLabel(str(self.ld_cache.difficulty))
         self.terrainText.SetLabel(str(self.ld_cache.terrain))
         self.coordinateText.SetLabel('%s %s' % (cache901.util.latToDMS(self.ld_cache.lat), cache901.util.lonToDMS(self.ld_cache.lon)))
-        self.placedByText.SetLabel(self.ld_cache.placed_by)
-        self.ownerText.SetLabel(self.ld_cache.owner_name)
+        self.sizeText.SetLabel(self.ld_cache.container)
+        self.placedByText.SetLabel(self.ld_cache.placed_by[:25])
+        self.ownerText.SetLabel(self.ld_cache.owner_name[:25])
         bmp = wx.ImageFromBitmap(self.geoicons[self.ld_cache.type]).Scale(32,32)
         self.cacheTypeIcon.SetBitmap(wx.BitmapFromImage(bmp))
         self.stateText.SetLabel(self.ld_cache.state)
@@ -418,6 +420,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.available.SetValue(self.ld_cache.available)
         self.archived.SetValue(self.ld_cache.archived)
         self.cacheType.SetLabel(self.ld_cache.type.split("|")[-1])
+        self.cacheBasics.Fit()
         try:
             self.hintText.SetValue(self.ld_cache.hint.hint.encode('rot13'))
         except:
@@ -449,7 +452,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         self.logText.SetValue(log.log_entry)
         self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
         self.logType.Select(self.logtrans.getIdx(log.type))
-        self.logCacherNameText.SetLabel('Cacher: %s' % log.finder)
+        self.logCacherNameText.SetLabel(log.finder)
         self.logSaveButton.Enable(log.my_log)
 
     def listGCAccounts(self):

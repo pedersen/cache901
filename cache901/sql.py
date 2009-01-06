@@ -260,7 +260,7 @@ def prepdb(dbname, debug=False):
         vname = 'statements_v%03d' % row[0]
         for stgrp in allstatements[allstatements.index(vname)+1:]:
             stmts = globals()[stgrp]
-            sqlexec(con, stmts, True)
+            sqlexec(con, stmts, debug)
             vnum = int(stgrp[-3:])
             cur.execute("UPDATE version SET version=?", (vnum, ))
             con.commit()

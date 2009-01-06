@@ -46,6 +46,7 @@ class xrcCache901UI(wx.Frame):
         self.cacheName = xrc.XRCCTRL(self, "cacheName")
         self.waypointLink = xrc.XRCCTRL(self, "waypointLink")
         self.coordinateText = xrc.XRCCTRL(self, "coordinateText")
+        self.sizeText = xrc.XRCCTRL(self, "sizeText")
         self.placedByText = xrc.XRCCTRL(self, "placedByText")
         self.cacheType = xrc.XRCCTRL(self, "cacheType")
         self.ownerText = xrc.XRCCTRL(self, "ownerText")
@@ -460,8 +461,7 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?>
-<resource>
+<?xml version="1.0" ?><resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -600,6 +600,38 @@ def __init_resources():
                           </object>
                           <cellpos>1,1</cellpos>
                           <cellspan>1,3</cellspan>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label>Size:</label>
+                            <font>
+                              <size>9</size>
+                              <style>normal</style>
+                              <weight>bold</weight>
+                              <underlined>0</underlined>
+                              <family>swiss</family>
+                              <face>Sans</face>
+                              <encoding>UTF-8</encoding>
+                            </font>
+                          </object>
+                          <cellpos>1,5</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText" name="sizeText">
+                            <font>
+                              <size>9</size>
+                              <style>normal</style>
+                              <weight>normal</weight>
+                              <underlined>0</underlined>
+                              <family>swiss</family>
+                              <face>Sans</face>
+                              <encoding>UTF-8</encoding>
+                            </font>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <cellpos>1,6</cellpos>
                         </object>
                         <object class="sizeritem">
                           <object class="wxStaticText">
@@ -802,33 +834,43 @@ def __init_resources():
                         <object class="sizeritem">
                           <object class="wxStaticBoxSizer">
                             <object class="sizeritem">
-                              <object class="wxTextCtrl" name="hintText">
-                                <value>Line 1
+                              <object class="wxGridBagSizer">
+                                <object class="sizeritem">
+                                  <object class="wxTextCtrl" name="hintText">
+                                    <value>Line 1
 Line 2
 This is a long line that would probably contain a hint if there was one set
 Line 4
 Line 5
 Line 6
 Line 7</value>
-                                <enabled>0</enabled>
-                                <style>wxNO_BORDER|wxTE_AUTO_SCROLL|wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP</style>
-                                <XRCED>
-                                  <assign_var>1</assign_var>
-                                </XRCED>
+                                    <enabled>0</enabled>
+                                    <style>wxNO_BORDER|wxTE_AUTO_SCROLL|wxTE_MULTILINE|wxTE_READONLY|wxTE_WORDWRAP</style>
+                                    <XRCED>
+                                      <assign_var>1</assign_var>
+                                    </XRCED>
+                                  </object>
+                                  <option>1</option>
+                                  <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                                  <cellpos>0,0</cellpos>
+                                  <cellspan>1,2</cellspan>
+                                </object>
+                                <object class="sizeritem">
+                                  <object class="wxButton" name="decodeButton">
+                                    <label>Decode</label>
+                                    <XRCED>
+                                      <assign_var>1</assign_var>
+                                    </XRCED>
+                                  </object>
+                                  <flag>wxRIGHT|wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                                  <cellpos>1,1</cellpos>
+                                </object>
+                                <vgap>5</vgap>
+                                <hgap>5</hgap>
+                                <growablecols>0</growablecols>
+                                <growablerows>0</growablerows>
                               </object>
-                              <option>1</option>
-                              <flag>wxEXPAND|wxGROW</flag>
-                              <border>5</border>
-                            </object>
-                            <object class="sizeritem">
-                              <object class="wxButton" name="decodeButton">
-                                <label>Decode</label>
-                                <XRCED>
-                                  <assign_var>1</assign_var>
-                                </XRCED>
-                              </object>
-                              <flag>wxALIGN_RIGHT</flag>
-                              <border>5</border>
+                              <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                             </object>
                             <label>Hint</label>
                             <orient>wxVERTICAL</orient>
@@ -839,7 +881,6 @@ Line 7</value>
                           <cellpos>7,0</cellpos>
                           <cellspan>1,8</cellspan>
                         </object>
-                        
                         <vgap>7</vgap>
                         <hgap>7</hgap>
                         <growablerows>7</growablerows>
@@ -975,133 +1016,134 @@ Line 7</value>
                           </object>
                         </object>
                         <object class="wxPanel">
-                          
-                          <object class="wxStaticBoxSizer">
-                            <label>Log Details</label>
+                          <object class="wxBoxSizer">
                             <orient>wxVERTICAL</orient>
                             <object class="sizeritem">
-                              <object class="wxGridBagSizer">
+                              <object class="wxStaticBoxSizer">
                                 <object class="sizeritem">
-                                  <object class="wxStaticText">
-                                    <label>Cacher:</label>
-                                    <font>
-                                      <size>9</size>
-                                      <style>normal</style>
-                                      <weight>bold</weight>
-                                      <underlined>0</underlined>
-                                      <family>swiss</family>
-                                      <face>Sans</face>
-                                      <encoding>UTF-8</encoding>
-                                    </font>
-                                  </object>
-                                  <border>5</border>
-                                  <ratio>25</ratio>
-                                  <cellpos>0,0</cellpos>
-                                </object>
-                                <object class="sizeritem">
-                                  <object class="wxStaticText" name="logCacherNameText">
-                                    <label>Cacher Name</label>
-                                    <font>
-                                      <size>9</size>
-                                      <style>normal</style>
-                                      <weight>normal</weight>
-                                      <underlined>0</underlined>
-                                      <family>swiss</family>
-                                      <face>Sans</face>
-                                      <encoding>UTF-8</encoding>
-                                    </font>
-                                    <XRCED>
-                                      <assign_var>1</assign_var>
-                                    </XRCED>
-                                  </object>
-                                  <border>0</border>
-                                  <cellpos>0,1</cellpos>
-                                </object>
-                                <object class="sizeritem">
-                                  <object class="wxStaticText">
-                                    <label>Log Type:</label>
-                                    <font>
-                                      <size>9</size>
-                                      <style>normal</style>
-                                      <weight>bold</weight>
-                                      <underlined>0</underlined>
-                                      <family>swiss</family>
-                                      <face>Sans</face>
-                                      <encoding>UTF-8</encoding>
-                                    </font>
-                                  </object>
-                                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                                  <border>5</border>
-                                  <ratio>25</ratio>
-                                  <cellpos>1,0</cellpos>
-                                </object>
-                                <object class="sizeritem">
-                                  <object class="wxChoice" name="logType">
-                                    <content>
-                                      <item>Found It</item>
-                                      <item>Didn't Find it</item>
-                                      <item>Write Note</item>
-                                      <item>Needs Archived</item>
-                                      <item>Needs Maintenance</item>
-                                    </content>
-                                    <selection>1</selection>
-                                    <XRCED>
-                                      <assign_var>1</assign_var>
-                                    </XRCED>
-                                  </object>
-                                  <flag>wxLEFT</flag>
-                                  <border>0</border>
-                                  <cellpos>1,1</cellpos>
-                                </object>
-                                <object class="sizeritem">
-                                  <object class="wxStaticText">
-                                    <label>Log Date:</label>
-                                    <font>
-                                      <size>9</size>
-                                      <style>normal</style>
-                                      <weight>bold</weight>
-                                      <underlined>0</underlined>
-                                      <family>swiss</family>
-                                      <face>Sans</face>
-                                      <encoding>UTF-8</encoding>
-                                    </font>
-                                  </object>
-                                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                                  <cellpos>2,0</cellpos>
-                                </object>
-                                <object class="sizeritem">
-                                  <object class="wxDatePickerCtrl" name="logDate">
-                                    <font>
-                                      <size>9</size>
-                                      <style>normal</style>
-                                      <weight>bold</weight>
-                                      <underlined>0</underlined>
-                                      <family>swiss</family>
-                                      <face>Sans</face>
-                                      <encoding>UTF-8</encoding>
-                                    </font>
-                                    <XRCED>
-                                      <assign_var>1</assign_var>
-                                    </XRCED>
-                                  </object>
-                                  <option>1</option>
-                                  <flag>wxEXPAND</flag>
-                                  <cellpos>2,1</cellpos>
-                                  <cellspan>1,2</cellspan>
-                                </object>
-                                <object class="sizeritem">
-                                  <object class="wxTextCtrl" name="logText">
-                                    <style>wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_WORDWRAP</style>
-                                    <XRCED>
-                                      <assign_var>1</assign_var>
-                                    </XRCED>
-                                  </object>
-                                  <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
-                                  <cellpos>3,0</cellpos>
-                                  <cellspan>1,4</cellspan>
-                                </object>
-                                <object class="sizeritem">
-                                  <object class="wxBoxSizer">
+                                  <object class="wxGridBagSizer">
+                                    <object class="sizeritem">
+                                      <object class="wxStaticText">
+                                        <label>Cacher:</label>
+                                        <font>
+                                          <size>9</size>
+                                          <style>normal</style>
+                                          <weight>bold</weight>
+                                          <underlined>0</underlined>
+                                          <family>swiss</family>
+                                          <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
+                                        </font>
+                                      </object>
+                                      <border>5</border>
+                                      <ratio>25</ratio>
+                                      <cellpos>0,0</cellpos>
+                                    </object>
+                                    <object class="sizeritem">
+                                      <object class="wxStaticText" name="logCacherNameText">
+                                        <label>Cacher Name</label>
+                                        <font>
+                                          <size>9</size>
+                                          <style>normal</style>
+                                          <weight>normal</weight>
+                                          <underlined>0</underlined>
+                                          <family>swiss</family>
+                                          <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
+                                        </font>
+                                        <XRCED>
+                                          <assign_var>1</assign_var>
+                                        </XRCED>
+                                      </object>
+                                      <flag>wxLEFT|wxRIGHT|wxGROW|wxADJUST_MINSIZE</flag>
+                                      <border>0</border>
+                                      <cellpos>0,1</cellpos>
+                                      <cellspan>1,3</cellspan>
+                                    </object>
+                                    <object class="sizeritem">
+                                      <object class="wxStaticText">
+                                        <label>Log Type:</label>
+                                        <font>
+                                          <size>9</size>
+                                          <style>normal</style>
+                                          <weight>bold</weight>
+                                          <underlined>0</underlined>
+                                          <family>swiss</family>
+                                          <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
+                                        </font>
+                                      </object>
+                                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                      <border>5</border>
+                                      <ratio>25</ratio>
+                                      <cellpos>1,0</cellpos>
+                                    </object>
+                                    <object class="sizeritem">
+                                      <object class="wxChoice" name="logType">
+                                        <content>
+                                          <item>Found It</item>
+                                          <item>Didn't Find it</item>
+                                          <item>Write Note</item>
+                                          <item>Needs Archived</item>
+                                          <item>Needs Maintenance</item>
+                                        </content>
+                                        <selection>1</selection>
+                                        <XRCED>
+                                          <assign_var>1</assign_var>
+                                        </XRCED>
+                                      </object>
+                                      <flag>wxLEFT</flag>
+                                      <border>0</border>
+                                      <cellpos>1,1</cellpos>
+                                      <cellspan>1,2</cellspan>
+                                    </object>
+                                    <object class="sizeritem">
+                                      <object class="wxStaticText">
+                                        <label>Log Date:</label>
+                                        <font>
+                                          <size>9</size>
+                                          <style>normal</style>
+                                          <weight>bold</weight>
+                                          <underlined>0</underlined>
+                                          <family>swiss</family>
+                                          <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
+                                        </font>
+                                      </object>
+                                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                      <cellpos>2,0</cellpos>
+                                    </object>
+                                    <object class="sizeritem">
+                                      <object class="wxDatePickerCtrl" name="logDate">
+                                        <font>
+                                          <size>9</size>
+                                          <style>normal</style>
+                                          <weight>bold</weight>
+                                          <underlined>0</underlined>
+                                          <family>swiss</family>
+                                          <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
+                                        </font>
+                                        <XRCED>
+                                          <assign_var>1</assign_var>
+                                        </XRCED>
+                                      </object>
+                                      <option>1</option>
+                                      <flag>wxLEFT|wxRIGHT|wxEXPAND|wxADJUST_MINSIZE</flag>
+                                      <cellpos>2,1</cellpos>
+                                      <cellspan>1,3</cellspan>
+                                    </object>
+                                    <object class="sizeritem">
+                                      <object class="wxTextCtrl" name="logText">
+                                        <style>wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_WORDWRAP</style>
+                                        <XRCED>
+                                          <assign_var>1</assign_var>
+                                        </XRCED>
+                                      </object>
+                                      <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                                      <cellpos>3,0</cellpos>
+                                      <cellspan>1,4</cellspan>
+                                    </object>
                                     <object class="sizeritem">
                                       <object class="wxButton" name="logDecodeButton">
                                         <label>Decode Log</label>
@@ -1118,10 +1160,8 @@ Line 7</value>
                                           <assign_var>1</assign_var>
                                         </XRCED>
                                       </object>
-                                      <flag>wxRIGHT</flag>
-                                    </object>
-                                    <object class="spacer">
-                                      <size>5,5</size>
+                                      <flag>wxALIGN_RIGHT</flag>
+                                      <cellpos>4,2</cellpos>
                                     </object>
                                     <object class="sizeritem">
                                       <object class="wxButton" name="logSaveButton">
@@ -1139,27 +1179,32 @@ Line 7</value>
                                           <assign_var>1</assign_var>
                                         </XRCED>
                                       </object>
-                                      <flag>wxRIGHT</flag>
+                                      <flag>wxALIGN_RIGHT</flag>
+                                      <cellpos>4,3</cellpos>
                                     </object>
-                                    <orient>wxHORIZONTAL</orient>
+                                    <vgap>5</vgap>
+                                    <hgap>5</hgap>
+                                    <growablecols>1</growablecols>
+                                    <growablerows>3</growablerows>
                                   </object>
-                                  <flag>wxALIGN_RIGHT</flag>
-                                  <cellpos>4,0</cellpos>
-                                  <cellspan>1,2</cellspan>
+                                  <option>1</option>
+                                  <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                                  <border>5</border>
+                                  <minsize>400,400</minsize>
                                 </object>
-                                <vgap>5</vgap>
-                                <hgap>5</hgap>
-                                <growablecols>1</growablecols>
-                                <growablerows>3</growablerows>
+                                <label>Log Details</label>
+                                <orient>wxVERTICAL</orient>
                               </object>
                               <option>1</option>
-                              <flag>wxEXPAND|wxGROW</flag>
+                              <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                               <border>5</border>
+                              <minsize>400,400</minsize>
                             </object>
                           </object>
                         </object>
                         <orientation>vertical</orientation>
                         <sashpos>150</sashpos>
+                        <minsize>150</minsize>
                         <XRCED>
                           <assign_var>1</assign_var>
                         </XRCED>
@@ -1686,6 +1731,7 @@ Line 7</value>
               <object class="sizeritem">
                 <object class="wxTextCtrl">
                   <value>Developer: Michael Pedersen
+Additional Development: Geoff Skellams
 Logo Designer: William Pereira
 http://www.justwill.com/</value>
                   <style>wxTE_AUTO_SCROLL|wxTE_MULTILINE|wxTE_READONLY|wxTE_AUTO_URL|wxTE_CENTRE</style>
@@ -16069,6 +16115,7 @@ def __gettext_strings():
     _("GC123456")
     _("Coordinates:")
     _("S 35 12.456 E 149 04.678")
+    _("Size:")
     _("Placed By:")
     _("Cacher Name Here")
     _("Cache Type:")
@@ -16096,7 +16143,6 @@ def __gettext_strings():
     _("Displays the short and long descriptions for the cache")
     _("Description")
     _("Log Dates")
-    _("Log Details")
     _("Cacher:")
     _("Cacher Name")
     _("Log Type:")
@@ -16108,6 +16154,7 @@ def __gettext_strings():
     _("Log Date:")
     _("Decode Log")
     _("Save Log")
+    _("Log Details")
     _("View past logs for this cache")
     _("Past Logs")
     _("Displays any trackable items in the cache")
@@ -16145,7 +16192,7 @@ def __gettext_strings():
     _("Cache 901")
     _("Caching At A Higher Level")
     _("Version: Unknown")
-    _("Developer: Michael Pedersen\nLogo Designer: William Pereira\nhttp://www.justwill.com/")
+    _("Developer: Michael Pedersen\nAdditional Development: Geoff Skellams\nLogo Designer: William Pereira\nhttp://www.justwill.com/")
     _("Credits")
     _("&Okay")
     _("Cache 901 Is Loading")
