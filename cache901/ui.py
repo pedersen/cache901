@@ -814,8 +814,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
             ctp = 'waypoint'
         gpx = cache901.util.CacheToGPX(cache)
         cache901.notify('Sending %s "%s" to GPS' % (ctp, cache.name))
-        gpsbabel.gps.setInGpx(gpx)
-        gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, parseOutput=False)
+        try:
+            gpsbabel.gps.setInGpx(gpx)
+            gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, parseOutput=False)
+        except RuntimeError, e:
+            wx.MessageBox(str(e), 'A GPS Babel Failure Occured', wx.ICON_ERROR | wx.CENTRE, self)
         self.pop = None
         self.updStatus()
 
@@ -865,8 +868,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         cfg = wx.Config.Get()
         cfg.SetPath('/PerMachine')
         cache901.notify('Sending Cache Day "%s" to GPS' % (mtext, ))
-        gpsbabel.gps.setInGpx(gpx)
-        gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, route=True, parseOutput=False)
+        try:
+            gpsbabel.gps.setInGpx(gpx)
+            gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, route=True, parseOutput=False)
+        except RuntimeError, e:
+            wx.MessageBox(str(e), 'A GPS Babel Failure Occured', wx.ICON_ERROR | wx.CENTRE, self)
         self.updStatus()
 
 
