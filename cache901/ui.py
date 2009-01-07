@@ -55,12 +55,15 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         self.SetIcon(self.geoicons["appicon"])
         self.dropfile = wx.FileDataObject()
         self.SetDataObject(self.dropfile)
+        self.cachelist = {}
+        self.wptlist = {}
 
         # do all the GUI config stuff - creating extra controls and binding objects to events
         self.createStatusBarSearchField()
         self.miscBinds()        
         self.bindButtonEvents()
         self.bindListItemSelectedEvents()
+        self.bindListColumnClickEvents()
         self.setSashPositionsFromConfig()
 
         self.clearAllGui()
@@ -161,6 +164,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
                     ]
         for item in listItems:
             self.Bind(wx.EVT_LIST_ITEM_SELECTED, item[0], item[1])
+            
+    def bindListColumnClickEvents(self):
+        listItems = [
+                        (self.OnSortCaches,    self.caches),
+                        (self.OnSortWaypoints, self.points)
+                    ]
+        for item in listItems:
+            self.Bind(wx.EVT_LIST_COL_CLICK, item[0], item[1])
 
 
     def setSashPositionsFromConfig(self):
@@ -306,6 +317,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
     def loadData(self, params={}, wpt_params={}):
         self.caches.DeleteAllItems()
         self.caches.DeleteAllColumns()
+        self.cachelist = {}
+        self.wptlist = {}
         for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), (3, "Cache ID", "QQQQQQQQ"), (4, "Dist", "QQQQQQ")):
             w, h = self.GetTextExtent(i[2])
             self.caches.InsertColumn(i[0], i[1], width=w)
@@ -316,6 +329,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         for row in cache901.search.execSearch(params):
             cache_id = self.caches.Append((row[1], row[2], row[3], row[5], row[4]))
             self.caches.SetItemData(cache_id, row[0])
+            self.cachelist[row[0]] = (row[1], row[2], row[3], row[5], row[4])
         if self.caches.GetItemCount() > 0:
             self.caches.Select(0)
 
@@ -323,6 +337,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         for row in cache901.util.getWaypoints(wpt_params):
             wpt_id = self.points.Append((row[1], row[2]))
             self.points.SetItemData(wpt_id, row[0])
+            self.wptlist[row[0]] = (row[1], row[2])
 
 
     def updStatus(self):
@@ -900,6 +915,25 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         cache901.sql.maintdb()
         self.updStatus()
             
+    def sortCaches(self, data1, data2):
+        if self.cachelist[data1][self.sort_column] < self.cachelist[data2][self.sort_column]: return -1
+        elif self.cachelist[data1][self.sort_column] == self.cachelist[data2][self.sort_column]: return 0
+        else: return 1
+    
+    def sortWaypoints(self, data1, data2):
+        if self.wptlist[data1][self.sort_column] < self.wptlist[data2][self.sort_column]: return -1
+        elif self.wptlist[data1][self.sort_column] == self.wptlist[data2][self.sort_column]: return 0
+        else: return 1
+    
+    def OnSortCaches(self, evt):
+        self.sort_column = evt.m_col
+        self.caches.SortItems(self.sortCaches)
+        self.sort_column = None
+    
+    def OnSortWaypoints(self, evt):
+        self.sort_column = evt.m_col
+        self.points.SortItems(self.sortWaypoints)
+        self.sort_column = None
             
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
