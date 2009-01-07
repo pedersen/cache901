@@ -417,8 +417,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         self.terrainText.SetLabel(str(self.ld_cache.terrain))
         self.coordinateText.SetLabel('%s %s' % (cache901.util.latToDMS(self.ld_cache.lat), cache901.util.lonToDMS(self.ld_cache.lon)))
         self.sizeText.SetLabel(self.ld_cache.container)
-        self.placedByText.SetLabel(self.ld_cache.placed_by[:25])
-        self.ownerText.SetLabel(self.ld_cache.owner_name[:25])
+        self.placedByText.SetLabel(self.ld_cache.placed_by.replace('&', '&&')[:25])
+        self.ownerText.SetLabel(self.ld_cache.owner_name.replace('&', '&&')[:25])
         bmp = wx.ImageFromBitmap(self.geoicons[self.ld_cache.type]).Scale(32,32)
         self.cacheTypeIcon.SetBitmap(wx.BitmapFromImage(bmp))
         self.stateText.SetLabel(self.ld_cache.state)
@@ -458,7 +458,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         self.logText.SetValue(log.log_entry)
         self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
         self.logType.Select(self.logtrans.getIdx(log.type))
-        self.logCacherNameText.SetLabel(log.finder)
+        self.logCacherNameText.SetLabel(log.finder.replace('&', '&&'))
         self.logSaveButton.Enable(log.my_log)
 
     def listGCAccounts(self):
