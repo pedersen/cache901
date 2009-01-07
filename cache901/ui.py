@@ -44,13 +44,17 @@ import cache901.ui_xrc
 import cache901.util as util
 import cache901.xml901
 
-class Cache901UI(cache901.ui_xrc.xrcCache901UI):
+class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
     def __init__(self, parent=None):
-        super(Cache901UI, self).__init__(parent)
+        cache901.ui_xrc.xrcCache901UI.__init__(self, parent)
+        wx.FileDropTarget.__init__(self)
+        self.SetDropTarget(self)
 
         self.geoicons = geoicons()
         self.logtrans = logTrans()
         self.SetIcon(self.geoicons["appicon"])
+        self.dropfile = wx.FileDataObject()
+        self.SetDataObject(self.dropfile)
 
         # do all the GUI config stuff - creating extra controls and binding objects to events
         self.createStatusBarSearchField()
@@ -463,6 +467,27 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             usernames.append(row['username'])
         return usernames
 
+    def importSpecificFile(self, path, maintdb=True):
+        parser = cache901.xml901.XMLParser()
+        if path.lower().endswith('.zip'):
+            cache901.notify('Examining %s for gpx files' % path)
+            zfile = zipfile.ZipFile(path)
+            gpxziplist = filter(lambda x: x.lower().endswith('.gpx'), zfile.namelist())
+            for gpxname in gpxziplist:
+                cache901.notify('Processing %s%s%s' % (path, os.sep, gpxname))
+                parser.parse(zfile.read(gpxname), False)
+                cache901.notify('Completed processing %s%s%s' % (path, os.sep, gpxname))
+        elif path.lower().endswith('.gpx'):
+            cache901.notify('Processing %s' % path)
+            infile = open(path)
+            parser.parse(infile, False)
+            cache901.notify('Completed processing %s' % path)
+        else:
+            cache901.notify('Unable to process file %s' % path)
+        if maintdb:
+            cache901.sql.maintdb()
+    
+    
     def OnImportFile(self, evt):
         fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX Files (*.gpx)|*.gpx|Zip Files(*.zip)|*.zip|All Files (*.*)|*.*")
         cfg = wx.Config.Get()
@@ -472,21 +497,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
             fdg.SetDirectory(cfg.Read("LastImportDir"))
         if fdg.ShowModal() == wx.ID_OK:
             cfg.Write("LastImportDir", fdg.GetDirectory())
-            parser = cache901.xml901.XMLParser()
             for path in fdg.GetPaths():
-                if path.lower().endswith('.zip'):
-                    cache901.notify('Examining %s for gpx files' % path)
-                    zfile = zipfile.ZipFile(path)
-                    gpxziplist = filter(lambda x: x.lower().endswith('.gpx'), zfile.namelist())
-                    for gpxname in gpxziplist:
-                        cache901.notify('Processing %s%s%s' % (path, os.sep, gpxname))
-                        parser.parse(zfile.read(gpxname), False)
-                        cache901.notify('Completed processing %s%s%s' % (path, os.sep, gpxname))
-                else:
-                    cache901.notify('Processing %s' % path)
-                    infile = open(path)
-                    parser.parse(infile, False)
-                    cache901.notify('Completed processing %s' % path)
+                self.importSpecificFile(path, False)
             cache901.sql.maintdb()
             self.loadData()
         self.updStatus()
@@ -866,6 +878,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI):
         return mitems
 
 
+    def OnDropFiles(self, x, y, filenames):
+        for filename in filenames:
+            self.importSpecificFile(filename, False)
+        cache901.sql.maintdb()
+        self.updStatus()
+            
+            
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)
