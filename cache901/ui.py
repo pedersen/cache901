@@ -836,11 +836,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         mtext = item.GetLabel()
         if mtext == "New Cache Day":
             mtext =  wx.GetTextFromUser('New Cache Day Name', 'New Cache Day Name', parent = self)
-            if mtext != '':
+            if mtext.strip() != '':
                 day = cache901.dbobjects.CacheDay(mtext)
                 day.Save()
             else:
                 day = None
+                wx.MessageBox('Cowardly refusing to create a day name with just spaces in it', 'Bad Cache Day Name', wx.ICON_EXCLAMATION)
+                return
         else:
             day = cache901.dbobjects.CacheDay(mtext)
         if day is not None:
@@ -887,7 +889,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         cur = cache901.db().cursor()
         cur.execute('select dayname from cacheday_names order by dayname')
         for row in cur:
-            mitems.append(menu.Append(-1, row[0]))
+            if row[0].strip() != '':
+                mitems.append(menu.Append(-1, row[0]))
         return mitems
 
 
