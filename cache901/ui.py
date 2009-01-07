@@ -134,6 +134,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
 
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
+            
+        self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
 
             
     def bindButtonEvents(self):
@@ -464,7 +466,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         usernames = []
         cur.execute('select username from accounts')
         for row in cur:
-            usernames.append(row['username'])
+            if row is not None:
+                usernames.append(row['username'])
         return usernames
 
     def importSpecificFile(self, path, maintdb=True):
@@ -522,6 +525,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
     def OnSearchLocs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showSearch()
+        self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:
             iid = self.points.GetFirstSelected()
@@ -539,6 +543,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
     def OnGeoAccounts(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeoAccounts()
+        self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:
             iid = self.points.GetFirstSelected()
@@ -556,6 +561,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
+        self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:
             iid = self.points.GetFirstSelected()
@@ -573,6 +579,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
+        self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:
             iid = self.points.GetFirstSelected()
