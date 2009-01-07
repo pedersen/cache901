@@ -306,7 +306,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
     def loadData(self, params={}, wpt_params={}):
         self.caches.DeleteAllItems()
         self.caches.DeleteAllColumns()
-        for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), (3, "Dist", "QQQQQQ")):
+        for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), (3, "Cache ID", "QQQQQQQQ"), (4, "Dist", "QQQQQQ")):
             w, h = self.GetTextExtent(i[2])
             self.caches.InsertColumn(i[0], i[1], width=w)
         self.points.DeleteAllItems()
@@ -314,7 +314,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         if len(self.search.GetValue()) > 2:
             params["urlname"] = self.search.GetValue()
         for row in cache901.search.execSearch(params):
-            cache_id = self.caches.Append((row[1], row[2], row[3], row[4]))
+            cache_id = self.caches.Append((row[1], row[2], row[3], row[5], row[4]))
             self.caches.SetItemData(cache_id, row[0])
         if self.caches.GetItemCount() > 0:
             self.caches.Select(0)
