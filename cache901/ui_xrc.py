@@ -314,6 +314,9 @@ class xrcSearchUI(wx.Dialog):
         self.updatedLast7 = xrc.XRCCTRL(self, "updatedLast7")
         self.notActive = xrc.XRCCTRL(self, "notActive")
         self.active = xrc.XRCCTRL(self, "active")
+        self.hasMyLogs = xrc.XRCCTRL(self, "hasMyLogs")
+        self.hasMyNotes = xrc.XRCCTRL(self, "hasMyNotes")
+        self.hasMyPhotos = xrc.XRCCTRL(self, "hasMyPhotos")
         self.splitRegions = xrc.XRCCTRL(self, "splitRegions")
         self.countriesCheck = xrc.XRCCTRL(self, "countriesCheck")
         self.countriesList = xrc.XRCCTRL(self, "countriesList")
@@ -461,7 +464,8 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?><resource>
+<?xml version="1.0" ?>
+<resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -808,6 +812,7 @@ def __init_resources():
                             <object class="sizeritem">
                               <object class="wxCheckBox" name="available">
                                 <label>Available</label>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -819,6 +824,7 @@ def __init_resources():
                             <object class="sizeritem">
                               <object class="wxCheckBox" name="archived">
                                 <label>Archived</label>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -2723,6 +2729,30 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="active">
                     <label>Is active</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="hasMyLogs">
+                    <label>Has Logs From Me</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="hasMyNotes">
+                    <label>Has Notes From Me</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="hasMyPhotos">
+                    <label>Has Photos Attached From Me</label>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
@@ -16292,6 +16322,9 @@ def __gettext_strings():
     _("Updated in the last 7 days")
     _("Is not active")
     _("Is active")
+    _("Has Logs From Me")
+    _("Has Notes From Me")
+    _("Has Photos Attached From Me")
     _("Conditions")
     _("Countries")
     _("Clear Selections")

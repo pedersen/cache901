@@ -80,7 +80,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.deselectList(self.cacheTypes)
         for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'foundLast7',
                   'notFound', 'hasBugs', 'updatedLast7', 'notActive',
-                  'active']:
+                  'active', 'hasMyLogs', 'hasMyNotes', 'hasMyPhotos']:
             getattr(self, i).SetValue(False)
     
     def loadSearchLocs(self):
@@ -181,7 +181,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
                 else:
                     for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'foundLast7',
                               'notFound', 'hasBugs', 'updatedLast7', 'notActive',
-                              'active']:
+                              'active', 'hasMyLogs', 'hasMyNotes', 'hasMyPhotos']:
                         if param == i.lower():
                             getattr(self, i).SetValue(1 == int(params[param]))
     
@@ -214,7 +214,7 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
                 del params['searchDist']
         for i in ['notFoundByMe', 'found', 'notOwned', 'owned', 'foundLast7',
                   'notFound', 'hasBugs', 'updatedLast7', 'notActive',
-                  'active']:
+                  'active', 'hasMyLogs', 'hasMyNotes', 'hasMyPhotos']:
             if getattr(self, i).GetValue(): params[i.lower()] = 1
         countries = []
         item = self.countriesList.GetNextSelected(-1)
@@ -332,6 +332,9 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         isinstance(self.updatedLast7, wx.CheckBox)
         isinstance(self.notActive, wx.CheckBox)
         isinstance(self.active, wx.CheckBox)
+        isinstance(self.hasMyLogs, wx.CheckBox)
+        isinstance(self.hasMyNotes, wx.CheckBox)
+        isinstance(self.hasMyPhotos, wx.CheckBox)
         isinstance(self.splitRegions, wx.SplitterWindow)
         isinstance(self.countriesCheck, wx.CheckBox)
         isinstance(self.countriesList, wx.ListCtrl)
@@ -481,6 +484,12 @@ def execSearch(params):
         where.append("archived = 1")
     if params.has_key('active'):
         where.append("available = 1")
+    if params.has_key('hasmylogs'):
+        where.append("cache_id in (select cache_id from logs where finder in (select username from accounts))")
+    if params.has_key('hasmynotes'):
+        where.append('cache_id in (select cache_id from notes)')
+    if params.has_key('hasmyphotos'):
+        where.append('cache_id in (select cache_id from photos)')
     if len(where) > 0:
         where_clause = 'where %s' % " and ".join(where)
     else:

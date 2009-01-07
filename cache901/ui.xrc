@@ -346,6 +346,7 @@
                             <object class="sizeritem">
                               <object class="wxCheckBox" name="available">
                                 <label>Available</label>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -357,6 +358,7 @@
                             <object class="sizeritem">
                               <object class="wxCheckBox" name="archived">
                                 <label>Archived</label>
+                                <enabled>0</enabled>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -2261,6 +2263,30 @@ http://www.justwill.com/</value>
                 <object class="sizeritem">
                   <object class="wxCheckBox" name="active">
                     <label>Is active</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="hasMyLogs">
+                    <label>Has Logs From Me</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="hasMyNotes">
+                    <label>Has Notes From Me</label>
+                    <XRCED>
+                      <assign_var>1</assign_var>
+                    </XRCED>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxCheckBox" name="hasMyPhotos">
+                    <label>Has Photos Attached From Me</label>
                     <XRCED>
                       <assign_var>1</assign_var>
                     </XRCED>
