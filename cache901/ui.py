@@ -62,11 +62,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.wptlist = {}
 
         # do all the GUI config stuff - creating extra controls and binding objects to events
-        self.createStatusBarSearchField()
         self.miscBinds()        
         self.bindButtonEvents()
         self.bindListItemSelectedEvents()
         self.setSashPositionsFromConfig()
+        self.createStatusBarSearchField()
 
         self.clearAllGui()
         self.configureListBoxes()

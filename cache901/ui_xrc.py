@@ -466,8 +466,7 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?>
-<resource>
+<?xml version="1.0" ?><resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -624,6 +623,7 @@ def __init_resources():
                         </object>
                         <object class="sizeritem">
                           <object class="wxStaticText" name="sizeText">
+                            <label>Normal</label>
                             <font>
                               <size>9</size>
                               <style>normal</style>
@@ -637,6 +637,7 @@ def __init_resources():
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
+                          <minsize>50,15</minsize>
                           <cellpos>1,6</cellpos>
                         </object>
                         <object class="sizeritem">
@@ -661,6 +662,7 @@ def __init_resources():
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
+                          <minsize>130,15</minsize>
                           <cellpos>2,1</cellpos>
                         </object>
                         <object class="sizeritem">
@@ -709,6 +711,7 @@ def __init_resources():
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
+                          <minsize>130,15</minsize>
                           <cellpos>2,3</cellpos>
                         </object>
                         <object class="sizeritem">
@@ -1688,86 +1691,106 @@ Line 7</value>
   </object>
   <object class="wxDialog" name="AboutBox">
     <object class="wxBoxSizer">
-      <orient>wxHORIZONTAL</orient>
-      <object class="sizeritem">
-        <object class="wxStaticBitmap">
-          <bitmap>icons_shield_large_png</bitmap>
-        </object>
-      </object>
-      <object class="spacer">
-        <size>5,5</size>
-      </object>
+      <orient>wxVERTICAL</orient>
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxStaticText">
-              <label>Cache 901</label>
-              <font>
-                <size>24</size>
-                <style>normal</style>
-                <weight>bold</weight>
-                <underlined>0</underlined>
-                <family>swiss</family>
-                <face>Sans</face>
-                <encoding>UTF-8</encoding>
-              </font>
+            <object class="wxStaticBitmap">
+              <bitmap>icons_shield_large_png</bitmap>
             </object>
-            <option>1</option>
-            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+            <flag>wxALL|wxADJUST_MINSIZE</flag>
+          </object>
+          <object class="spacer">
+            <size>10,10</size>
           </object>
           <object class="sizeritem">
-            <object class="wxStaticText">
-              <label>Caching At A Higher Level</label>
-              <font>
-                <size>18</size>
-                <style>italic</style>
-                <weight>normal</weight>
-                <underlined>0</underlined>
-                <family>swiss</family>
-                <face>Sans</face>
-                <encoding>UTF-8</encoding>
-              </font>
-            </object>
-            <option>1</option>
-            <flag>wxALIGN_CENTRE_VERTICAL</flag>
-          </object>
-          <object class="sizeritem">
-            <object class="wxStaticText" name="version">
-              <label>Version: Unknown</label>
-              <XRCED>
-                <assign_var>1</assign_var>
-              </XRCED>
-            </object>
-            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-          </object>
-          <object class="sizeritem">
-            <object class="wxStaticBoxSizer">
+            <object class="wxBoxSizer">
               <object class="sizeritem">
-                <object class="wxTextCtrl">
-                  <value>Developer: Michael Pedersen
+                <object class="wxStaticText">
+                  <label>Cache 901</label>
+                  <font>
+                    <size>24</size>
+                    <style>normal</style>
+                    <weight>bold</weight>
+                    <underlined>0</underlined>
+                    <family>swiss</family>
+                    <face>Sans</face>
+                    <encoding>UTF-8</encoding>
+                  </font>
+                </object>
+                <option>1</option>
+                <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <label>Caching At A Higher Level</label>
+                  <font>
+                    <size>18</size>
+                    <style>italic</style>
+                    <weight>normal</weight>
+                    <underlined>0</underlined>
+                    <family>swiss</family>
+                    <face>Sans</face>
+                    <encoding>UTF-8</encoding>
+                  </font>
+                </object>
+                <option>1</option>
+                <flag>wxALIGN_CENTRE_VERTICAL</flag>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticText" name="version">
+                  <label>Version: Unknown</label>
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticBoxSizer">
+                  <object class="sizeritem">
+                    <object class="wxBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxTextCtrl">
+                          <value>Developer: Michael Pedersen
 Additional Development: Geoff Skellams
 Logo Designer: William Pereira
 http://www.justwill.com/</value>
-                  <style>wxTE_AUTO_SCROLL|wxTE_MULTILINE|wxTE_READONLY|wxTE_AUTO_URL|wxTE_CENTRE</style>
+                          <style>wxNO_BORDER|wxTE_AUTO_SCROLL|wxTE_MULTILINE|wxTE_READONLY|wxTE_AUTO_URL|wxTE_CENTRE</style>
+                        </object>
+                        <option>1</option>
+                        <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                      </object>
+                      <orient>wxVERTICAL</orient>
+                    </object>
+                    <option>1</option>
+                    <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                    <border>3</border>
+                  </object>
+                  <label>Credits</label>
+                  <orient>wxVERTICAL</orient>
                 </object>
-                <option>1</option>
-                <flag>wxEXPAND|wxGROW</flag>
+                <option>5</option>
+                <flag>wxTOP|wxBOTTOM|wxEXPAND|wxGROW</flag>
               </object>
-              <label>Credits</label>
+              <object class="spacer">
+                <size>5,5</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxButton" name="wxID_OK">
+                  <label>&amp;OK</label>
+                </object>
+                <flag>wxBOTTOM|wxALIGN_RIGHT</flag>
+              </object>
               <orient>wxVERTICAL</orient>
             </object>
-            <option>5</option>
-            <flag>wxEXPAND|wxGROW</flag>
+            <flag>wxALL|wxEXPAND|wxGROW|wxALIGN_CENTRE_VERTICAL|wxADJUST_MINSIZE</flag>
           </object>
-          <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
-              <label>&amp;Okay</label>
-            </object>
-            <flag>wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
-          </object>
-          <orient>wxVERTICAL</orient>
+          <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+        <option>1</option>
+        <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+        <border>10</border>
       </object>
     </object>
   </object>
@@ -2919,108 +2942,134 @@ http://www.justwill.com/</value>
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
-        <object class="wxSplitterWindow" name="mapSplit">
-          <object class="wxPanel">
-            <object class="wxBoxSizer">
-              <orient>wxVERTICAL</orient>
-              <object class="sizeritem">
-                <object class="wxStaticText">
-                  <label>Caches</label>
-                </object>
-              </object>
-              <object class="sizeritem">
-                <object class="wxListCtrl" name="cacheList">
-                  <style>wxLC_REPORT|wxLC_NO_HEADER</style>
-                  <XRCED>
-                    <assign_var>1</assign_var>
-                  </XRCED>
-                </object>
-                <option>1</option>
-                <flag>wxEXPAND|wxGROW</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxStaticText">
-                  <label>Search Origins</label>
-                </object>
-              </object>
-              <object class="sizeritem">
-                <object class="wxListCtrl" name="originList">
-                  <style>wxLC_REPORT|wxLC_NO_HEADER</style>
-                  <XRCED>
-                    <assign_var>1</assign_var>
-                  </XRCED>
-                </object>
-                <option>1</option>
-                <flag>wxEXPAND|wxGROW</flag>
-              </object>
-            </object>
-          </object>
-          <object class="wxPanel">
-            <object class="wxBoxSizer">
-              <object class="sizeritem">
-                <object class="wxSlider" name="zoomLevel">
-                  <value>1</value>
-                  <min>1</min>
-                  <max>10</max>
-                  <tickfreq>10</tickfreq>
-                  <pagesize>10</pagesize>
-                  <tick>10</tick>
-                  <style>wxSL_VERTICAL|wxSL_LABELS|wxSL_INVERSE</style>
-                  <XRCED>
-                    <assign_var>1</assign_var>
-                  </XRCED>
-                </object>
-                <option>0</option>
-                <flag>wxGROW</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxScrolledWindow" name="mapArea">
-                  <object class="wxPanel" name="mapPanel">
-                    <size>1024,1024</size>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <style>wxHSCROLL|wxVSCROLL</style>
-                  <XRCED>
-                    <assign_var>1</assign_var>
-                  </XRCED>
-                </object>
-                <option>1</option>
-                <flag>wxEXPAND|wxGROW</flag>
-              </object>
-              <orient>wxHORIZONTAL</orient>
-            </object>
-          </object>
-          <orientation>vertical</orientation>
-          <sashpos>175</sashpos>
-          <minsize>100</minsize>
-          <XRCED>
-            <assign_var>1</assign_var>
-          </XRCED>
-        </object>
-        <minsize>740,350</minsize>
-      </object>
-      <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
-              <label>Okay</label>
+            <object class="wxSplitterWindow" name="mapSplit">
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <orient>wxVERTICAL</orient>
+                  <object class="sizeritem">
+                    <object class="wxStaticBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxListCtrl" name="cacheList">
+                          <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <XRCED>
+                            <assign_var>1</assign_var>
+                          </XRCED>
+                        </object>
+                        <option>1</option>
+                        <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                        <border>3</border>
+                      </object>
+                      <label>Caches</label>
+                      <orient>wxVERTICAL</orient>
+                    </object>
+                    <option>1</option>
+                    <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                    <border>5</border>
+                  </object>
+                  
+                  <object class="sizeritem">
+                    <object class="wxStaticBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxListCtrl" name="originList">
+                          <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <XRCED>
+                            <assign_var>1</assign_var>
+                          </XRCED>
+                        </object>
+                        <option>1</option>
+                        <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                        <border>3</border>
+                      </object>
+                      <label>Search Origins</label>
+                      <orient>wxVERTICAL</orient>
+                    </object>
+                    <option>1</option>
+                    <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                    <border>5</border>
+                  </object>
+                
+                </object>
+              </object>
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <object class="sizeritem">
+                    <object class="wxSlider" name="zoomLevel">
+                      <value>1</value>
+                      <min>1</min>
+                      <max>10</max>
+                      <tickfreq>10</tickfreq>
+                      <pagesize>10</pagesize>
+                      <tick>10</tick>
+                      <style>wxSL_VERTICAL|wxSL_LABELS|wxSL_INVERSE</style>
+                      <XRCED>
+                        <assign_var>1</assign_var>
+                      </XRCED>
+                    </object>
+                    <option>0</option>
+                    <flag>wxTOP|wxBOTTOM|wxGROW</flag>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxScrolledWindow" name="mapArea">
+                      <object class="wxPanel" name="mapPanel">
+                        <size>1024,1024</size>
+                        <XRCED>
+                          <assign_var>1</assign_var>
+                        </XRCED>
+                      </object>
+                      <size>150,75</size>
+                      <style>wxHSCROLL|wxVSCROLL</style>
+                      <XRCED>
+                        <assign_var>1</assign_var>
+                      </XRCED>
+                    </object>
+                    <option>1</option>
+                    <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                  </object>
+                  <orient>wxHORIZONTAL</orient>
+                </object>
+              </object>
+              <orientation>vertical</orientation>
+              <sashpos>175</sashpos>
+              <minsize>100</minsize>
+              <XRCED>
+                <assign_var>1</assign_var>
+              </XRCED>
             </object>
-            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+            <option>1</option>
+            <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
           </object>
           <object class="spacer">
             <size>5,5</size>
           </object>
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_CANCEL">
-              <label>Cancel</label>
+            <object class="wxBoxSizer">
+              <object class="sizeritem">
+                <object class="wxButton" name="wxID_OK">
+                  <label>&amp;OK</label>
+                  <default>1</default>
+                </object>
+                <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+              </object>
+              <object class="spacer">
+                <size>5,5</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxButton" name="wxID_CANCEL">
+                  <label>Cancel</label>
+                </object>
+                <flag>wxTOP|wxBOTTOM|wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>
+              </object>
+              <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+            <flag>wxALIGN_RIGHT</flag>
           </object>
-          <orient>wxHORIZONTAL</orient>
+          <orient>wxVERTICAL</orient>
         </object>
-        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+        <option>0</option>
+        <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+        <border>5</border>
       </object>
     </object>
   </object>
@@ -16171,6 +16220,7 @@ def __gettext_strings():
     _("Coordinates:")
     _("S 35 12.456 E 149 04.678")
     _("Size:")
+    _("Normal")
     _("Placed By:")
     _("Cacher Name Here")
     _("Cache Type:")
@@ -16250,7 +16300,7 @@ def __gettext_strings():
     _("Version: Unknown")
     _("Developer: Michael Pedersen\nAdditional Development: Geoff Skellams\nLogo Designer: William Pereira\nhttp://www.justwill.com/")
     _("Credits")
-    _("&Okay")
+    _("&OK")
     _("Cache 901 Is Loading")
     _("Coordinate\nDisplay")
     _("Deg Min Sec")
@@ -16366,7 +16416,7 @@ def __gettext_strings():
     _("&Cancel")
     _("Caches")
     _("Search Origins")
-    _("Okay")
+    _("&OK")
     _("Cancel")
     _("Send To GPS")
     _("Add To Cache Day")
