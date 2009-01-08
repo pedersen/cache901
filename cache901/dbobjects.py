@@ -326,6 +326,11 @@ class CacheDay(object):
         cur.execute('delete from cacheday where dayname=?', (self.dayname, ))
         cur.execute('delete from cacheday_names where dayname=?', (self.dayname, ))
         cache901.db().commit()
+    
+    def Rename(self, newname):
+        self.Delete()
+        self.dayname=newname
+        self.Save()
 
 class Account(object):
     def __init__(self, acctid=minint):

@@ -1596,6 +1596,8 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxButton" name="addCacheDay">
                             <label>Add</label>
+                            <tooltip>Add Cache Day</tooltip>
+                            <style>wxBU_EXACTFIT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1606,7 +1608,22 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxButton" name="remCacheDay">
-                            <label>Delete</label>
+                            <label>Del</label>
+                            <tooltip>Delete Cache Day</tooltip>
+                            <style>wxBU_EXACTFIT</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnRenameCacheDay">
+                            <label>Ren</label>
+                            <tooltip>Rename Cache Day</tooltip>
+                            <style>wxBU_EXACTFIT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1867,7 +1884,7 @@ http://www.justwill.com/</value>
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
-              <label>&amp;Okay</label>
+              <label>&amp;Ok</label>
             </object>
           </object>
           <object class="spacer">

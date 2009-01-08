@@ -248,6 +248,7 @@ class xrcOptionsUI(wx.Dialog):
         self.cacheDays = xrc.XRCCTRL(self, "cacheDays")
         self.addCacheDay = xrc.XRCCTRL(self, "addCacheDay")
         self.remCacheDay = xrc.XRCCTRL(self, "remCacheDay")
+        self.btnRenameCacheDay = xrc.XRCCTRL(self, "btnRenameCacheDay")
         self.cachesForDay = xrc.XRCCTRL(self, "cachesForDay")
         self.upCache = xrc.XRCCTRL(self, "upCache")
         self.remCache = xrc.XRCCTRL(self, "remCache")
@@ -2062,6 +2063,8 @@ http://www.justwill.com/</value>
                         <object class="sizeritem">
                           <object class="wxButton" name="addCacheDay">
                             <label>Add</label>
+                            <tooltip>Add Cache Day</tooltip>
+                            <style>wxBU_EXACTFIT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2072,7 +2075,22 @@ http://www.justwill.com/</value>
                         </object>
                         <object class="sizeritem">
                           <object class="wxButton" name="remCacheDay">
-                            <label>Delete</label>
+                            <label>Del</label>
+                            <tooltip>Delete Cache Day</tooltip>
+                            <style>wxBU_EXACTFIT</style>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnRenameCacheDay">
+                            <label>Ren</label>
+                            <tooltip>Rename Cache Day</tooltip>
+                            <style>wxBU_EXACTFIT</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2333,7 +2351,7 @@ http://www.justwill.com/</value>
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
-              <label>&amp;Okay</label>
+              <label>&amp;Ok</label>
             </object>
           </object>
           <object class="spacer">
@@ -16249,7 +16267,11 @@ def __gettext_strings():
     _("&Search")
     _("Cache Day(s)")
     _("Add")
-    _("Delete")
+    _("Add Cache Day")
+    _("Del")
+    _("Delete Cache Day")
+    _("Ren")
+    _("Rename Cache Day")
     _("The Caches")
     _("Available Caches")
     _("Cache Day")
@@ -16263,7 +16285,7 @@ def __gettext_strings():
     _("Is Premium Account?")
     _("Save")
     _("Accounts")
-    _("&Okay")
+    _("&Ok")
     _("&Cancel")
     _("Cache901 Options")
     _("Search Name:")

@@ -71,6 +71,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.Bind(wx.EVT_BUTTON, self.OnCacheDown,      self.downCache)
         self.Bind(wx.EVT_BUTTON, self.OnAddCache,       self.addCache)
         self.Bind(wx.EVT_BUTTON, self.OnRemCache,       self.remCache)
+        self.Bind(wx.EVT_BUTTON, self.OnRenameCacheDay, self.btnRenameCacheDay)
         self.Bind(wx.EVT_BUTTON, self.OnAddAccount,     self.btnAddAcount)
         self.Bind(wx.EVT_BUTTON, self.OnRemAccount,     self.btnRemAccount)
         self.Bind(wx.EVT_BUTTON, self.OnSaveAccount,    self.btnSaveAccount)
@@ -285,6 +286,18 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             iid = self.cacheDays.GetNextSelected(iid)
         self.listCacheDays()
     
+    def OnRenameCacheDay(self, evt):
+        iid=self.cacheDays.GetFirstSelected()
+        if iid != -1:
+            dname = self.cacheDays.GetItemText(iid)
+            newdname = wx.GetTextFromUser('Rename %s to what?' % dname, 'Rename Cache Day').strip()
+            if newdname != '':
+                day = cache901.dbobjects.CacheDay(dname)
+                day.Rename(newdname)
+                self.listCacheDays()
+            else:
+                wx.MessageBox('Cowardly refusing to rename a day to an empty name', 'Bad Cache Day Name', wx.ICON_EXCLAMATION)
+                
     def OnCacheUp(self, evt):
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
@@ -385,16 +398,17 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.locSplit,  wx.SplitterWindow)
         
         # Cache Day Tab
-        isinstance(self.cacheday,     wx.Panel)
-        isinstance(self.addCacheDay,  wx.Button)
-        isinstance(self.remCacheDay,  wx.Button)
-        isinstance(self.upCache,      wx.BitmapButton)
-        isinstance(self.downCache,    wx.BitmapButton)
-        isinstance(self.addCache,     wx.BitmapButton)
-        isinstance(self.remCache,     wx.BitmapButton)
-        isinstance(self.cacheDays,    wx.ListCtrl)
-        isinstance(self.cachesForDay, wx.ListCtrl)
-        isinstance(self.availCaches,  wx.ListCtrl)
+        isinstance(self.cacheday,          wx.Panel)
+        isinstance(self.addCacheDay,       wx.Button)
+        isinstance(self.remCacheDay,       wx.Button)
+        isinstance(self.btnRenameCacheDay, wx.Button)
+        isinstance(self.upCache,           wx.BitmapButton)
+        isinstance(self.downCache,         wx.BitmapButton)
+        isinstance(self.addCache,          wx.BitmapButton)
+        isinstance(self.remCache,          wx.BitmapButton)
+        isinstance(self.cacheDays,         wx.ListCtrl)
+        isinstance(self.cachesForDay,      wx.ListCtrl)
+        isinstance(self.availCaches,       wx.ListCtrl)
 
         
         # Accounts Tab
