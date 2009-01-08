@@ -126,7 +126,7 @@ def displayDMS(dec):
     cfg = wx.Config.Get()
     isinstance(cfg, wx.Config)
     cfg.SetPath('/PerMachine')
-    idx = ['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min sec'))
+    idx = ['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min'))
     if idx == 0:
         return decToDMS(dec)
     elif idx == 1:

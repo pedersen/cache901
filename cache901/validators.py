@@ -182,7 +182,7 @@ class degDisplayValidator(wx.PyValidator):
         cfg.SetPath('/PerMachine')
         items = map(lambda x: x.lower(), choice.GetItems())
         try:
-            choice.SetSelection(['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min sec')))
+            choice.SetSelection(['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min')))
         except:
             choice.SetSelection(0)
 
