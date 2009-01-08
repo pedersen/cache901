@@ -93,6 +93,7 @@ class xrcCache901UI(wx.Frame):
             self.CacheSearchMenu = self.GetMenuBar().FindItemById(xrc.XRCID("CacheSearchMenu")).GetSubMenu()
         self.showMap = self.GetMenuBar().FindItemById(xrc.XRCID("showMap"))
         self.mnuLogThisCache = self.GetMenuBar().FindItemById(xrc.XRCID("mnuLogThisCache"))
+        self.mnuDeleteThisLog = self.GetMenuBar().FindItemById(xrc.XRCID("mnuDeleteThisLog"))
         self.mnuSaveNote = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSaveNote"))
         self.mnuClearNote = self.GetMenuBar().FindItemById(xrc.XRCID("mnuClearNote"))
         self.mnuAddPhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuAddPhoto"))
@@ -1454,6 +1455,12 @@ Line 7</value>
         <object class="separator"/>
         <object class="wxMenuItem" name="mnuLogThisCache">
           <label>Log This Cache</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuDeleteThisLog">
+          <label>Delete This Log</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -16219,6 +16226,7 @@ def __gettext_strings():
     _("&Search")
     _("Show Map of Caches")
     _("Log This Cache")
+    _("Delete This Log")
     _("Save Notes")
     _("Remove Notes")
     _("Add Photo")

@@ -108,6 +108,7 @@ class Cache(object):
         cur = cache901.db().cursor()
         cur.execute("delete from caches where cache_id=?", (self.cache_id, ))
         cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html, hidden) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html, self.hidden))
+        cache901.db().commit()
 
 class Waypoint(object):
     def __init__(self, cid=minint):
@@ -144,6 +145,7 @@ class Waypoint(object):
         cur = cache901.db().cursor()
         cur.execute('delete from locations where wpt_id=?', (self.wpt_id,))
         cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon, hidden) values(?,?,?,?,?,?,?,?,?)", (self.wpt_id, self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon, self.hidden))
+        cache901.db().commit()
 
 class Log(object):
     def __init__(self, lid=minint):
@@ -175,10 +177,16 @@ class Log(object):
         else:
             raise cache901.InvalidID('Invalid Log ID: %d' % lid)
 
+    def Delete(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from logs where id=?', (self.id, ))
+        cache901.db().commit()
+        
     def Save(self):
         cur = cache901.db().cursor()
         cur.execute('delete from logs where id=?', (self.id, ))
         cur.execute("insert into logs(id, cache_id, date, type, finder, finder_id, log_entry, log_entry_encoded, my_log, my_log_found, my_log_uploaded) values(?,?,?,?,?,?,?,?,?,?,?)", (self.id, self.cache_id, self.date, self.type, self.finder, self.finder_id, self.log_entry, self.log_entry_encoded, self.my_log, self.my_log_found, self.my_log_uploaded))
+        cache901.db().commit()
 
 class TravelBug(object):
     def __init__(self, bid=minint):
@@ -207,6 +215,7 @@ class TravelBug(object):
         cur = cache901.db().cursor()
         cur.execute('delete from travelbugs where id=?', (self.id, ))
         cur.execute("insert into travelbugs(id, cache_id, name, ref) values(?,?,?,?)", (self.id, self.cache_id, self.name, self.ref))
+        cache901.db().commit()
 
 class Note(object):
     def __init__(self, nid=minint):
@@ -233,6 +242,7 @@ class Note(object):
         cur = cache901.db().cursor()
         cur.execute('delete from notes where cache_id=?', (self.id, ))
         cur.execute("insert into notes(cache_id, note) values(?,?)", (self.id, self.note))
+        cache901.db().commit()
 
 class Hint(object):
     def __init__(self, hid=minint):
@@ -259,6 +269,7 @@ class Hint(object):
         cur = cache901.db().cursor()
         cur.execute('delete from hints where cache_id=?', (self.id, ))
         cur.execute("insert into hints(cache_id, hint) values(?,?)", (self.id, self.hint))
+        cache901.db().commit()
 
 class PhotoList(object):
     def __init__(self, plid=minint):
@@ -290,6 +301,7 @@ class PhotoList(object):
         cur.execute('delete from photos where cache_id=?', (self.id, ))
         for f in self.names:
             cur.execute("insert into photos(cache_id, photofile) values(?,?)", (self.id, f))
+        cache901.db().commit()
 
 class CacheDay(object):
     def __init__(self, dayname):

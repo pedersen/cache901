@@ -112,23 +112,24 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def bindMenuOptions(self):
         # bind the menu options to their event handlers
         menuOptions = [
-                        (self.OnClose,       self.mnuFileExit),
-                        (self.OnDbMaint,     self.mnuFileDbMaint),
-                        (self.OnImportFile,  self.mnuFileImport),
-                        (self.OnAbout,       self.mnuHelpAbout),
-                        (self.OnSearchLocs,  self.mnuFileLocs),
-                        (self.OnPrefs,       self.mnuFilePrefs),
-                        (self.OnShowMap,     self.showMap),
-                        (self.OnAddPhoto,    self.mnuAddPhoto),
-                        (self.OnRemovePhoto, self.mnuRemovePhoto),
-                        (self.OnSaveNotes,   self.mnuSaveNote),
-                        (self.OnClearNotes,  self.mnuClearNote),
-                        (self.OnLogCache,    self.mnuLogThisCache),
-                        (self.OnSendToGPS,   self.mnuSendToGPS),
-                        (self.OnCacheDay,    self.mnuPrefsCacheDay),
-                        (self.OnGeoAccounts, self.mnuPrefsAccounts),
-                        (self.OnGpxSync,     self.mnuGpxSync),
-                        (self.OnGpxSources,  self.mnuGpxSources)
+                        (self.OnClose,          self.mnuFileExit),
+                        (self.OnDbMaint,        self.mnuFileDbMaint),
+                        (self.OnImportFile,     self.mnuFileImport),
+                        (self.OnAbout,          self.mnuHelpAbout),
+                        (self.OnSearchLocs,     self.mnuFileLocs),
+                        (self.OnPrefs,          self.mnuFilePrefs),
+                        (self.OnShowMap,        self.showMap),
+                        (self.OnAddPhoto,       self.mnuAddPhoto),
+                        (self.OnRemovePhoto,    self.mnuRemovePhoto),
+                        (self.OnSaveNotes,      self.mnuSaveNote),
+                        (self.OnClearNotes,     self.mnuClearNote),
+                        (self.OnLogCache,       self.mnuLogThisCache),
+                        (self.OnSendToGPS,      self.mnuSendToGPS),
+                        (self.OnCacheDay,       self.mnuPrefsCacheDay),
+                        (self.OnGeoAccounts,    self.mnuPrefsAccounts),
+                        (self.OnGpxSync,        self.mnuGpxSync),
+                        (self.OnGpxSources,     self.mnuGpxSources),
+                        (self.OnDeleteCacheLog, self.mnuDeleteThisLog)
                       ] 
 
         for option in menuOptions:
@@ -739,6 +740,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             self.updPhotoList()
 
 
+    def OnDeleteCacheLog(self, evt):
+        if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
+            iid = self.logDateList.GetFirstSelected()
+            if iid > -1:
+                log = cache901.dbobjects.Log(self.logDateList.GetItemData(iid))
+                log.Delete()
+                cid = self.caches.GetFirstSelected()
+                self.caches.Select(cid, 0)
+                self.caches.Select(cid, 1)
+                
     def OnLogCache(self, evt):
         log = cache901.dbobjects.Log(cache901.dbobjects.minint)
         log.cache_id = self.ld_cache.cache_id
@@ -984,6 +995,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.CacheSearchMenu, wx.Menu)
         isinstance(self.logSaveButton, wx.Button)
         isinstance(self.mnuLogThisCache, wx.MenuItem)
+        isinstance(self.mnuDeleteThisLog, wx.MenuItem)
 
 
 class logTrans(object):
