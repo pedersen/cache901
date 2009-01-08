@@ -179,8 +179,10 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         #hscale = int(hrange / 16.0 * hprop) # Screen size divided by 4, and then by 4 again for each bar
         #wscale = int(wrange / 16.0 * wprop) # Then multiplied by proportion to give accurate size
         dc.SetFont(wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT))
-        dc.DrawText('%1.2fmi' % (wrange / 4), 20 + 4*wbar, 10)
-        dc.DrawText('%1.2fmi' % (hrange / 4), 10, 25+ 4*hbar)
+        dc.DrawText('%1.2fmi' % ((wrange / 4)), 20 + 4*wbar, 10)
+        dc.DrawText('%1.2fkm' % ((wrange / 4)*1.61), 20 + 4*wbar, 24)
+        dc.DrawText('%1.2fmi' % ((hrange / 4)), 10, 25+ 4*hbar)
+        dc.DrawText('%1.2fkm' % ((hrange / 4)*1.61), 10, 39+ 4*hbar)
         dc.SelectObject(wx.NullBitmap)
         self.bmp = bmp
         self.oldZoom = self.zoomLevel.GetValue()
