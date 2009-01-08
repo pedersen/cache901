@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import datetime
 import os
 import os.path
+import re
 import shutil
 import sys
 import time
@@ -313,16 +314,25 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
             item = self.CacheSearchMenu.Append(-1, 'Cache Day: %s' % i[0])
             self.Bind(wx.EVT_MENU, self.OnSearch, item)
 
+            
+    def loadWaypoints(self, wpt_params={}):
+        self.points.DeleteAllItems()
+        self.wptlist = {}
+        if len(wpt_params.keys()) == 0:
+            wpt_params['searchpat'] = self.search.GetValue()
+        for row in cache901.util.getWaypoints(wpt_params):
+            wpt_id = self.points.Append((row[1], row[2]))
+            self.points.SetItemData(wpt_id, row[0])
+            self.wptlist[row[0]] = (row[1], row[2])
+            
 
     def loadData(self, params={}, wpt_params={}):
         self.caches.DeleteAllItems()
         self.caches.DeleteAllColumns()
         self.cachelist = {}
-        self.wptlist = {}
         for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), (3, "Cache ID", "QQQQQQQQ"), (4, "Dist", "QQQQQQ")):
             w, h = self.GetTextExtent(i[2])
             self.caches.InsertColumn(i[0], i[1], width=w)
-        self.points.DeleteAllItems()
 
         if len(self.search.GetValue()) > 2:
             params["urlname"] = self.search.GetValue()
@@ -333,11 +343,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
         if self.caches.GetItemCount() > 0:
             self.caches.Select(0)
 
-        wpt_params['searchpat'] = self.search.GetValue()
-        for row in cache901.util.getWaypoints(wpt_params):
-            wpt_id = self.points.Append((row[1], row[2]))
-            self.points.SetItemData(wpt_id, row[0])
-            self.wptlist[row[0]] = (row[1], row[2])
+        #self.loadWaypoints(wpt_params)
 
 
     def updStatus(self):
@@ -459,6 +465,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget):
             self.cacheDescriptionLong.SetPage('<p>' + self.ld_cache.long_desc.replace('\n', '</p><p>') + '</p>')
         if self.logDateList.GetItemCount() > 0:
             self.logDateList.Select(0)
+        wpt_params = {'addwpts': [] }
+        m=re.match('.*Additional Waypoints(.*)$', self.ld_cache.long_desc, re.S)
+        if m is not None:
+            for row in re.findall('([A-Z0-9]{5,8})', m.group(1)):
+                wpt_params['addwpts'].append(row)
+        self.loadWaypoints(wpt_params)
+            
         self.Enable()
         self.updStatus()
         self.caches.Enable()

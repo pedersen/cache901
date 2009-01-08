@@ -205,6 +205,12 @@ def getWaypoints(params={}):
         sname = '%%%s%%' % params['searchpat']
         sqlparams.append(sname)
         sqlparams.append(sname)
+    if params.has_key('addwpts'): # additional waypoints listing
+        if len(params['addwpts']) > 0:
+            where.append('name in (%s)' % ','.join(map(lambda x: '?', params['addwpts'])))
+            sqlparams.extend(params['addwpts'])
+        else:
+            where.append('name="NotAWaypointName"')
     if len(where) > 0:
         where_clause = 'where %s' % " and ".join(where)
     else:
