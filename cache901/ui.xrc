@@ -2501,6 +2501,8 @@ http://www.justwill.com/</value>
                     <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                     <border>5</border>
                   </object>
+              
+              
                   <object class="sizeritem">
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
@@ -2522,6 +2524,7 @@ http://www.justwill.com/</value>
                     <border>5</border>
                   </object>
                 </object>
+                <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
               </object>
               <object class="wxPanel">
                 <object class="wxBoxSizer">
@@ -2549,7 +2552,6 @@ http://www.justwill.com/</value>
                           <assign_var>1</assign_var>
                         </XRCED>
                       </object>
-                      <size>150,75</size>
                       <style>wxHSCROLL|wxVSCROLL</style>
                       <XRCED>
                         <assign_var>1</assign_var>
@@ -2570,6 +2572,7 @@ http://www.justwill.com/</value>
             </object>
             <option>1</option>
             <flag>wxALL|wxEXPAND|wxGROW</flag>
+            <minsize>740,350</minsize>
           </object>
           <object class="spacer">
             <size>5,5</size>
@@ -2579,7 +2582,6 @@ http://www.justwill.com/</value>
               <object class="sizeritem">
                 <object class="wxButton" name="wxID_OK">
                   <label>&amp;OK</label>
-                  <default>1</default>
                 </object>
                 <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
               </object>
@@ -2598,12 +2600,13 @@ http://www.justwill.com/</value>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
-        <option>0</option>
+        <option>1</option>
         <flag>wxALL|wxEXPAND|wxGROW</flag>
         <border>5</border>
       </object>
     </object>
-    <size>400,250</size>
+    <title>Cache Map</title>
+    <style>wxDEFAULT_DIALOG_STYLE</style>
   </object>
   <object class="wxMenu" name="CwMenu">
     <object class="wxMenuItem" name="popSendToGPS">

@@ -466,7 +466,8 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?><resource>
+<?xml version="1.0" ?>
+<resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -2952,7 +2953,7 @@ http://www.justwill.com/</value>
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="cacheList">
-                          <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -2968,12 +2969,13 @@ http://www.justwill.com/</value>
                     <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                     <border>5</border>
                   </object>
-                  
+              
+              
                   <object class="sizeritem">
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="originList">
-                          <style>wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -2989,8 +2991,8 @@ http://www.justwill.com/</value>
                     <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                     <border>5</border>
                   </object>
-                
                 </object>
+                <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
               </object>
               <object class="wxPanel">
                 <object class="wxBoxSizer">
@@ -3018,7 +3020,6 @@ http://www.justwill.com/</value>
                           <assign_var>1</assign_var>
                         </XRCED>
                       </object>
-                      <size>150,75</size>
                       <style>wxHSCROLL|wxVSCROLL</style>
                       <XRCED>
                         <assign_var>1</assign_var>
@@ -3038,7 +3039,8 @@ http://www.justwill.com/</value>
               </XRCED>
             </object>
             <option>1</option>
-            <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+            <flag>wxALL|wxEXPAND|wxGROW</flag>
+            <minsize>740,350</minsize>
           </object>
           <object class="spacer">
             <size>5,5</size>
@@ -3048,7 +3050,6 @@ http://www.justwill.com/</value>
               <object class="sizeritem">
                 <object class="wxButton" name="wxID_OK">
                   <label>&amp;OK</label>
-                  <default>1</default>
                 </object>
                 <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
               </object>
@@ -3067,11 +3068,13 @@ http://www.justwill.com/</value>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
-        <option>0</option>
-        <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+        <option>1</option>
+        <flag>wxALL|wxEXPAND|wxGROW</flag>
         <border>5</border>
       </object>
     </object>
+    <title>Cache Map</title>
+    <style>wxDEFAULT_DIALOG_STYLE</style>
   </object>
   <object class="wxMenu" name="CwMenu">
     <object class="wxMenuItem" name="popSendToGPS">
@@ -16418,6 +16421,7 @@ def __gettext_strings():
     _("Search Origins")
     _("&OK")
     _("Cancel")
+    _("Cache Map")
     _("Send To GPS")
     _("Add To Cache Day")
     _("File Folders")
