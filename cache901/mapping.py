@@ -89,11 +89,14 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
             if len(self.searches) % 10 == 0:
                 cache901.notify('Loaded search origin %s' % str(cache901.util.forceAscii(self.searches[-1]['name'])))
 
+        self.mapArea.SetScrollRate(20, 20)
         self.mapSplit.SetValidator(cache901.validators.splitValidator("mapSplit"))
 
         self.mapPanel.Bind(wx.EVT_PAINT,       self.OnPaint)
         self.mapPanel.Bind(wx.EVT_LEFT_DCLICK, self.OnMapDoubleClick)
         self.mapPanel.Bind(wx.EVT_MOTION,      self.OnMoveMouse)
+        
+        self.mapArea.Bind(wx.EVT_SCROLLWIN, self.OnScrollMapArea)
 
         self.zoomLevel.Bind(wx.EVT_SCROLL, self.OnChangeZoom)
 
@@ -120,13 +123,13 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         else:
             wrange = wrange - ((((wrange - 3.0) / 9.0) * (zoom-1)) + 3.0)
             hrange = hrange - ((((hrange - 3.0) / 9.0) * (zoom-1)) + 3.0)
+        self.mapPanel.SetSize(self.mapArea.GetClientSize())
         sz = self.mapArea.GetSize()
         sz.width  = int(sz.width /wrange*wdist+1)
         sz.height = int(sz.height/hrange*hdist+1)
-        self.mapPanel.SetSize(sz)
-        self.mapPanel.SetPosition((0, 0))
+        #self.mapPanel.SetSize(sz)
         self.mapArea.SetVirtualSize(sz)
-        sz = self.mapPanel.GetSizeTuple()
+        #sz = self.mapPanel.GetSizeTuple()
         bmp = wx.EmptyBitmap(sz[0], sz[1], -1)
         dc = wx.MemoryDC(bmp)
         dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
@@ -149,10 +152,20 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
 
         hprop = float(sz[1]) / float(self.maxlat - self.minlat)
         wprop = float(sz[0]) / float(self.maxlon - self.minlon)
+        sz = self.mapArea.GetClientSizeTuple()
+        (lrx, lry) = self.mapArea.CalcUnscrolledPosition(0, 0)
+        (ulx, uly) = self.mapArea.CalcUnscrolledPosition(sz)
+        winminlon = (float(lrx) / wprop) + self.minlon
+        winmaxlon = (float(ulx) / wprop) + self.minlon
+        # For some reason, lat needs CalcScrolledPosition, but lon needs CalcUnscrolledPosition. Weird.
+        (lrx, lry) = self.mapArea.CalcScrolledPosition(0, 0)
+        (ulx, uly) = self.mapArea.CalcScrolledPosition(sz)
+        winminlat = self.maxlat - ((sz[1]-lry) / hprop)
+        winmaxlat = self.maxlat - ((sz[1]-uly) / hprop)
         geo = wx.GetApp().GetTopWindow().geoicons
         for i, cache in enumerate(self.caches):
-            x = int(wprop * (cache['lon'] - self.minlon))
-            y = sz[1] - int(hprop * (cache['lat'] - self.minlat))
+            x = int(wprop * (cache['lon'] - winminlon))
+            y = sz[1] - int(hprop * (cache['lat'] - winminlat))
             tbmpsz = geo[cache['type']].GetSize()
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
@@ -164,8 +177,8 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         locbmp = wx.BitmapFromImage(wx.ImageFromBitmap(geo["searchloc"]).Scale(16,16))
         tbmpsz = locbmp.GetSize()
         for i, loc in enumerate(self.searches):
-            x = int(wprop * (loc['lon'] - self.minlon))
-            y = int(hprop * (loc['lat'] - self.minlat))
+            x = int(wprop * (loc['lon'] - winminlon))
+            y = sz[1] - int(hprop * (loc['lat'] - winminlat))
             if x + tbmpsz.width > sz[0]: x = x - tbmpsz.width
             if y + tbmpsz.height > sz[1]: y = y - tbmpsz.height
             self.searches[i]['x'] = x
@@ -188,14 +201,21 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
         self.oldZoom = self.zoomLevel.GetValue()
 
     def OnPaint(self, evt):
-        self.mapArea.SetScrollRate(20, 20)
         if self.oldZoom is None or self.oldZoom != self.zoomLevel.GetValue():
             self.updMap()
+        
         paintdc = wx.PaintDC(self.mapPanel)
         paintdc.DrawBitmap(self.bmp, 0, 0)
+        self.mapPanel.SetPosition((0,0))
 
+    def OnScrollMapArea(self, evt):
+        self.updMap()
+        self.mapArea.Refresh()
+        evt.Skip()
+        
     def OnChangeZoom(self, evt):
         self.updMap()
+        self.mapArea.SetScrollRate(20, 20)
         self.Refresh()
 
     def OnSelectCache(self, evt):
