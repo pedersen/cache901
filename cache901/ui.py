@@ -84,6 +84,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def miscBinds(self):
         # these three are in here because they don't fold nicely into another method
         self.Bind(wx.EVT_CLOSE,  self.OnClose)
+        self.Bind(wx.EVT_SIZE, self.OnWindowResize)
         self.caches.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuCaches)
         self.points.Bind(wx.EVT_CONTEXT_MENU, self.OnPopupMenuWpts)
     
@@ -107,7 +108,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
         # bind the key up event to the event handler
         self.search.Bind(wx.EVT_KEY_UP, self.OnChangeSearch)
+        self.moveStatusBarSearchField()
 
+    def moveStatusBarSearchField(self):
+        rect = self.statusBar.GetFieldRect(1)
+        self.searchlabel.SetPosition(wx.Point(rect.x+8, rect.y+2))
+        w,h = self.searchlabel.GetSizeTuple()
+        self.search.SetPosition(wx.Point(rect.x+5+w, rect.y+2))
 
     def bindMenuOptions(self):
         # bind the menu options to their event handlers
@@ -254,6 +261,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.points.InsertColumn(1, "Wpt Desc", width=w)
 
     
+    def OnWindowResize(self, evt):
+        self.moveStatusBarSearchField()
+        evt.Skip()
+        
+        
     def OnGpxSync(self, evt):
         cache901.gpxsource.gpxSyncAll(self)
         self.updStatus()
