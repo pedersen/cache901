@@ -462,25 +462,25 @@ def execSearch(params):
         containers = params['containers'].split(',')
         where.append('container in (%s)' % ','.join(map(lambda x: '?', containers)))
         sqlparams.extend(containers)
-    if params.has_key('notFoundByMe'):
+    if params.has_key('notfoundbyme'):
         where.append("cache_id not in (select cache_id from logs where lower(type)='found it' and finder in (select username from accounts))")
     if params.has_key('found'):
         where.append("cache_id in (select cache_id from logs where lower(type)='found it' and finder in (select username from accounts))")
-    if params.has_key('notOwned'):
+    if params.has_key('notowned'):
         where.append('owner_name not in (select username from accounts)')
     if params.has_key('owned'):
         where.append('owner_name in (select username from accounts)')
-    if params.has_key('foundLast7'):
+    if params.has_key('foundlast7'):
         where.append("cache_id in (select distinct cache_id from logs where date >= ? and logs.cache_id in (select distinct cache_id from logs where type='Found it'))")
         sqlparams.append(now-seconds)
-    if params.has_key('notFound'):
+    if params.has_key('notfound'):
         where.append("cache_id not in (select distinct cache_id from logs where type='Found it')")
-    if params.has_key('updatedLast7'):
+    if params.has_key('updatedlast7'):
         where.append('cache_id in (select distinct cache_id from logs where date >= ?')
         sqlparams.append(now-seconds)
-    if params.has_key('hasBugs'):
+    if params.has_key('hasbugs'):
         where.append("cache_id in (select distinct cache_id from travelbugs)")
-    if params.has_key('notActive'):
+    if params.has_key('notactive'):
         where.append("archived = 1")
     if params.has_key('active'):
         where.append("available = 1")

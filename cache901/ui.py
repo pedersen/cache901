@@ -521,6 +521,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                 except:
                     return cache901.util.forceAscii(m.group(1).encode('rot13'))
             self.logText.SetValue(re.sub('\[(.*?)\]', decode, log.log_entry, re.S | re.M))
+        else:
+            self.logText.SetValue(log.log_entry)
         self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
         self.logType.Select(self.logtrans.getIdx(log.type))
         self.logCacherNameText.SetLabel(log.finder.replace('&', '&&'))
