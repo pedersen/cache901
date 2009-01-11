@@ -556,6 +556,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         else:
             self.caches.Select(iid, 0)
             self.caches.Select(iid, 1)
+        self.updSearchMenu()
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
@@ -574,6 +575,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         else:
             self.caches.Select(iid, 0)
             self.caches.Select(iid, 1)
+        self.updSearchMenu()
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
@@ -592,6 +594,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         else:
             self.caches.Select(iid, 0)
             self.caches.Select(iid, 1)
+        self.updSearchMenu()
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
@@ -610,6 +613,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         else:
             self.caches.Select(iid, 0)
             self.caches.Select(iid, 1)
+        self.updSearchMenu()
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
         for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
@@ -627,10 +631,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             dlg = cache901.search.SearchBox(self)
             if dlg.ShowModal() == wx.ID_OK:
                 params = dlg.getSearchParams()
-                self.loadData(params)
+                try:
+                    self.loadData(params)
+                except Exception, e:
+                    wx.MessageBox(str(e), 'An Error Occurred While Searching', wx.ICON_ERROR, self)
         elif mtext == "Clear Search":
             self.search.SetValue("")
-            self.loadData({})
+            try:
+                self.loadData({})
+            except Exception, e:
+                wx.MessageBox(str(e), 'An Error Occurred While Searching', wx.ICON_ERROR, self)
         elif mtext.startswith('Cache Day: '):
             mtext = mtext.replace('Cache Day: ', '')
             day = cache901.dbobjects.CacheDay(mtext)
@@ -647,10 +657,16 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                     wpt_params['ids'].append(cw.wpt_id)
             if len(cache_params['ids']) == 0: del cache_params['ids']
             if len(wpt_params['ids']) == 0: del wpt_params['ids']
-            self.loadData(cache_params, wpt_params)
+            try:
+                self.loadData(cache_params, wpt_params)
+            except Exception, e:
+                wx.MessageBox(str(e), 'An Error Occurred While Searching', wx.ICON_ERROR, self)
         else:
             params = cache901.search.loadSavedSearch(mtext)
-            self.loadData(params)
+            try:
+                self.loadData(params)
+            except Exception, e:
+                wx.MessageBox(str(e), 'An Error Occurred While Searching', wx.ICON_ERROR, self)
         self.updSearchMenu()
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
