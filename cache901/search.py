@@ -436,7 +436,7 @@ def execSearch(params):
         sqlparams.append(float(loc.lat))
         sqlparams.append(float(loc.lon))
         sqlparams.append(dist)
-        query = "select cache_id, difficulty, terrain, url_name, cast(distance(lat, lon, ?, ?) * ? as text) || %s as distance from caches " % (params["searchScale"])
+        query = "select cache_id, difficulty, terrain, url_name, cast(distance(lat, lon, ?, ?) * ? as text) || '%s' as distance, name from caches " % (params["searchScale"])
         if params.has_key("searchScale") and params["searchScale"] != "mi":
             scale = 1.61
         else:
