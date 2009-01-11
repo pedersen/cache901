@@ -375,17 +375,41 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
 
     def OnLogToggle(self, evt):
+        iid = self.logDateList.GetFirstSelected()
+        if iid == -1: return
+        log = cache901.dbobjects.Log(self.logDateList.GetItemData(iid))
         try:
-            self.logText.SetValue(self.logText.GetValue().encode('rot13'))
+            if log.log_entry_encoded:
+                def decode(m):
+                    try:
+                        return m.group(0).encode('rot13')
+                    except:
+                        return cache901.util.forceAscii(m.group(1).encode('rot13'))
+                self.logText.SetValue(re.sub('\[(.*?)\]', decode, self.logText.GetValue(), re.S | re.M))
+            else:
+                self.logText.SetValue(self.logText.GetValue().encode('rot13'))
         except:
-            pass
-
+            if log.log_entry_encoded:
+                def decode(m):
+                    try:
+                        return m.group(0).encode('rot13')
+                    except:
+                        return cache901.util.forceAscii(m.group(1).encode('rot13'))
+                self.logText.SetValue(re.sub('\[(.*?)\]', decode, self.logText.GetValue(), re.S | re.M))
+            else:
+                self.logText.SetValue(cache901.util.forceAscii(self.logText.GetValue()).encode('rot13'))
+        dectext = self.logDecodeButton.GetLabel()
+        dectext = "Encode Log" if dectext == "Decode Log" else "Decode Log"
+        self.logDecodeButton.SetLabel(dectext)
 
     def OnHintsToggle(self, evt):
         try:
             self.hintText.SetValue(self.hintText.GetValue().encode('rot13'))
         except:
             self.hintText.SetValue(util.forceAscii(self.ld_cache.hint.hint).encode('rot13'))
+        dectext = self.decodeButton.GetLabel()
+        dectext = "Encode" if dectext == "Decode" else "Decode"
+        self.decodeButton.SetLabel(dectext)
 
 
     def OnLoadWpt(self, evt):
@@ -473,11 +497,18 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
     def OnLoadLog(self, evt):
         log = cache901.dbobjects.Log(evt.GetData())
+        self.logDecodeButton.SetLabel("Decode Log" if log.log_entry_encoded else "Encode Log")
         self.logText.SetEditable(log.finder in self.listGCAccounts())
         self.logType.Enable(self.logText.IsEditable())
         self.logDate.Enable(self.logText.IsEditable())
         self.logSaveButton.Enable(self.logText.IsEditable())
-        self.logText.SetValue(log.log_entry)
+        if log.log_entry_encoded:
+            def decode(m):
+                try:
+                    return m.group(0).encode('rot13')
+                except:
+                    return cache901.util.forceAscii(m.group(1).encode('rot13'))
+            self.logText.SetValue(re.sub('\[(.*?)\]', decode, log.log_entry, re.S | re.M))
         self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
         self.logType.Select(self.logtrans.getIdx(log.type))
         self.logCacherNameText.SetLabel(log.finder.replace('&', '&&'))
@@ -1012,6 +1043,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.logSaveButton, wx.Button)
         isinstance(self.mnuLogThisCache, wx.MenuItem)
         isinstance(self.mnuDeleteThisLog, wx.MenuItem)
+        isinstance(self.logDecodeButton, wx.Button)
 
 
 class logTrans(object):
