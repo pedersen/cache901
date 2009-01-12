@@ -137,7 +137,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                         (self.OnGeoAccounts,    self.mnuPrefsAccounts),
                         (self.OnGpxSync,        self.mnuGpxSync),
                         (self.OnGpxSources,     self.mnuGpxSources),
-                        (self.OnDeleteCacheLog, self.mnuDeleteThisLog)
+                        (self.OnDeleteCacheLog, self.mnuDeleteThisLog),
+                        (self.OnDeleteCacheOrWaypoint, self.mnuDeleteThisCache)
                       ] 
 
         for option in menuOptions:
@@ -1002,6 +1003,39 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def GetListCtrl(self):
         return self.caches
     
+    def OnDeleteCacheOrWaypoint(self, evt):
+        iid = self.caches.GetFirstSelected()
+        if iid > -1:
+            cache = cache901.dbobjects.Cache(self.caches.GetItemData(iid))
+            if wx.MessageBox('Warning! This cannot be undone!\nReally delete cache: "%s"?' % cache.url_name, 'Really Delete?', wx.ICON_WARNING | wx.YES_NO, self) == wx.YES:
+                cache.Delete()
+                if self.caches.GetItemCount() > 1:
+                    if iid == 0:
+                        self.caches.Select(iid+1)
+                        self.caches.DeleteItem(iid)
+                    else:
+                        self.caches.Select(iid-1)
+                        self.caches.DeleteItem(iid)
+                else:
+                    self.caches.DeleteItem(iid)
+                    self.clearAllGui()
+        else:
+            iid = self.points.GetFirstSelected()
+            if iid > -1:
+                wpt = cache901.dbobjects.Waypoint(self.points.GetItemData(iid))
+                if wx.MessageBox('Warning! This cannot be undone!\nReally delete waypoint: "%s"?' % wpt.name, 'Really Delete?', wx.ICON_WARNING | wx.YES_NO, self) == wx.YES:
+                    wpt.Delete()
+                    if self.points.GetItemCount() > 1:
+                        if iid == 0:
+                            self.points.Select(iid+1)
+                            self.points.DeleteItem(iid)
+                        else:
+                            self.points.Select(iid-1)
+                            self.points.DeleteItem(iid)
+                    else:
+                        self.points.DeleteItem(iid)
+                        self.clearAllGui()
+                
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)

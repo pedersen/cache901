@@ -110,6 +110,11 @@ class Cache(object):
         cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html, hidden) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html, self.hidden))
         cache901.db().commit()
 
+    def Delete(self):
+        cur = cache901.db().cursor()
+        cur.execute("delete from caches where cache_id=?", (self.cache_id, ))
+        cache901.db().commit()
+        
 class Waypoint(object):
     def __init__(self, cid=minint):
         cur=cache901.db().cursor()
@@ -145,6 +150,11 @@ class Waypoint(object):
         cur = cache901.db().cursor()
         cur.execute('delete from locations where wpt_id=?', (self.wpt_id,))
         cur.execute("insert into locations(wpt_id, loc_type, refers_to, name, desc, comment, lat, lon, hidden) values(?,?,?,?,?,?,?,?,?)", (self.wpt_id, self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon, self.hidden))
+        cache901.db().commit()
+
+    def Delete(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from locations where wpt_id=?', (self.wpt_id,))
         cache901.db().commit()
 
 class Log(object):
