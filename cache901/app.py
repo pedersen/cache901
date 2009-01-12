@@ -61,6 +61,7 @@ class Cache901App(wx.App):
         y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)/2 - h/2
         splash.SetPosition((x,y))
         splash.Show()
+        wx.SafeYield()
         self.Yield()
         cache901.config = wx.Config(cache901.appname)
         wx.Config.Set(cache901.config)
