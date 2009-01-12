@@ -342,6 +342,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
         if len(self.search.GetValue()) > 2:
             params["urlname"] = self.search.GetValue()
+        else:
+            if params.has_key("urlname"):
+                del params["urlname"]
+        cache901.notify('Refreshing cache list from database')
         for row in cache901.search.execSearch(params):
             cache_id = self.caches.Append((row[1], row[2], row[3], row[5], row[4]))
             self.caches.SetItemData(cache_id, row[0])
