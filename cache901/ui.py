@@ -30,6 +30,7 @@ from urlparse import urlparse
 
 import gpsbabel
 import wx
+import wx.grid
 import wx.lib.mixins.listctrl  as  listmix
 import wx.xrc as xrc
 import wx.html
@@ -1062,6 +1063,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.mnuLogThisCache, wx.MenuItem)
         isinstance(self.mnuDeleteThisLog, wx.MenuItem)
         isinstance(self.logDecodeButton, wx.Button)
+        isinstance(self.mnuDeleteThisCache, wx.MenuItem)
+        isinstance(self.btnAddAltCoords, wx.Button)
+        isinstance(self.btnRemAltCoords, wx.Button)
+        isinstance(self.grdAltCoords, wx.grid.Grid)
 
 
 class logTrans(object):

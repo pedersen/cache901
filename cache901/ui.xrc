@@ -930,6 +930,65 @@ Line 7</value>
                 </object>
                 <label>Photos</label>
               </object>
+              <object class="notebookpage">
+                <object class="wxPanel" name="cacheAltCoords">
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                  <object class="wxBoxSizer">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnAddAltCoords">
+                            <label>Add Row</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxLEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                          <border>3</border>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnRemAltCoords">
+                            <label>Remove Row</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxLEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                          <border>3</border>
+                        </object>
+                        <label>Operations</label>
+                        <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxGrid" name="grdAltCoords">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxALL|wxEXPAND|wxGROW</flag>
+                          <border>5</border>
+                        </object>
+                        <label>Alternate Coordinates For Cache</label>
+                        <orient>wxVERTICAL</orient>
+                      </object>
+                      <option>1</option>
+                      <flag>wxALL|wxEXPAND|wxGROW</flag>
+                    </object>
+                  </object>
+                </object>
+                <label>Alt. Coords</label>
+              </object>
             </object>
             <option>1</option>
             <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
@@ -1027,6 +1086,13 @@ Line 7</value>
         </object>
         <object class="wxMenuItem" name="mnuSendToGPS">
           <label>Send To GPS</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="mnuDeleteThisCache">
+          <label>Delete Current Cache/Waypoint</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -2501,8 +2567,6 @@ http://www.justwill.com/</value>
                     <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                     <border>5</border>
                   </object>
-              
-              
                   <object class="sizeritem">
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">

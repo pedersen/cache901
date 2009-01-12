@@ -81,6 +81,10 @@ class xrcCache901UI(wx.Frame):
         self.picSplitter = xrc.XRCCTRL(self, "picSplitter")
         self.currPhoto = xrc.XRCCTRL(self, "currPhoto")
         self.photoList = xrc.XRCCTRL(self, "photoList")
+        self.cacheAltCoords = xrc.XRCCTRL(self, "cacheAltCoords")
+        self.btnAddAltCoords = xrc.XRCCTRL(self, "btnAddAltCoords")
+        self.btnRemAltCoords = xrc.XRCCTRL(self, "btnRemAltCoords")
+        self.grdAltCoords = xrc.XRCCTRL(self, "grdAltCoords")
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
         self.mnuGpxSync = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGpxSync"))
@@ -99,6 +103,7 @@ class xrcCache901UI(wx.Frame):
         self.mnuAddPhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuAddPhoto"))
         self.mnuRemovePhoto = self.GetMenuBar().FindItemById(xrc.XRCID("mnuRemovePhoto"))
         self.mnuSendToGPS = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSendToGPS"))
+        self.mnuDeleteThisCache = self.GetMenuBar().FindItemById(xrc.XRCID("mnuDeleteThisCache"))
         self.mnuPrefsCacheDay = self.GetMenuBar().FindItemById(xrc.XRCID("mnuPrefsCacheDay"))
         idx = self.GetMenuBar().FindMenu("Add Current To Cache Day")
         if idx != wx.NOT_FOUND:
@@ -1398,6 +1403,65 @@ Line 7</value>
                 </object>
                 <label>Photos</label>
               </object>
+              <object class="notebookpage">
+                <object class="wxPanel" name="cacheAltCoords">
+                  <XRCED>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                  <object class="wxBoxSizer">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnAddAltCoords">
+                            <label>Add Row</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxLEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                          <border>3</border>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxButton" name="btnRemAltCoords">
+                            <label>Remove Row</label>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <flag>wxLEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                          <border>3</border>
+                        </object>
+                        <label>Operations</label>
+                        <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxGrid" name="grdAltCoords">
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <option>1</option>
+                          <flag>wxALL|wxEXPAND|wxGROW</flag>
+                          <border>5</border>
+                        </object>
+                        <label>Alternate Coordinates For Cache</label>
+                        <orient>wxVERTICAL</orient>
+                      </object>
+                      <option>1</option>
+                      <flag>wxALL|wxEXPAND|wxGROW</flag>
+                    </object>
+                  </object>
+                </object>
+                <label>Alt. Coords</label>
+              </object>
             </object>
             <option>1</option>
             <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
@@ -1495,6 +1559,13 @@ Line 7</value>
         </object>
         <object class="wxMenuItem" name="mnuSendToGPS">
           <label>Send To GPS</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="mnuDeleteThisCache">
+          <label>Delete Current Cache/Waypoint</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -2969,8 +3040,6 @@ http://www.justwill.com/</value>
                     <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                     <border>5</border>
                   </object>
-              
-              
                   <object class="sizeritem">
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
@@ -16271,6 +16340,11 @@ def __gettext_strings():
     _("&Undo Changes")
     _("Notes")
     _("Photos")
+    _("Add Row")
+    _("Remove Row")
+    _("Operations")
+    _("Alternate Coordinates For Cache")
+    _("Alt. Coords")
     _("&File")
     _("&Import GPX File")
     _("Synchronize GPX Sources")
@@ -16285,6 +16359,7 @@ def __gettext_strings():
     _("Add Photo")
     _("Remove Photo")
     _("Send To GPS")
+    _("Delete Current Cache/Waypoint")
     _("&Cache")
     _("Cache Day Management")
     _("Add Current To Cache Day")
