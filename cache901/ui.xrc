@@ -195,7 +195,7 @@
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
-                          <minsize>130,15</minsize>
+                          <minsize>125,15</minsize>
                           <cellpos>2,1</cellpos>
                         </object>
                         <object class="sizeritem">
@@ -244,7 +244,7 @@
                               <assign_var>1</assign_var>
                             </XRCED>
                           </object>
-                          <minsize>130,15</minsize>
+                          <minsize>125,15</minsize>
                           <cellpos>2,3</cellpos>
                         </object>
                         <object class="sizeritem">
@@ -1415,110 +1415,201 @@ http://www.justwill.com/</value>
               <XRCED>
                 <assign_var>1</assign_var>
               </XRCED>
-              <object class="wxGridBagSizer">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
                 <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>Coordinate\nDisplay</label>
-                  </object>
-                  <flag>wxALIGN_RIGHT</flag>
-                  <cellpos>0,0</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxChoice" name="coordDisplay">
-                    <content>
-                      <item>Deg Min Sec</item>
-                      <item>Deg Min</item>
-                      <item>Deg</item>
-                    </content>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
+                  <object class="wxGridBagSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxGridBagSizer">
+                            <object class="sizeritem">
+                              <object class="wxStaticText">
+                                <size>160,18</size>
+                                <label>Coordinate Display:</label>
+                              </object>
+                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                              <cellpos>0,0</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="coordDisplay">
+                                <content>
+                                  <item>Deg Min Sec</item>
+                                  <item>Deg Min</item>
+                                  <item>Deg</item>
+                                </content>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxEXPAND|wxGROW</flag>
+                              <cellpos>0,1</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxStaticText">
+                                <label>Meausurement Units:</label>
+                              </object>
+                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                              <cellpos>1,0</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="measurementUnits">
+                                <content>
+                                  <item>Imperial (ft/mi)</item>
+                                  <item>Metric (m/km)</item>
+                                </content>
+                                <selection>0</selection>
+                              </object>
+                              <flag>wxEXPAND|wxGROW|wxALIGN_LEFT</flag>
+                              <cellpos>1,1</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxStaticText">
+                                <label>Maximum Logs/Cache:</label>
+                              </object>
+                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                              <cellpos>2,0</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxSpinCtrl" name="maxLogs">
+                                <min>0</min>
+                                <max>100</max>
+                                <style>wxSP_ARROW_KEYS</style>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxEXPAND|wxGROW|wxALIGN_LEFT</flag>
+                              <cellpos>2,1</cellpos>
+                            </object>
+                            <vgap>5</vgap>
+                            <hgap>5</hgap>
+                            <growablecols>1</growablecols>
+                          </object>
+                          <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                          <border>5</border>
+                        </object>
+                        <label>Units</label>
+                        <orient>wxVERTICAL</orient>
+                      </object>
+                      <option>1</option>
+                      <flag>wxALL|wxEXPAND|wxGROW</flag>
+                      <cellpos>0,0</cellpos>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxGridBagSizer">
+                            <object class="sizeritem">
+                              <object class="wxStaticText">
+                                <size>160,18</size>
+                                <label>GPS Type:</label>
+                              </object>
+                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                              <cellpos>0,0</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="gpsType">
+                                <content>
+                                  <item>Garmin</item>
+                                  <item>NMEA</item>
+                                </content>
+                                <selection>0</selection>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxALL|wxEXPAND|wxGROW</flag>
+                              <cellpos>0,1</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxStaticText">
+                                <label>GPS Port:</label>
+                              </object>
+                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                              <cellpos>1,0</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxChoice" name="gpsPort">
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxALL|wxEXPAND|wxGROW</flag>
+                              <cellpos>1,1</cellpos>
+                            </object>
+                            <vgap>5</vgap>
+                            <hgap>5</hgap>
+                            <growablecols>1</growablecols>
+                          </object>
+                          <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                          <border>5</border>
+                        </object>
+                        <label>GPS Setup</label>
+                        <orient>wxVERTICAL</orient>
+                      </object>
+                      <option>2</option>
+                      <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                      <cellpos>0,1</cellpos>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxGridBagSizer">
+                            <object class="sizeritem">
+                              <object class="wxStaticText">
+                                <size>160,18</size>
+                                <label>GPSBabel Location:</label>
+                              </object>
+                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                              <cellpos>0,0</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxFilePickerCtrl" name="gpsbabelLoc">
+                                <value>gpsbabel</value>
+                                <message>Location of gpsbabel</message>
+                                <wildcard>All Files (*)|*</wildcard>
+                                <style>wxFLP_OPEN|wxFLP_FILE_MUST_EXIST</style>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxEXPAND|wxGROW</flag>
+                              <cellpos>0,1</cellpos>
+                            </object>
+                            <vgap>5</vgap>
+                            <hgap>5</hgap>
+                            <growablecols>1</growablecols>
+                            <object class="sizeritem">
+                              <object class="wxStaticText" name="gpsbabelPath">
+                                <label>GPSBabel Path goes here</label>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                              <cellpos>1,0</cellpos>
+                              <cellspan>1,2</cellspan>
+                            </object>
+                          </object>
+                          <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                          <border>5</border>
+                        </object>
+                        <label>GPSBabel</label>
+                        <orient>wxVERTICAL</orient>
+                      </object>
+                      <option>1</option>
+                      <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                      <cellpos>1,0</cellpos>
+                    </object>
+                    <vgap>10</vgap>
+                    <hgap>10</hgap>
+                    <growablecols>0, 1</growablecols>
                   </object>
                   <option>1</option>
-                  <flag>wxEXPAND|wxGROW</flag>
-                  <cellpos>0,1</cellpos>
+                  <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                  <border>5</border>
                 </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>GPS Type:</label>
-                  </object>
-                  <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
-                  <cellpos>1,0</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxChoice" name="gpsType">
-                    <content>
-                      <item>Garmin</item>
-                      <item>NMEA</item>
-                    </content>
-                    <selection>0</selection>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <option>1</option>
-                  <flag>wxEXPAND|wxGROW</flag>
-                  <cellpos>1,1</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>GPS Port:</label>
-                  </object>
-                  <flag>wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL</flag>
-                  <cellpos>2,0</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxChoice" name="gpsPort">
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <option>1</option>
-                  <flag>wxEXPAND|wxGROW</flag>
-                  <cellpos>2,1</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>GPSBabel Location:</label>
-                  </object>
-                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  <cellpos>0,3</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxFilePickerCtrl" name="gpsbabelLoc">
-                    <value>gpsbabel</value>
-                    <message>Location of gpsbabel</message>
-                    <wildcard>All Files (*)|*</wildcard>
-                    <style>wxFLP_OPEN|wxFLP_FILE_MUST_EXIST</style>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <option>1</option>
-                  <flag>wxEXPAND|wxGROW</flag>
-                  <cellpos>0,4</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText">
-                    <label>Max Number Of Logs / Cache:</label>
-                  </object>
-                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  <cellpos>3,0</cellpos>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxSpinCtrl" name="maxLogs">
-                    <min>0</min>
-                    <max>100</max>
-                    <style>wxSP_ARROW_KEYS</style>
-                    <XRCED>
-                      <assign_var>1</assign_var>
-                    </XRCED>
-                  </object>
-                  <cellpos>3,1</cellpos>
-                </object>
-                <vgap>2</vgap>
-                <hgap>2</hgap>
-                <growablecols>4</growablecols>
               </object>
             </object>
             <label>&amp;General</label>
@@ -1662,9 +1753,6 @@ http://www.justwill.com/</value>
             </object>
             <label>&amp;Search</label>
           </object>
-          <XRCED>
-            <assign_var>1</assign_var>
-          </XRCED>
           <object class="notebookpage">
             <object class="wxPanel" name="cacheday">
               <object class="wxBoxSizer">
@@ -1971,29 +2059,41 @@ http://www.justwill.com/</value>
             </object>
             <label>Accounts</label>
           </object>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
         </object>
         <option>1</option>
         <flag>wxEXPAND|wxGROW</flag>
-        <minsize>740,350</minsize>
+        <minsize>740,300</minsize>
       </object>
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
-              <label>&amp;Ok</label>
+            <object class="wxGridBagSizer">
+              <object class="sizeritem">
+                <object class="wxButton" name="wxID_OK">
+                  <label>&amp;OK</label>
+                </object>
+                <flag>wxALL|wxEXPAND|wxGROW</flag>
+                <cellpos>0,0</cellpos>
+              </object>
+              <object class="sizeritem">
+                <object class="wxButton" name="wxID_CANCEL">
+                  <label>&amp;Cancel</label>
+                </object>
+                <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                <cellpos>0,1</cellpos>
+              </object>
+              <vgap>5</vgap>
+              <hgap>5</hgap>
             </object>
+            <flag>wxRIGHT|wxALL|wxEXPAND|wxADJUST_MINSIZE</flag>
+            <border>5</border>
           </object>
-          <object class="spacer">
-            <size>20,5</size>
-          </object>
-          <object class="sizeritem">
-            <object class="wxButton" name="wxID_CANCEL">
-              <label>&amp;Cancel</label>
-            </object>
-          </object>
-          <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+        <flag>wxRIGHT|wxALIGN_RIGHT</flag>
+        <border>5</border>
       </object>
     </object>
     <size>750,400</size>
