@@ -68,6 +68,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.bindListItemSelectedEvents()
         self.setSashPositionsFromConfig()
         self.createStatusBarSearchField()
+        self.prepAltCoordsGrid()
 
         self.clearAllGui()
         self.configureListBoxes()
@@ -160,7 +161,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                            (self.OnLogToggle,       self.logDecodeButton),
                            (self.OnSaveNotes,       self.saveNotes),
                            (self.OnUndoNoteChanges, self.undoNotes),
-                           (self.OnSaveLog,         self.logSaveButton)
+                           (self.OnSaveLog,         self.logSaveButton),
+                           (self.OnAddAltCoords,    self.btnAddAltCoords),
+                           (self.OnRemAltCoords,    self.btnRemAltCoords)
                        ] 
         for buttonEvent in buttonEvents:
             self.Bind(wx.EVT_BUTTON, buttonEvent[0], buttonEvent[1])
@@ -177,6 +180,12 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         for item in listItems:
             self.Bind(wx.EVT_LIST_ITEM_SELECTED, item[0], item[1])
             
+            
+    def prepAltCoordsGrid(self):
+        self.altCoordsTable = AltCoordsTable()
+        self.grdAltCoords.SetTable(self.altCoordsTable)
+        self.grdAltCoords.AutoSize()
+        self.grdAltCoords.EnableDragGridSize()
 
     def setSashPositionsFromConfig(self):
         #-----------------------------------------------------------------------------------------
@@ -442,6 +451,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.waypointLink.Refresh()
         self.coordinateText.SetLabel('%s %s' % (cache901.util.latToDMS(self.ld_cache.lat), cache901.util.lonToDMS(self.ld_cache.lon)))
         self.cacheDescriptionLong.SetPage('<p>' + self.ld_cache.comment.replace('\n', '</p><p>') + '</p>')
+        self.altCoordsTable.changeCache()
 
 
     def OnLoadCache(self, evt):
@@ -507,6 +517,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             for row in re.findall('([A-Z0-9]{5,8})', m.group(1)):
                 wpt_params['addwpts'].append(row)
         self.loadWaypoints(wpt_params)
+        self.altCoordsTable.changeCache(self.ld_cache.cache_id)
             
         self.Enable()
         self.updStatus()
@@ -1036,6 +1047,19 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                         self.points.DeleteItem(iid)
                         self.clearAllGui()
                 
+    def OnAddAltCoords(self, evt):
+        self.grdAltCoords.AppendRows()
+    
+    def OnRemAltCoords(self, evt):
+        #self.grdAltCoords.DeleteRows(self.grdAltCoords.GetS
+        rows = self.grdAltCoords.GetSelectedRows()
+        rows.append(self.grdAltCoords.GetGridCursorRow())
+        for row in rows:
+            if row > 0:
+                rowname = self.grdAltCoords.GetTable().alts.alts[row-1]['name']
+                if wx.MessageBox('Really remove coordinates for "%s"?' % (rowname), "Confirm Deletion", wx.ICON_QUESTION | wx.YES_NO, self) == wx.YES:
+                    self.grdAltCoords.DeleteRows(row-1)
+        
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)
@@ -1102,6 +1126,122 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.btnRemAltCoords, wx.Button)
         isinstance(self.grdAltCoords, wx.grid.Grid)
 
+        
+class AltCoordsTable(wx.grid.PyGridTableBase):
+    def __init__(self):
+        wx.grid.PyGridTableBase.__init__(self)
+        self.centercell = wx.grid.GridCellAttr()
+        self.centercell.SetAlignment(wx.ALIGN_CENTER, wx.ALIGN_CENTER)
+        self.nullattr = wx.grid.GridCellAttr()
+        self.colnames = ["Name", "Latitude", "Longitude", "Is Default"]
+        self.alts = None
+        self.cache = None
+        
+    def GetNumberRows(self):
+        if self.cache is None: return 0
+        if self.alts is None: return 1
+        return len(self.alts.alts) + 1
+    
+    def GetNumberCols(self):
+        return 4
+    
+    def IsEmptyCell(self, row, col):
+        return False
+    
+    def GetValue(self, row, col):
+        if row == 0:
+            if col == 0: return "Original"
+            if col == 1: return cache901.util.latToDMS(self.cache.lat)
+            if col == 2: return cache901.util.lonToDMS(self.cache.lon)
+            if col == 3: return self.rowIsDefault(row)
+        if row <= len(self.alts.alts):
+            if col == 0: return self.alts.alts[row-1]['name']
+            if col == 1: return self.alts.alts[row-1]['lat']
+            if col == 2: return self.alts.alts[row-1]['lon']
+            if col == 3: return self.rowIsDefault(row)
+        if col != 3: return "Unknown"
+        else: return 0
+    
+    def AppendRows(self, numRows=1):
+        if numRows == 1:
+            self.alts.alts.append({
+                'name' : 'Unknown',
+                'lat' : '',
+                'lon' : '',
+                'setdefault' : 0
+                })
+            self.alts.Save()
+            self.GetView().SetTable(self)
+            self.GetView().AutoSize()
+            return True
+        return False
+    
+    def DeleteRows(self, pos=0, numRows=1):
+        for i in range(numRows):
+            del self.alts.alts[pos]
+        self.alts.Save()
+        self.GetView().SetTable(self)
+        self.GetView().AutoSize()
+        return True
+    
+    def SetValue(self, row, col, value):
+        if len(self.alts.alts) > 0 and col == 3:
+            try:
+                lat = cache901.util.dmsToDec(self.alts.alts[row-1]['lat'])
+                lon = cache901.util.dmsToDec(self.alts.alts[row-1]['lon'])
+                for idx in range(len(self.alts.alts)):
+                    self.alts.alts[idx]['setdefault'] = 0
+                if row > 0:
+                    self.alts.alts[row-1]['setdefault'] = int(value)
+            except Exception, e:
+                wx.MessageBox('Row %d has either latitude or longitude invalid, and cannot be the default\nError Text: %s' % (row, str(e)), 'An Error Occurred', wx.ICON_ERROR | wx.OK)
+                return
+        if row > 0:
+            row = row - 1
+            if col == 0:   self.alts.alts[row]['name'] = value
+            elif col == 1: self.alts.alts[row]['lat'] = value
+            elif col == 2: self.alts.alts[row]['lon'] = value
+        self.GetView().ForceRefresh()
+        self.alts.Save()
+    
+    def GetColLabelValue(self, col):
+        return self.colnames[col]
+    
+    def GetRowLabelValue(self, row):
+        return "%d" % (row+1)
+    
+    def GetTypeName(self, row, col):
+        if col != 3:
+            return wx.grid.GRID_VALUE_STRING
+        else:
+            return wx.grid.GRID_VALUE_BOOL
+    
+    def GetAttr(self, row, col, kind):
+        if col == 3:
+            self.centercell.IncRef()
+            return self.centercell
+        else:
+            self.nullattr.IncRef()
+            return self.nullattr
+        
+    # The following should be called whenever a new cache/waypoint is clicked
+    def changeCache(self, newcacheid=None):
+        if self.alts is not None:
+            self.alts.Save()
+        if newcacheid is not None:
+            self.alts = cache901.dbobjects.AltCoordsList(newcacheid)
+            self.cache = cache901.dbobjects.Cache(newcacheid)
+        else:
+            self.alts = None
+            self.cache = None
+        self.GetView().SetTable(self)
+        self.GetView().AutoSize()
+        
+    def rowIsDefault(self, row):
+        if len(self.alts.alts) == 0: return 1
+        if row == 0:
+            return 0 if len(filter(lambda x: x['setdefault'] == 1, self.alts.alts)) > 0 else 1
+        return self.alts.alts[row-1]['setdefault']
 
 class logTrans(object):
     def __init__(self):

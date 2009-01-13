@@ -238,6 +238,21 @@ statements_v005 = [
     """
     ]
 
+statements_v006 = [
+    "DROP TABLE alt_coords",
+    """
+    CREATE TABLE alt_coords (
+        cache_id     integer,
+        sequence_num integer,
+        name         text,
+        lat          text,
+        lon          text,
+        setdefault   integer
+        )
+    """,
+    "CREATE INDEX alt_coords_cid_seq ON alt_coords(cache_id, sequence_num)"
+    ]
+
 allstatements = sorted(filter(lambda x: x.startswith("statements_v"), globals()))
 
 def sqlexec(con, statements, debug=False):

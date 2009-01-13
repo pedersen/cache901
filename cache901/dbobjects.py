@@ -443,4 +443,29 @@ class Email(object):
     
     pop=property(getPop, setPop)
     imap=property(getImap, setImap)
-                                
+
+class AltCoordsList(object):
+    def __init__(self, aclid=minint):
+        self.alts = []
+        self.cid = aclid
+        cur=cache901.db().cursor()
+        cur.execute('select cache_id, sequence_num, name, lat, lon, setdefault from alt_coords where cache_id=? order by sequence_num', (aclid, ))
+        rowcount = 0
+        for row in cur:
+            if type(row) is pysqlite2.dbapi2.Row:
+                self.alts.append({
+                    'name' : row['name'],
+                    'lat' : row['lat'],
+                    'lon' : row['lon'],
+                    'setdefault' : row['setdefault']
+                    })
+
+    def Save(self):
+        cur = cache901.db().cursor()
+        cur.execute('delete from alt_coords where cache_id=?', (self.cid, ))
+        for idx, f in enumerate(self.alts):
+            cur.execute("insert into alt_coords(cache_id, sequence_num, name, lat, lon, setdefault) values(?,?,?,?,?,?)", (self.cid, idx, f['name'], f['lat'], f['lon'], 1 if f['setdefault'] else 0))
+        cache901.db().commit()
+
+        
+        
