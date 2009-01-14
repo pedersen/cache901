@@ -1165,7 +1165,7 @@ class AltCoordsTable(wx.grid.PyGridTableBase):
     def AppendRows(self, numRows=1):
         if numRows == 1:
             self.alts.alts.append({
-                'name' : 'Unknown',
+                'name' : 'Stage %d' % (len(self.alts.alts) + 1),
                 'lat' : '',
                 'lon' : '',
                 'setdefault' : 0

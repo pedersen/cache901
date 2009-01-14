@@ -75,10 +75,11 @@ def dmsToDec(dmsstr):
         except InvalidOperation:
             raise InvalidDegFormat("Invalid direction (not NSEW): %s" % dmsstr)
     mult = 1 if localdmsstr[0].lower() in ['n', 'e'] else -1
+    localdmsstr = localdmsstr[1:].strip()
     loc = localdmsstr.find(degsym)
     if loc >= 0: # found degree symbol
         try:
-            deg = Decimal(localdmsstr[1:loc].strip())
+            deg = Decimal(localdmsstr[:loc].strip())
             localdmsstr = localdmsstr[loc+1:].strip()
         except InvalidOperation:
             raise InvalidDegFormat("Invalid degree specification in %s (%s)" % (dmsstr, localdmsstr[1:loc]))
@@ -86,7 +87,7 @@ def dmsToDec(dmsstr):
         loc = localdmsstr.find(' ')
         if loc >= 0: # found space, proceed
             try:
-                deg = Decimal(localdmsstr[1:loc].strip())
+                deg = Decimal(localdmsstr[:loc].strip())
                 localdmsstr = localdmsstr[loc:].strip()
             except InvalidOperation:
                 raise InvalidDegFormat("Invalid degrees specification in %s (%s)" % (dmsstr, localdmsstr[1:loc].strip()))
@@ -112,7 +113,7 @@ def dmsToDec(dmsstr):
             else:
                 try:
                     mins = Decimal(localdmsstr) / Decimal("60.0")
-                    return deg+mins
+                    return mult * (deg+mins)
                 except InvalidOperation:
                     raise InvalidDegFormat("Invalid minutes specification in %s" % dmsstr)
     if len(localdmsstr) > 0:
@@ -233,12 +234,22 @@ def getSearchLocs(searchpat=None):
     cur.execute(query, params)
     for row in cur:
         yield row
+    
+
+def getDefaultCoords(cache):
+    alts = cache901.dbobjects.AltCoordsList(cache.cache_id)
+    for coords in alts.alts:
+        if coords['setdefault'] == 1:
+            return (Decimal(dmsToDec(coords['lat'])), Decimal(dmsToDec(coords['lon'])))
+    return (cache.lat, cache.lon)
+    
 
 def CacheToGPX(cache):
     gpx = gpsbabel.GPXData()
     wpt = gpsbabel.GPXWaypoint()
-    wpt.lat = cache.lat
-    wpt.lon = cache.lon
+    (lat, lon) = getDefaultCoords(cache)
+    wpt.lat = lat
+    wpt.lon = lon
     wpt.name = cache.name
     wpt.cmt = cache.name
     wpt.desc = cache.name
