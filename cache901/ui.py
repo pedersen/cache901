@@ -802,8 +802,29 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnSwitchPhoto(self, evt):
         idx = evt.GetImage()
         fname = os.sep.join([cache901.dbpath, self.ld_cache.photolist.names[idx]])
+        img = wx.Image(fname)
+        
+        # Get photo size and scale it
         sz = self.currPhoto.GetSize()
-        self.currPhoto.SetBitmap(wx.BitmapFromImage(wx.Image(fname).Scale(sz.width, sz.height, wx.IMAGE_QUALITY_HIGH)))
+        aspect = float(img.GetWidth()) / float(img.GetHeight())
+        if float(sz.width) / aspect > sz.height: sz.width = int(sz.height * aspect)
+        else: sz.height = int(sz.width / aspect)
+        img = wx.BitmapFromImage(img.Scale(sz.width, sz.height, wx.IMAGE_QUALITY_HIGH))
+        
+        # Calculate new position for photo
+        possz = self.currPhoto.GetSize()
+        x = (possz.width - sz.width) / 2
+        y = (possz.height - sz.height) / 2
+        
+        bmp = wx.EmptyBitmap(possz.width, possz.height)
+        dc = wx.MemoryDC(bmp)
+        dc.SetBackground(wx.Brush(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)))
+        dc.Clear()
+        dc.DrawBitmap(img, x, y)
+        dc.SelectObject(wx.NullBitmap)
+        
+        # Put the photo onscreen
+        self.currPhoto.SetBitmap(bmp)
         self.updStatus()
 
 
