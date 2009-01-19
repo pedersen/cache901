@@ -383,6 +383,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.gpsType,      wx.Choice)
         isinstance(self.gpsPort,      wx.Choice)
         isinstance(self.gpsbabelLoc,  wx.FilePickerCtrl)
+        isinstance(self.gpsbabelPath, wx.StaticText)
         isinstance(self.getFromGPS,   wx.Button)
         isinstance(self.maxLogs,      wx.SpinCtrl)
         

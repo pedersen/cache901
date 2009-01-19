@@ -67,15 +67,22 @@ class cmdValidator(wx.PyValidator):
     def Validate(self, win):
         fp = self.GetWindow()
         isinstance(fp, wx.FilePickerCtrl)
+        top = fp.GetTopLevelParent()
+        isinstance(top, cache901.options.OptionsUI)
         fname = fp.GetPath()
         retval = (os.path.exists(fname) and os.access(fname, os.X_OK)) and (fname != 'Select Executable')
         if not retval:
             wx.MessageBox('Invalid location for GPSBabel.', 'GPSBabel Location Problem', parent=win)
+            top.gpsbabelPath.SetLabel('Path: Invalid')
+        else:
+            top.gpsbabelPath.SetLabel('Path: %s' % fname)
         return retval
         
     def TransferToWindow(self):
         fp = self.GetWindow()
         cfg = wx.Config.Get()
+        top = fp.GetTopLevelParent()
+        isinstance(top, cache901.options.OptionsUI)
         isinstance(fp, wx.FilePickerCtrl)
         isinstance(cfg, wx.Config)
         cfg.SetPath('/PerMachine')
@@ -83,6 +90,7 @@ class cmdValidator(wx.PyValidator):
         if cmd is None: cmd = 'Select Executable'
         loc = cfg.Read('GPSBabelLoc', cmd)
         fp.SetPath(loc)
+        top.gpsbabelPath.SetLabel('Path: %s' % loc)
         fp.Refresh()
     
     def TransferFromWindow(self):
@@ -104,9 +112,9 @@ class portValidator(wx.PyValidator):
         if selnum == wx.NOT_FOUND: return False
         items = choice.GetItems()
         if selnum < 0 or selnum >= len(items): return False
-        if items[selnum] == 'USB': return True
+        if items[selnum] == 'USB:': return True
         try:
-            #s = serial.Serial(items[selnum])
+            s = serial.Serial(items[selnum])
             return True
         except:
             wx.MessageBox('Choose a different serial port', 'Invalid Serial Port')
@@ -122,7 +130,7 @@ class portValidator(wx.PyValidator):
         choice.Append('USB:')
         choice.AppendItems(cache901.util.scanForSerial())
         try:
-            choice.SetSelection(choice.GetItems().index(cfg.Read('GPSPort', 'USB')))
+            choice.SetSelection(choice.GetItems().index(cfg.Read('GPSPort', 'USB:')))
         except:
             choice.SetSelection(0)
             
