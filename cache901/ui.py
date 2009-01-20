@@ -377,7 +377,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         
         
     def OnClose(self, evt):
-        if wx.MessageBox("Are you sure you wish to exit?", "Really Exit?", wx.YES_NO | wx.CENTER, self) == wx.YES:
+        if  wx.MessageBox("Are you sure you wish to exit?", "Really Exit?", wx.YES_NO | wx.CENTER, self) == wx.YES:
             #-----------------------------------------------------------------------------------------
             # The following code block is a prime candidate for refactoring out into a separate object
             #-----------------------------------------------------------------------------------------
