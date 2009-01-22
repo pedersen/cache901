@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import cookielib
 import datetime
 import email
+import email.iterators
 import email.message
 import email.parser
 import imaplib

@@ -17,10 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-try:
-    from pysqlite2 import dbapi2 as sqlite
-except ImportError, e:
-    import sqlite3 as sqlite
+import sqlite3 as sqlite
 
 import cache901.dbm
 import cache901.util

@@ -578,7 +578,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -598,7 +597,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -618,7 +616,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>1,0</cellpos>
@@ -643,7 +640,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>1,5</cellpos>
@@ -658,7 +654,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -677,7 +672,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,0</cellpos>
@@ -702,7 +696,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>3,0</cellpos>
@@ -726,7 +719,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,2</cellpos>
@@ -751,7 +743,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,5</cellpos>
@@ -775,7 +766,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>3,5</cellpos>
@@ -799,7 +789,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>4,0</cellpos>
@@ -824,7 +813,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>5,0</cellpos>
@@ -1035,7 +1023,6 @@ Line 7</value>
                                       <underlined>0</underlined>
                                       <family>swiss</family>
                                       <face>Sans</face>
-                                      <encoding>UTF-8</encoding>
                                     </font>
                                     <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_REPORT</style>
                                     <XRCED>
@@ -1072,7 +1059,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <border>5</border>
@@ -1089,7 +1075,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1110,7 +1095,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -1147,7 +1131,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -1162,7 +1145,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1194,7 +1176,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1213,7 +1194,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1274,7 +1254,6 @@ Line 7</value>
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                             <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_LIST</style>
                             <XRCED>
@@ -1826,7 +1805,6 @@ Line 7</value>
                     <underlined>0</underlined>
                     <family>swiss</family>
                     <face>Sans</face>
-                    <encoding>UTF-8</encoding>
                   </font>
                 </object>
                 <option>1</option>
@@ -1842,7 +1820,6 @@ Line 7</value>
                     <underlined>0</underlined>
                     <family>swiss</family>
                     <face>Sans</face>
-                    <encoding>UTF-8</encoding>
                   </font>
                 </object>
                 <option>1</option>
