@@ -250,7 +250,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.trackableListCtrl.DeleteAllColumns()
         self.trackableListCtrl.DeleteAllItems()
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQ")
-        self.trackableListCtrl.InsertColumn(0, "Travel Bug Name", width=w)
+        #self.trackableListCtrl.InsertColumn(0, "Travel Bug Name", width=w)
         
         # Clear the notes
         self.currNotes.SetValue("")
