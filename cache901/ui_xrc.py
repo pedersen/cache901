@@ -938,7 +938,7 @@ Line 7</value>
                               <object class="wxStaticBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxHtmlWindow" name="cacheDescriptionShort">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
+                                    <style>wxRAISED_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -963,7 +963,7 @@ Line 7</value>
                               <object class="wxStaticBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxHtmlWindow" name="cacheDescriptionLong">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
+                                    <style>wxRAISED_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1024,7 +1024,7 @@ Line 7</value>
                                       <family>swiss</family>
                                       <face>Sans</face>
                                     </font>
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_REPORT</style>
+                                    <style>wxRAISED_BORDER|wxLC_REPORT</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1255,7 +1255,7 @@ Line 7</value>
                               <family>swiss</family>
                               <face>Sans</face>
                             </font>
-                            <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_LIST</style>
+                            <style>wxRAISED_BORDER|wxLC_LIST</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1349,7 +1349,7 @@ Line 7</value>
                                 <orient>wxVERTICAL</orient>
                                 <object class="sizeritem">
                                   <object class="wxStaticBitmap" name="currPhoto">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
+                                    <style>wxRAISED_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1372,7 +1372,7 @@ Line 7</value>
                                 <orient>wxVERTICAL</orient>
                                 <object class="sizeritem">
                                   <object class="wxListCtrl" name="photoList">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_ICON|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
+                                    <style>wxRAISED_BORDER|wxLC_ICON|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -2118,7 +2118,7 @@ http://www.justwill.com/</value>
                               <object class="wxBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxListCtrl" name="locations">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_REPORT|wxLC_SORT_ASCENDING</style>
+                                    <style>wxRAISED_BORDER|wxLC_REPORT|wxLC_SORT_ASCENDING</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -2961,8 +2961,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <object class="wxPanel">
@@ -3009,8 +3007,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <orientation>vertical</orientation>
@@ -3204,8 +3200,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <object class="wxPanel">
@@ -3259,8 +3253,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <orientation>vertical</orientation>
@@ -3352,7 +3344,7 @@ http://www.justwill.com/</value>
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="cacheList">
-                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -3372,7 +3364,7 @@ http://www.justwill.com/</value>
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="originList">
-                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
