@@ -49,7 +49,4 @@ def scrub():
             delthese.append(str(row['id']))
     cur.execute('delete from logs where id in (%s)' % ",".join(delthese))
     con.commit()
-    cache901.notify('Recovering free space')
-    cur.execute("vacuum")
-    cache901.notify('Analyzing database to improve speed')
-    cur.execute("analyze")
+
