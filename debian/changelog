@@ -15,7 +15,7 @@ cache901 (0.6-1) unstable; urgency=low
   * Fix parsing of lat/lon, now works correctly
   * Fix empty cache day names
   * Fix cache map code (now stable across platforms and distances)
- -- 
+ -- Michael J. Pedersen <m.pedersen@icelus.org>  Fri, 23 Jan 2009 23:04:26 -0500
 
 cache901 (0.4-1) unstable; urgency=low
 
