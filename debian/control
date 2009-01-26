@@ -10,7 +10,7 @@ XS-Python-Version: 2.5
 Package: cache901
 Architecture: any
 XB-Python-Version: ${python:Versions}
-Depends: python (>= 2.5.0), python-wxgtk2.8, python-xml, python-pysqlite2, python-gpsbabel, ${python:Depends}
+Depends: python (>= 2.5.0), python-wxgtk2.8, python-xml, python-pysqlite2, python-gpsbabel, python-serial, ${python:Depends}
 Recommends: python-psyco
 Description: Tool for paperless geocaching
  Cache 901 is a tool for paperless geocaching. The early version is mostly
