@@ -578,6 +578,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -597,6 +598,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -616,6 +618,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>1,0</cellpos>
@@ -640,6 +643,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>1,5</cellpos>
@@ -654,6 +658,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -672,6 +677,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,0</cellpos>
@@ -696,6 +702,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>3,0</cellpos>
@@ -719,6 +726,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,2</cellpos>
@@ -743,6 +751,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,5</cellpos>
@@ -766,6 +775,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>3,5</cellpos>
@@ -789,6 +799,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>4,0</cellpos>
@@ -813,6 +824,7 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>5,0</cellpos>
@@ -938,7 +950,7 @@ Line 7</value>
                               <object class="wxStaticBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxHtmlWindow" name="cacheDescriptionShort">
-                                    <style>wxRAISED_BORDER</style>
+                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -963,7 +975,7 @@ Line 7</value>
                               <object class="wxStaticBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxHtmlWindow" name="cacheDescriptionLong">
-                                    <style>wxRAISED_BORDER</style>
+                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1023,8 +1035,9 @@ Line 7</value>
                                       <underlined>0</underlined>
                                       <family>swiss</family>
                                       <face>Sans</face>
+                                      <encoding>UTF-8</encoding>
                                     </font>
-                                    <style>wxRAISED_BORDER|wxLC_REPORT</style>
+                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_REPORT</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1059,6 +1072,7 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <border>5</border>
@@ -1075,6 +1089,7 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1095,6 +1110,7 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -1131,6 +1147,7 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -1145,6 +1162,7 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1176,6 +1194,7 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1194,6 +1213,7 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
+                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1254,8 +1274,9 @@ Line 7</value>
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
+                              <encoding>UTF-8</encoding>
                             </font>
-                            <style>wxRAISED_BORDER|wxLC_LIST</style>
+                            <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_LIST</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1349,7 +1370,7 @@ Line 7</value>
                                 <orient>wxVERTICAL</orient>
                                 <object class="sizeritem">
                                   <object class="wxStaticBitmap" name="currPhoto">
-                                    <style>wxRAISED_BORDER</style>
+                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1372,7 +1393,7 @@ Line 7</value>
                                 <orient>wxVERTICAL</orient>
                                 <object class="sizeritem">
                                   <object class="wxListCtrl" name="photoList">
-                                    <style>wxRAISED_BORDER|wxLC_ICON|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
+                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_ICON|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1805,6 +1826,7 @@ Line 7</value>
                     <underlined>0</underlined>
                     <family>swiss</family>
                     <face>Sans</face>
+                    <encoding>UTF-8</encoding>
                   </font>
                 </object>
                 <option>1</option>
@@ -1820,6 +1842,7 @@ Line 7</value>
                     <underlined>0</underlined>
                     <family>swiss</family>
                     <face>Sans</face>
+                    <encoding>UTF-8</encoding>
                   </font>
                 </object>
                 <option>1</option>
@@ -2118,7 +2141,7 @@ http://www.justwill.com/</value>
                               <object class="wxBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxListCtrl" name="locations">
-                                    <style>wxRAISED_BORDER|wxLC_REPORT|wxLC_SORT_ASCENDING</style>
+                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_REPORT|wxLC_SORT_ASCENDING</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -2961,6 +2984,8 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
+                              
+                                
                               </object>
                             </object>
                             <object class="wxPanel">
@@ -3007,6 +3032,8 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
+                              
+                                
                               </object>
                             </object>
                             <orientation>vertical</orientation>
@@ -3200,6 +3227,8 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
+                              
+                                
                               </object>
                             </object>
                             <object class="wxPanel">
@@ -3253,6 +3282,8 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
+                              
+                                
                               </object>
                             </object>
                             <orientation>vertical</orientation>
@@ -3344,7 +3375,7 @@ http://www.justwill.com/</value>
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="cacheList">
-                          <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -3364,7 +3395,7 @@ http://www.justwill.com/</value>
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="originList">
-                          <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
