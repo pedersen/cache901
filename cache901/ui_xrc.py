@@ -472,7 +472,8 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?><resource>
+<?xml version="1.0" ?>
+<resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -486,7 +487,7 @@ def __init_resources():
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="caches">
-                          <style>wxSIMPLE_BORDER|wxLC_REPORT</style>
+                          <style>wxSUNKEN_BORDER|wxLC_REPORT</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -511,7 +512,7 @@ def __init_resources():
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="points">
-                          <style>wxSIMPLE_BORDER|wxLC_REPORT</style>
+                          <style>wxSUNKEN_BORDER|wxLC_REPORT</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -578,7 +579,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -598,7 +598,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -618,7 +617,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>1,0</cellpos>
@@ -643,7 +641,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>1,5</cellpos>
@@ -658,7 +655,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                             <XRCED>
                               <assign_var>1</assign_var>
@@ -677,7 +673,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,0</cellpos>
@@ -702,7 +697,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>3,0</cellpos>
@@ -726,7 +720,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,2</cellpos>
@@ -751,7 +744,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>2,5</cellpos>
@@ -775,7 +767,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>3,5</cellpos>
@@ -799,7 +790,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>4,0</cellpos>
@@ -824,7 +814,6 @@ def __init_resources():
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
                           </object>
                           <cellpos>5,0</cellpos>
@@ -950,7 +939,7 @@ Line 7</value>
                               <object class="wxStaticBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxHtmlWindow" name="cacheDescriptionShort">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
+                                    <style>wxSUNKEN_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -975,7 +964,7 @@ Line 7</value>
                               <object class="wxStaticBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxHtmlWindow" name="cacheDescriptionLong">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
+                                    <style>wxSUNKEN_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1035,9 +1024,8 @@ Line 7</value>
                                       <underlined>0</underlined>
                                       <family>swiss</family>
                                       <face>Sans</face>
-                                      <encoding>UTF-8</encoding>
                                     </font>
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_REPORT</style>
+                                    <style>wxSUNKEN_BORDER|wxLC_REPORT</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1072,7 +1060,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <border>5</border>
@@ -1089,7 +1076,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1110,7 +1096,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -1147,7 +1132,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                       </object>
                                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -1162,7 +1146,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1175,7 +1158,7 @@ Line 7</value>
                                     </object>
                                     <object class="sizeritem">
                                       <object class="wxTextCtrl" name="logText">
-                                        <style>wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_WORDWRAP</style>
+                                        <style>wxSUNKEN_BORDER|wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_WORDWRAP</style>
                                         <XRCED>
                                           <assign_var>1</assign_var>
                                         </XRCED>
@@ -1194,7 +1177,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1213,7 +1195,6 @@ Line 7</value>
                                           <underlined>0</underlined>
                                           <family>swiss</family>
                                           <face>Sans</face>
-                                          <encoding>UTF-8</encoding>
                                         </font>
                                         <XRCED>
                                           <assign_var>1</assign_var>
@@ -1274,9 +1255,8 @@ Line 7</value>
                               <underlined>0</underlined>
                               <family>swiss</family>
                               <face>Sans</face>
-                              <encoding>UTF-8</encoding>
                             </font>
-                            <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_LIST</style>
+                            <style>wxSUNKEN_BORDER|wxLC_LIST</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1310,7 +1290,7 @@ Line 7</value>
                       <object class="wxGridBagSizer">
                         <object class="sizeritem">
                           <object class="wxTextCtrl" name="currNotes">
-                            <style>wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_RICH2|wxTE_WORDWRAP</style>
+                            <style>wxSUNKEN_BORDER|wxTE_AUTO_SCROLL|wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB|wxTE_MULTILINE|wxTE_RICH2|wxTE_WORDWRAP</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -1370,7 +1350,7 @@ Line 7</value>
                                 <orient>wxVERTICAL</orient>
                                 <object class="sizeritem">
                                   <object class="wxStaticBitmap" name="currPhoto">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER</style>
+                                    <style>wxRAISED_BORDER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1393,7 +1373,7 @@ Line 7</value>
                                 <orient>wxVERTICAL</orient>
                                 <object class="sizeritem">
                                   <object class="wxListCtrl" name="photoList">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_ICON|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
+                                    <style>wxSUNKEN_BORDER|wxLC_ICON|wxLC_NO_HEADER|wxLC_SINGLE_SEL|wxLC_NO_SORT_HEADER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -1441,7 +1421,7 @@ Line 7</value>
                           <object class="wxGridBagSizer">
                             <object class="sizeritem">
                               <object class="wxGrid" name="grdAltCoords">
-                                <style>wxSIMPLE_BORDER</style>
+                                <style>wxSUNKEN_BORDER</style>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -1826,7 +1806,6 @@ Line 7</value>
                     <underlined>0</underlined>
                     <family>swiss</family>
                     <face>Sans</face>
-                    <encoding>UTF-8</encoding>
                   </font>
                 </object>
                 <option>1</option>
@@ -1842,7 +1821,6 @@ Line 7</value>
                     <underlined>0</underlined>
                     <family>swiss</family>
                     <face>Sans</face>
-                    <encoding>UTF-8</encoding>
                   </font>
                 </object>
                 <option>1</option>
@@ -2141,7 +2119,7 @@ http://www.justwill.com/</value>
                               <object class="wxBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxListCtrl" name="locations">
-                                    <style>wxSIMPLE_BORDER|wxRAISED_BORDER|wxLC_REPORT|wxLC_SORT_ASCENDING</style>
+                                    <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_SORT_ASCENDING</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -2315,7 +2293,7 @@ http://www.justwill.com/</value>
                       <object class="wxBoxSizer">
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="cacheDays">
-                            <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2388,7 +2366,7 @@ http://www.justwill.com/</value>
                       <object class="wxBoxSizer">
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="cachesForDay">
-                            <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2457,7 +2435,7 @@ http://www.justwill.com/</value>
                       <object class="wxBoxSizer">
                         <object class="sizeritem">
                           <object class="wxListCtrl" name="availCaches">
-                            <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                            <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                             <XRCED>
                               <assign_var>1</assign_var>
                             </XRCED>
@@ -2500,7 +2478,7 @@ http://www.justwill.com/</value>
                               <object class="wxBoxSizer">
                                 <object class="sizeritem">
                                   <object class="wxListCtrl" name="accountNames">
-                                    <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                                    <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                                     <XRCED>
                                       <assign_var>1</assign_var>
                                     </XRCED>
@@ -2726,7 +2704,7 @@ http://www.justwill.com/</value>
                   <orient>wxVERTICAL</orient>
                   <object class="sizeritem">
                     <object class="wxListCtrl" name="savedSearches">
-                      <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                      <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                       <XRCED>
                         <assign_var>1</assign_var>
                       </XRCED>
@@ -2951,7 +2929,7 @@ http://www.justwill.com/</value>
                                       <object class="wxBoxSizer">
                                         <object class="sizeritem">
                                           <object class="wxListCtrl" name="cacheTypes">
-                                            <style>wxSIMPLE_BORDER|wxLC_LIST|wxLC_NO_HEADER</style>
+                                            <style>wxSUNKEN_BORDER|wxLC_LIST|wxLC_NO_HEADER</style>
                                             <XRCED>
                                               <assign_var>1</assign_var>
                                             </XRCED>
@@ -2984,8 +2962,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <object class="wxPanel">
@@ -2997,7 +2973,7 @@ http://www.justwill.com/</value>
                                       <object class="wxBoxSizer">
                                         <object class="sizeritem">
                                           <object class="wxListCtrl" name="cacheContainers">
-                                            <style>wxSIMPLE_BORDER|wxLC_LIST|wxLC_NO_HEADER</style>
+                                            <style>wxSUNKEN_BORDER|wxLC_LIST|wxLC_NO_HEADER</style>
                                             <XRCED>
                                               <assign_var>1</assign_var>
                                             </XRCED>
@@ -3032,8 +3008,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <orientation>vertical</orientation>
@@ -3197,7 +3171,7 @@ http://www.justwill.com/</value>
                                         <object class="sizeritem">
                                           <object class="wxListCtrl" name="countriesList">
                                             <enabled>0</enabled>
-                                            <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                                            <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                                             <XRCED>
                                               <assign_var>1</assign_var>
                                             </XRCED>
@@ -3227,8 +3201,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <object class="wxPanel">
@@ -3252,7 +3224,7 @@ http://www.justwill.com/</value>
                                         <object class="sizeritem">
                                           <object class="wxListCtrl" name="statesList">
                                             <enabled>0</enabled>
-                                            <style>wxSIMPLE_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                                            <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                                             <XRCED>
                                               <assign_var>1</assign_var>
                                             </XRCED>
@@ -3282,8 +3254,6 @@ http://www.justwill.com/</value>
                                   <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
                                   <border>5</border>
                                 </object>
-                              
-                                
                               </object>
                             </object>
                             <orientation>vertical</orientation>
@@ -3375,7 +3345,7 @@ http://www.justwill.com/</value>
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="cacheList">
-                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -3395,7 +3365,7 @@ http://www.justwill.com/</value>
                     <object class="wxStaticBoxSizer">
                       <object class="sizeritem">
                         <object class="wxListCtrl" name="originList">
-                          <style>wxSIMPLE_BORDER|wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
+                          <style>wxSUNKEN_BORDER|wxLC_REPORT|wxLC_NO_HEADER</style>
                           <XRCED>
                             <assign_var>1</assign_var>
                           </XRCED>
@@ -3528,7 +3498,7 @@ http://www.justwill.com/</value>
                           <object class="wxStaticBoxSizer">
                             <object class="sizeritem">
                               <object class="wxListCtrl" name="folderNames">
-                                <style>wxSIMPLE_BORDER|wxLC_REPORT</style>
+                                <style>wxSUNKEN_BORDER|wxLC_REPORT</style>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -3583,7 +3553,7 @@ http://www.justwill.com/</value>
                           <object class="wxStaticBoxSizer">
                             <object class="sizeritem">
                               <object class="wxListCtrl" name="geoWpts">
-                                <style>wxSIMPLE_BORDER|wxLC_REPORT</style>
+                                <style>wxSUNKEN_BORDER|wxLC_REPORT</style>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -3662,7 +3632,7 @@ http://www.justwill.com/</value>
                             <orient>wxVERTICAL</orient>
                             <object class="sizeritem">
                               <object class="wxListCtrl" name="pop3Servers">
-                                <style>wxSIMPLE_BORDER|wxLC_REPORT</style>
+                                <style>wxSUNKEN_BORDER|wxLC_REPORT</style>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -3831,7 +3801,7 @@ http://www.justwill.com/</value>
                             <orient>wxVERTICAL</orient>
                             <object class="sizeritem">
                               <object class="wxListCtrl" name="imap4SvrList">
-                                <style>wxSIMPLE_BORDER|wxLC_REPORT</style>
+                                <style>wxSUNKEN_BORDER|wxLC_REPORT</style>
                                 <XRCED>
                                   <assign_var>1</assign_var>
                                 </XRCED>
@@ -4048,7 +4018,7 @@ http://www.justwill.com/</value>
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxGrid" name="logGrid">
-              <style>wxSIMPLE_BORDER</style>
+              <style>wxSUNKEN_BORDER</style>
               <XRCED>
                 <assign_var>1</assign_var>
               </XRCED>
