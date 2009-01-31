@@ -21,6 +21,9 @@ try:
 except ImportError:
     pass
 
+if not hasattr(sys, "frozen") and 'wx' not in sys.modules and 'wxPython' not in sys.modules:
+    import wxversion
+    wxversion.ensureMinimal("2.8")
 import cache901.app
 
 def main():
