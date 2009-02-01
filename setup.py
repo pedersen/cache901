@@ -68,6 +68,8 @@ else:
     datafiles = []
 
 try:
+    import wxversion
+    wxversion.ensureMinimal("2.8")
     import wx
 except:
     print "Without wx, this program will fail. Aborting."

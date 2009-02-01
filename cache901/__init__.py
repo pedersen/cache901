@@ -21,6 +21,9 @@ import os
 import os.path
 import sys
 
+if not hasattr(sys, "frozen") and 'wx' not in sys.modules and 'wxPython' not in sys.modules:
+    import wxversion
+    wxversion.ensureMinimal("2.8")
 import wx
 
 import cache901.sql
