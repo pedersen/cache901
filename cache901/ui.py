@@ -855,8 +855,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         log.my_log = True
         log.date = time.mktime(datetime.datetime.now().timetuple())
         cur = cache901.db().cursor()
-        cur.execute('select username from accounts where sitename="GeoCaching.com" and ispremium=1 and isteam=0')
+        cur.execute('select username from accounts where lower(sitename)="geocaching.com" and isteam=0')
         row = cur.fetchone()
+        if row is None:
+            wx.MessageBox('Without a non-team account defined\nin Preferences->GeoCaching Accounts,\nI don\'t know what username to attach\nto this log.\nAborting.', 'Missing Username', wx.ICON_ERROR)
+            return
         log.finder = row['username']
         log.Save()
         cache901.db().commit()
@@ -868,6 +871,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.logDate.Enable(self.logText.IsEditable())
         self.logSaveButton.Enable(self.logText.IsEditable())
         self.logDateList.Select(0)
+        self.cacheInfo.ChangeSelection(2)
 
 
     def OnSaveLog(self, evt):
