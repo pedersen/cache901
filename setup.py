@@ -60,6 +60,7 @@ if sys.platform == "win32":
         import win32file
     except:
         print "Without win32file, pyserial will fail on Windows. Aborting."
+        print "Get it at http://sourceforge.net/projects/pywin32/"
         sys.exit(1)
     datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico']), os.sep.join(['osfiles', 'gpsbabel.exe']), os.sep.join(['osfiles', 'libexpat.dll'])],) ]
 elif sys.platform == "darwin":
@@ -73,24 +74,28 @@ try:
     import wx
 except:
     print "Without wx, this program will fail. Aborting."
+    print "Get it at http://www.wxpython.org/"
     sys.exit(1)
 
 try:
     import serial
 except:
     print "Without serial, this program will fail. Aborting."
+    print "Get it at http://pyserial.sourceforge.net/"
     sys.exit(1)
 
 try:
     import sqlite3
 except:
     print "Without sqlite3, this program will fail. Aborting."
+    print "Get it at http://www.sqlite.org/"
     sys.exit(1)
 
 try:
     import gpsbabel
 except:
     print "Without gpsbabel, this program will fail. Aborting."
+    print "Get it at http://www.cache901.org/developers-corner/python-gpsbabel"
     sys.exit(1)
 
 setup(name='Cache901',
