@@ -576,7 +576,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     
     
     def OnImportFile(self, evt):
-        fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX Files (*.gpx)|*.gpx|Zip Files(*.zip)|*.zip|All Files (*.*)|*.*")
+        fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX and Zip Files (*.gpx)|*.gpx;*.GPX;*.Gpx;*.zip;*.ZIP;*.Zip|All Files (*.*)|*.*")
         cfg = wx.Config.Get()
         isinstance(cfg, wx.Config)
         cfg.SetPath("/Files")
@@ -776,7 +776,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
 
     def OnAddPhoto(self, evt):
-        fdg = wx.FileDialog(self, "Select Image File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="Photo Files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|All Files (*.*)|*.*")
+        fdg = wx.FileDialog(self, "Select Image File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="Photo Files (*.jpg;*.jpeg;*.png)|*.jpg;*.JPG;*.Jpg;*.jpeg;*.JPEG;*.Jpeg;*.png;*.PNG;*.Png|All Files (*.*)|*.*")
         cfg = wx.Config.Get()
         isinstance(cfg, wx.Config)
         cfg.SetPath("/Files")
