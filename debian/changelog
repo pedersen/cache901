@@ -1,3 +1,11 @@
+cache901 (0.6.1-2) unstable; urgency=low
+
+  * Fixed issue when starting Cache901 in a location that has a gpsbabel
+    directory.
+  * Fixed Debian packaging
+
+ -- 
+
 cache901 (0.6-1) unstable; urgency=low
 
   * Added management of geocaching.com accounts
