@@ -3,29 +3,19 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-	touch configure-stamp
-
-
-build: build-stamp
-
-build-stamp: configure-stamp  
-	dh_testdir
-	touch $@
-
 clean: 
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp configure-stamp
 	dh_clean 
-	rm -rf debian/cache901
+	$(RM) -r build
+
+build:
+	# nothing to do
 
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_prep
 	dh_installdirs
 	python setup.py install --root=debian/cache901
 	find debian/cache901 -name '*.pyc' | xargs rm -f
@@ -33,23 +23,24 @@ install: build
 	mkdir -p debian/cache901/usr/share/pixmaps
 	cp cache901/icons/shield.png debian/cache901/usr/share/pixmaps/cache901.png
 	cp debian/cache901.desktop debian/cache901/usr/share/applications
+	cp debian/cache901.xpm debian/cache901/usr/share/pixmaps/cache901.xpm
 
 
-# Build architecture-dependent files here.
+# Build architecture-independent files here.
 binary-arch: build install
-	dh_testdir -a
-	dh_testroot -a
+	dh_testdir
+	dh_testroot
+	dh_installdocs
 	dh_installchangelogs 
 	dh_installmenu
-	dh_pycentral -a
-	dh_strip -pcache901
-	dh_compress -a
-	dh_fixperms -a
-	dh_installdeb -a
-	dh_shlibdeps -a
-	dh_gencontrol -a
-	dh_md5sums -a
-	dh_builddeb -a
+	dh_pycentral -i
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+	dh_shlibdeps -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure
+.PHONY: build clean binary-indep binary-arch binary install

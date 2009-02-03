@@ -1,3 +1,3 @@
-?package(cache901):needs="X11" section="Applications/Network"\
+?package(cache901):needs="X11" section="Applications/Science/Geoscience"\
   title="cache901" command="/usr/bin/geocache901"\
-  icon="/usr/share/pixmaps/cache901.png"
+  icon="/usr/share/pixmaps/cache901.xpm"
