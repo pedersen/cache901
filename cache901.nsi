@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Cache 901"
-!define PRODUCT_VERSION "0.6"
+!define PRODUCT_VERSION "0.6.1"
 !define PRODUCT_PUBLISHER "Cache 901"
 !define PRODUCT_WEB_SITE "http://www.cache901.org/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\geocache901.exe"
@@ -52,7 +52,7 @@ var ICONS_GROUP
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "Cache901-0.6Setup.exe"
+OutFile "Cache901-0.6.1Setup.exe"
 InstallDir "$PROGRAMFILES\Cache 901"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show

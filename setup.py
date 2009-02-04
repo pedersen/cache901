@@ -99,7 +99,7 @@ except:
     sys.exit(1)
 
 setup(name='Cache901',
-        version="0.6",
+        version="0.6.1",
         description='Paperless Geocaching Tool',
         author='Michael Pedersen',
         author_email='m.pedersen@icelus.org ',
