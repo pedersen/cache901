@@ -113,6 +113,13 @@ class Cache(object):
     def Delete(self):
         cur = cache901.db().cursor()
         cur.execute("delete from caches where cache_id=?", (self.cache_id, ))
+        cur.execute("delete from travelbugs where cache_id=?", (self.cache_id, ))
+        cur.execute("delete from hints where cache_id=?", (self.cache_id, ))
+        cur.execute("delete from logs where cache_id=?", (self.cache_id, ))
+        cur.execute("delete from notes where cache_id=?", (self.cache_id, ))
+        cur.execute("delete from photos where cache_id=?", (self.cache_id, ))
+        cur.execute("delete from cacheday where cache_id=?", (self.cache_id, ))
+        cur.execute("delete from alt_coords where cache_id=?", (self.cache_id, ))
         cache901.db().commit()
         
 class Waypoint(object):

@@ -32,6 +32,10 @@ def scrub():
     cur.execute("delete from travelbugs where cache_id not in (select cache_id from caches)")
     cur.execute("delete from hints where cache_id not in (select cache_id from caches)")
     cur.execute("delete from logs where cache_id not in (select cache_id from caches)")
+    cur.execute("delete from notes where cache_id not in (select cache_id from caches)")
+    cur.execute("delete from photos where cache_id not in (select cache_id from caches)")
+    cur.execute("delete from cacheday where cache_id not in (select cache_id from caches)")
+    cur.execute("delete from alt_coords where cache_id not in (select cache_id from caches)")
     # update logs to show my_log for any logs where finder is in gpx accounts
     cache901.notify('Ensuring my logs are noted properly')
     cur.execute('update logs set my_log=1 where finder in (select username from accounts)')
