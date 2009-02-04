@@ -3,8 +3,17 @@ cache901 (0.6.1-2) unstable; urgency=low
   * Fixed issue when starting Cache901 in a location that has a gpsbabel
     directory.
   * Fixed Debian packaging
+  * Completed integration with geocaching.com. Permission exists to upload
+    logs from Cache901, but not download GPX files. Code complies.
+  * Added locations to obtain extra modules to setup.py
+  * Fixed "Log This Cache" with no accounts defined.
+  * Add Photo issue resolved. Now allows uppercase and lowercase filename
+    extensions
+  * Fixed issues that arose from deleting a cache. References could still
+    exist. References are now removed, and Database Maintenance will ensure
+    that consistency is maintained.
 
- -- 
+ -- Michael J. Pedersen <m.pedersen@icelus.org>  Tue, 03 Feb 2009 21:56:50 -0500
 
 cache901 (0.6-1) unstable; urgency=low
 
