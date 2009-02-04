@@ -258,32 +258,6 @@ class GeoCachingComSource(GPXSource):
                 raise Exception('GeoCaching.com Login Failed, error %s' % str(e))
         
     def next(self):
-        cfind = 'http://www.geocaching.com/seek/cache_details.aspx?wp='
-        headers = {'User-agent' : self.useragent }
-        if len(self.wptnames) > 0:
-            self.wwwSetup()
-            cname = self.wptnames.pop()
-            curl = '%s%s' % (cfind, cname)
-            
-            # Get __VIEWSTATE
-            cache901.notify('Retrieving cache page for %s' % cname)
-            page = urllib2.urlopen(curl)
-            time.sleep((random.random()*2)+0.5)
-            m = re.match(r'.+?id="__VIEWSTATE"\s+value="(.+?)"', page.read(), re.S)
-            fromvalues = urllib.urlencode({
-                '__VIEWSTATE': m.group(1),
-                'btnGPXDL' : 'GPX eXchange File'
-            })
-            
-            # Get GPX file
-            cache901.notify('Retrieving GPX file for %s' % cname)
-            request = urllib2.Request(curl, fromvalues, headers)
-            page = urllib2.urlopen(request)
-            time.sleep((random.random()*2)+0.5)
-            ptext = page.read()
-            cache901.notify('Retrieved GPX file for %s' % cname)
-            self.wwwClose()
-            return ptext
         raise StopIteration
     
     def postCacheLog(self, logEntry):
@@ -335,22 +309,6 @@ class GeoCachingComSource(GPXSource):
     
 def gpxSyncAll(callingwin):
     cur = cache901.db().cursor()
-    
-    # First, validate we have a premium geocaching.com account
-    cur.execute('select count(ispremium) as premaccounts from accounts where ispremium != 0')
-    row = cur.fetchone()
-    if row['premaccounts'] == 0:
-        wx.MessageBox('Warning: Without a premium account,\nGeoCaching.com cannot be queried\nfor GPX files.', 'No Premium Accounts', wx.ICON_EXCLAMATION | wx.OK)
-        opts = cache901.options.OptionsUI(callingwin.caches, callingwin)
-        opts.showGeoAccounts()
-    cur.execute('select username, password from accounts where sitename="GeoCaching.com" and ispremium != 0')
-    row = cur.fetchone()
-    if row is not None:
-        gcuser = row['username']
-        gcpass = row['password']
-    else:
-        gcuser = None
-        gcpass = None
     
     # Next, validate that we have some sources to synchronize
     cur.execute('select (select count(emailid) from emailsources)+(select count(foldername) from gpxfolders)+(select count(waypoint_name) from watched_waypoints) as total_sources')
