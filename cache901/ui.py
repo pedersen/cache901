@@ -96,7 +96,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         rect = self.statusBar.GetFieldRect(1)
         self.searchlabel = wx.StaticText(self.statusBar, label="Search:", pos=(rect.x+8, rect.y+2))
         w,h = self.searchlabel.GetSizeTuple()
-        self.search = wx.TextCtrl(self.statusBar, pos=(rect.x+5+w, rect.y+2), style=wx.WANTS_CHARS, size=(rect.width-15-w, rect.height-2))
+        self.search = wx.TextCtrl(self.statusBar, pos=(rect.x+5+w, rect.y+2), style=wx.WANTS_CHARS, size=(rect.width-15-w, rect.height))
         self.search.SetToolTipString("At least three characters to search")
         self.search.SetLabel('Search: ')
         self.search.SetValue("")
