@@ -1500,7 +1500,7 @@ Line 7</value>
       <object class="wxMenu">
         <label>&amp;File</label>
         <object class="wxMenuItem" name="mnuFileImport">
-          <label>&amp;Import GPX File</label>
+          <label>&amp;Import GPX/Zip File</label>
           <accel>Ctrl-O</accel>
           <XRCED>
             <assign_var>1</assign_var>
@@ -16792,7 +16792,7 @@ def __gettext_strings():
     _("Remove Row")
     _("Alt. Coords")
     _("&File")
-    _("&Import GPX File")
+    _("&Import GPX/Zip File")
     _("Synchronize GPX Sources")
     _("Database Maintenance")
     _("E&xit")
