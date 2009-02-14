@@ -54,3 +54,12 @@ def scrub():
     cur.execute('delete from logs where id in (%s)' % ",".join(delthese))
     con.commit()
 
+
+def delAllCaches():
+    cache901.notify("Emptying all caches and waypoints from the database")
+    con = cache901.db()
+    cur=con.cursor()
+    cur.execute("delete from caches")
+    cur.execute("delete from locations where loc_type=1")
+    con.commit()
+    scrub()

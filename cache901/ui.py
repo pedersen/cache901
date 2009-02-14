@@ -139,7 +139,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                         (self.OnGpxSync,        self.mnuGpxSync),
                         (self.OnGpxSources,     self.mnuGpxSources),
                         (self.OnDeleteCacheLog, self.mnuDeleteThisLog),
-                        (self.OnDeleteCacheOrWaypoint, self.mnuDeleteThisCache)
+                        (self.OnDeleteCacheOrWaypoint, self.mnuDeleteThisCache),
+                        (self.OnDeleteAllCaches, self.mnuDeleteAll)
                       ] 
 
         for option in menuOptions:
@@ -401,6 +402,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             if isinstance(evt, wx.CloseEvent): evt.Veto()
 
 
+    def OnDeleteAllCaches(self, evt):
+        if  wx.MessageBox("Are you sure you wish to delete *all* caches and waypoints?\nThis action *cannot* be undone!", "Really Delete?", wx.YES_NO | wx.CENTER, self) == wx.YES:
+            cache901.dbm.delAllCaches()
+            self.clearAllGui()
+            self.loadData()
+            self.loadWaypoints()
+            self.altCoordsTable.changeCache()
+            
     def OnLogToggle(self, evt):
         iid = self.logDateList.GetFirstSelected()
         if iid == -1: return
@@ -1150,6 +1159,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.btnAddAltCoords, wx.Button)
         isinstance(self.btnRemAltCoords, wx.Button)
         isinstance(self.grdAltCoords, wx.grid.Grid)
+        isinstance(self.mnuDeleteAll, wx.MenuItem)
 
         
 class AltCoordsTable(wx.grid.PyGridTableBase):

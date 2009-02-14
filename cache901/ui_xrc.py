@@ -89,6 +89,7 @@ class xrcCache901UI(wx.Frame):
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
         self.mnuGpxSync = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGpxSync"))
         self.mnuFileDbMaint = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileDbMaint"))
+        self.mnuDeleteAll = self.GetMenuBar().FindItemById(xrc.XRCID("mnuDeleteAll"))
         self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
         idx = self.GetMenuBar().FindMenu("&Search")
         if idx != wx.NOT_FOUND:
@@ -1514,6 +1515,12 @@ Line 7</value>
         </object>
         <object class="wxMenuItem" name="mnuFileDbMaint">
           <label>Database Maintenance</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuDeleteAll">
+          <label>Delete All Caches / Waypoints</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -16795,6 +16802,7 @@ def __gettext_strings():
     _("&Import GPX/Zip File")
     _("Synchronize GPX Sources")
     _("Database Maintenance")
+    _("Delete All Caches / Waypoints")
     _("E&xit")
     _("&Search")
     _("Show Map of Caches")

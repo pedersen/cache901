@@ -1044,6 +1044,12 @@ Line 7</value>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuDeleteAll">
+          <label>Delete All Caches / Waypoints</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <object class="wxMenuItem" name="mnuFileExit">
           <label>E&amp;xit</label>
           <accel>Ctrl-Q</accel>
