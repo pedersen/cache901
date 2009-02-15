@@ -124,10 +124,7 @@ def dmsToDec(dmsstr):
     return mult * (deg + mins + secs)
 
 def displayDMS(dec):
-    cfg = wx.Config.Get()
-    isinstance(cfg, wx.Config)
-    cfg.SetPath('/PerMachine')
-    idx = ['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min'))
+    idx = ['deg min sec', 'deg min', 'deg'].index(cache901.cfg().degdisplay)
     if idx == 0:
         return decToDMS(dec)
     elif idx == 1:

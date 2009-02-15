@@ -423,10 +423,9 @@ def execSearch(params):
     if params.has_key("searchOrigin"):
         org = params["searchOrigin"]
         if org == "From GPS":
-            cfg = wx.Config.Get()
-            cfg.SetPath('/PerMachine')
-            gpstype = cfg.Read('GPSType', 'nmea')
-            gpsport = cfg.Read('GPSPort', 'USB')
+            cfg = cache901.cfg()
+            gpstype = cfg.gpstype
+            gpsport = cfg.gpsport
             cache901.notify('Retrieving current GPS position')
             loc = gpsbabel.gps.getCurrentGpsLocation(gpsport, gpstype)
         else:

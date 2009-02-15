@@ -60,8 +60,6 @@ class Cache901App(wx.App):
         splash.Show()
         wx.SafeYield()
         self.Yield()
-        cache901.config = wx.Config(cache901.appname)
-        wx.Config.Set(cache901.config)
 
         self.mainwin = cache901.ui.Cache901UI(None)
         w,h = self.mainwin.GetSizeTuple()

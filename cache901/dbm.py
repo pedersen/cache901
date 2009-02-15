@@ -22,10 +22,7 @@ import wx
 import cache901
 
 def scrub():
-    cfg = wx.Config.Get()
-    isinstance(cfg, wx.Config)
-    cfg.SetPath('/PerMachine')
-    maxlogs = cfg.ReadInt("maxLogs", 10)
+    maxlogs = cache901.cfg().dbMaxLogs
     cache901.notify('Scrubbing database of old/invalid data')
     con = cache901.db()
     cur = con.cursor()

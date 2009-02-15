@@ -193,18 +193,17 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         # The following code block is a prime candidate for refactoring out into a separate object
         #-----------------------------------------------------------------------------------------
         # read the config file and set all the splitter window sash positions to their previous values
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        cfg.SetPath("/MainWin")
-        if cfg.HasEntry("Width") and cfg.HasEntry("Height"):
-            self.SetSize((cfg.ReadInt("Width"), cfg.ReadInt("Height")))
-        if cfg.HasEntry("DetailSplitPos"):
-            self.splitListsAndDetails.SetSashPosition(cfg.ReadInt("DetailSplitPos"))
+        cfg = cache901.cfg()
+        mainwinsize = cfg.mainwinsize
+        if mainwinsize is not None:
+            self.SetSize(mainwinsize)
+        if cfg.detailsplitpos is not None:
+            self.splitListsAndDetails.SetSashPosition(cfg.detailsplitpos)
             
-        self.splitLists.SetSashPosition(cfg.ReadInt("ListSplitPos"), 370)
-        self.descriptionSplitter.SetSashPosition(cfg.ReadInt("DescriptionSplitPos"),150)
-        self.logsSplitter.SetSashPosition(cfg.ReadInt("LogSplitPos"), 150)
-        self.picSplitter.SetSashPosition(cfg.ReadInt("PicSplitPos"), 300)
+        self.splitLists.SetSashPosition(cfg.listsplitpos)
+        self.descriptionSplitter.SetSashPosition(cfg.descsplitpos)
+        self.logsSplitter.SetSashPosition(cfg.logsplitpos)
+        self.picSplitter.SetSashPosition(cfg.picsplitpos)
 
 
     def clearAllGui(self):
@@ -382,17 +381,13 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             #-----------------------------------------------------------------------------------------
             # The following code block is a prime candidate for refactoring out into a separate object
             #-----------------------------------------------------------------------------------------
-            cfg=wx.Config.Get()
-            isinstance(cfg, wx.Config)
-            cfg.SetPath("/MainWin")
-            cfg.WriteInt("ListSplitPos", self.splitLists.GetSashPosition())
-            cfg.WriteInt("DetailSplitPos", self.splitListsAndDetails.GetSashPosition())
-            cfg.WriteInt("DescriptionSplitPos", self.descriptionSplitter.GetSashPosition())
-            cfg.WriteInt("LogSplitPos", self.logsSplitter.GetSashPosition())
-            cfg.WriteInt("PicSplitPos", self.picSplitter.GetSashPosition())
-            (w, h) = self.GetSize()
-            cfg.WriteInt("Width", w)
-            cfg.WriteInt("Height", h)
+            cfg=cache901.cfg()
+            cfg.listsplitpos = self.splitLists.GetSashPosition()
+            cfg.detailsplitpos = self.splitListsAndDetails.GetSashPosition()
+            cfg.descsplitpos = self.descriptionSplitter.GetSashPosition()
+            cfg.logsplitpos = self.logsSplitter.GetSashPosition()
+            cfg.picsplitpos = self.picSplitter.GetSashPosition()
+            cfg.mainwinsize = self.GetSize()
             try:
                 self.geoicons.Destroy()
             except:
@@ -586,13 +581,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     
     def OnImportFile(self, evt):
         fdg = wx.FileDialog(self, "Select GPX File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="GPX and Zip Files (*.gpx)|*.gpx;*.GPX;*.Gpx;*.zip;*.ZIP;*.Zip|All Files (*.*)|*.*")
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        cfg.SetPath("/Files")
-        if cfg.HasEntry("LastImportDir"):
-            fdg.SetDirectory(cfg.Read("LastImportDir"))
+        cfg = cache901.cfg()
+        if cfg.lastimportdir is not None:
+            fdg.SetDirectory(cfg.lastimportdir)
         if fdg.ShowModal() == wx.ID_OK:
-            cfg.Write("LastImportDir", fdg.GetDirectory())
+            cfg.lastimportdir = fdg.GetDirectory()
             for path in fdg.GetPaths():
                 self.importSpecificFile(path, False)
             cache901.sql.maintdb()
@@ -786,13 +779,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
     def OnAddPhoto(self, evt):
         fdg = wx.FileDialog(self, "Select Image File", style=wx.FD_DEFAULT_STYLE | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST | wx.FD_OPEN, wildcard="Photo Files (*.jpg;*.jpeg;*.png)|*.jpg;*.JPG;*.Jpg;*.jpeg;*.JPEG;*.Jpeg;*.png;*.PNG;*.Png|All Files (*.*)|*.*")
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        cfg.SetPath("/Files")
-        if cfg.HasEntry("LastPhotoDir"):
-            fdg.SetDirectory(cfg.Read("LastPhotoDir"))
+        cfg = cache901.cfg()
+        if cfg.lastphotodir is not None:
+            fdg.SetDirectory(cfg.lastphotodir)
         if fdg.ShowModal() == wx.ID_OK:
-            cfg.Write("LastPhotoDir", fdg.GetDirectory())
+            cfg.lastphotodir = fdg.GetDirectory()
             for fname in fdg.GetPaths():
                 dest = os.path.split(fname)[1]
                 idx = 0
@@ -948,8 +939,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(evt, wx.CommandEvent)
         win = evt.GetEventObject()
         isinstance(win, wx.Menu)
-        cfg = wx.Config.Get()
-        cfg.SetPath('/PerMachine')
+        cfg = cache901.cfg()
         if self.caches.GetFirstSelected() != -1:
             cache = cache901.dbobjects.Cache(self.caches.GetItemData(self.caches.GetFirstSelected()))
             ctp = 'cache'
@@ -960,7 +950,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         cache901.notify('Sending %s "%s" to GPS' % (ctp, cache.name))
         try:
             gpsbabel.gps.setInGpx(gpx)
-            gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, parseOutput=False)
+            gpsbabel.gps.write(cfg.gpsport, cfg.gpstype, wpt=True, parseOutput=False)
         except RuntimeError, e:
             wx.MessageBox(str(e), 'A GPS Babel Failure Occured', wx.ICON_ERROR | wx.CENTRE, self)
         self.pop = None
@@ -1011,12 +1001,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         mtext = item.GetLabel()
         day = cache901.dbobjects.CacheDay(mtext)
         gpx = cache901.util.CacheDayToGPX(day)
-        cfg = wx.Config.Get()
-        cfg.SetPath('/PerMachine')
+        cfg = cache901.cfg()
         cache901.notify('Sending Cache Day "%s" to GPS' % (mtext, ))
         try:
             gpsbabel.gps.setInGpx(gpx)
-            gpsbabel.gps.write(cfg.Read('GPSPort', 'usb:'), cfg.Read('GPSType', 'nmea'), wpt=True, route=True, parseOutput=False)
+            gpsbabel.gps.write(cfg.gpsport, cfg.gpstype, wpt=True, route=True, parseOutput=False)
         except RuntimeError, e:
             wx.MessageBox(str(e), 'A GPS Babel Failure Occured', wx.ICON_ERROR | wx.CENTRE, self)
         self.updStatus()

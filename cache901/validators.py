@@ -80,26 +80,20 @@ class cmdValidator(wx.PyValidator):
         
     def TransferToWindow(self):
         fp = self.GetWindow()
-        cfg = wx.Config.Get()
         top = fp.GetTopLevelParent()
         isinstance(top, cache901.options.OptionsUI)
         isinstance(fp, wx.FilePickerCtrl)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
-        cmd = cache901.util.which('gpsbabel')
-        if cmd is None: cmd = 'Select Executable'
-        loc = cfg.Read('GPSBabelLoc', cmd)
+        cfg = cache901.cfg()
+        loc = cfg.gpsbabel
         fp.SetPath(loc)
         top.gpsbabelPath.SetLabel('Path: %s' % loc)
         fp.Refresh()
     
     def TransferFromWindow(self):
         fp = self.GetWindow()
-        cfg = wx.Config.Get()
         isinstance(fp, wx.FilePickerCtrl)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('GPSBabelLoc', fp.GetPath())
+        cfg = cache901.cfg()
+        cfg.gpsbabel = fp.GetPath()
     
 class portValidator(wx.PyValidator):
     def Clone(self):
@@ -122,25 +116,21 @@ class portValidator(wx.PyValidator):
     
     def TransferToWindow(self):
         choice = self.GetWindow()
-        cfg = wx.Config.Get()
         isinstance(choice, wx.Choice)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
+        cfg = cache901.cfg()
         choice.Clear()
         choice.Append('USB:')
         choice.AppendItems(cache901.util.scanForSerial())
         try:
-            choice.SetSelection(choice.GetItems().index(cfg.Read('GPSPort', 'USB:')))
+            choice.SetSelection(choice.GetItems().index(cfg.gpsport))
         except:
             choice.SetSelection(0)
             
     def TransferFromWindow(self):
         choice = self.GetWindow()
-        cfg = wx.Config.Get()
         isinstance(choice, wx.Choice)
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('GPSPort', choice.GetItems()[choice.GetSelection()])
+        cfg = cache901.cfg()
+        cfg.gpsport = choice.GetItems()[choice.GetSelection()]
         
 class gpsTypeValidator(wx.PyValidator):
     def Clone(self):
@@ -154,23 +144,19 @@ class gpsTypeValidator(wx.PyValidator):
     
     def TransferToWindow(self):
         choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
         isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
+        cfg = cache901.cfg()
         items = map(lambda x: x.lower(), choice.GetItems())
         try:
-            choice.SetSelection(['garmin', 'nmea'].index(cfg.Read('GPSType', 'nmea')))
+            choice.SetSelection(['garmin', 'nmea'].index(cfg.gpstype))
         except:
             choice.SetSelection(0)
 
     def TransferFromWindow(self):
         choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
         isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('GPSType', choice.GetItems()[choice.GetSelection()].lower())
+        cfg = cache901.cfg()
+        cfg.gpstype = choice.GetItems()[choice.GetSelection()].lower()
         
 class degDisplayValidator(wx.PyValidator):
     def Clone(self):
@@ -184,23 +170,19 @@ class degDisplayValidator(wx.PyValidator):
     
     def TransferToWindow(self):
         choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
         isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
+        cfg = cache901.cfg()
         items = map(lambda x: x.lower(), choice.GetItems())
         try:
-            choice.SetSelection(['deg min sec', 'deg min', 'deg'].index(cfg.Read('degDisplay', 'deg min')))
+            choice.SetSelection(['deg min sec', 'deg min', 'deg'].index(cfg.degdisplay))
         except:
             choice.SetSelection(0)
 
     def TransferFromWindow(self):
         choice = self.GetWindow()
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
         isinstance(choice, wx.Choice)
-        cfg.SetPath('/PerMachine')
-        cfg.Write('degDisplay', choice.GetItems()[choice.GetSelection()].lower())
+        cfg = cache901.cfg()
+        cfg.degdisplay = choice.GetItems()[choice.GetSelection()].lower()
         
 
 class splitValidator(wx.PyValidator):

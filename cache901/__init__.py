@@ -27,6 +27,10 @@ if not hasattr(sys, "frozen") and 'wx' not in sys.modules and 'wxPython' not in 
 import wx
 
 import cache901.sql
+import cache901.config
+
+def cfg():
+    return cache901.config.Config()
 
 version = "0.6.1"
 appname = 'Cache901'
