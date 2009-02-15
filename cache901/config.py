@@ -101,29 +101,29 @@ class Config(object):
     
     def getDescSplitPos(self):
         self.config.SetPath('/MainWin')
-        return self.config.ReadInt('DescriptionSplitPos"', 150)
+        return self.config.ReadInt('DescriptionSplitPos', 150)
     
     def setDescSplitPos(self, pos):
         self.config.SetPath('/MainWin')
-        self.config.WriteInt('DescriptionSplitPos"', pos)
+        self.config.WriteInt('DescriptionSplitPos', pos)
         return pos
     
     def getLogSplitPos(self):
         self.config.SetPath('/MainWin')
-        return self.config.ReadInt('LogSplitPos"', 150)
+        return self.config.ReadInt('LogSplitPos', 150)
     
     def setLogSplitPos(self, pos):
         self.config.SetPath('/MainWin')
-        self.config.WriteInt('LogSplitPos"', pos)
+        self.config.WriteInt('LogSplitPos', pos)
         return pos
     
     def getPicSplitPos(self):
         self.config.SetPath('/MainWin')
-        return self.config.ReadInt('PicSplitPos"', 300)
+        return self.config.ReadInt('PicSplitPos', 300)
     
     def setPicSplitPos(self, pos):
         self.config.SetPath('/MainWin')
-        self.config.WriteInt('PicSplitPos"', pos)
+        self.config.WriteInt('PicSplitPos', pos)
         return pos
     
     def getLastPhotoDir(self):
