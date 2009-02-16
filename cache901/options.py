@@ -38,9 +38,9 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.gpsPort.SetValidator(cache901.validators.portValidator())
         self.gpsType.SetValidator(cache901.validators.gpsTypeValidator())
         self.coordDisplay.SetValidator(cache901.validators.degDisplayValidator())
-        self.locSplit.SetValidator(cache901.validators.splitValidator("locSplit"))
-        self.acctTabSplit.SetValidator(cache901.validators.splitValidator("acctTabSplit"))
-        self.maxLogs.SetValidator(cache901.validators.spinCtlValidator("maxLogs"))
+        self.locSplit.SetValidator(cache901.validators.splitValidator("optsplitloc"))
+        self.acctTabSplit.SetValidator(cache901.validators.splitValidator("optsplitacct"))
+        self.maxLogs.SetValidator(cache901.validators.spinCtlValidator("dbMaxLogs"))
         
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.cacheDays.InsertColumn(0, 'Cache Day', width=w)

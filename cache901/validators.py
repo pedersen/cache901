@@ -43,22 +43,18 @@ class spinCtlValidator(wx.PyValidator):
     
     def TransferToWindow(self):
         fp = self.GetWindow()
-        cfg = wx.Config.Get()
-        cfg.SetPath('/PerMachine')
         isinstance(fp, wx.SpinCtrl)
-        isinstance(cfg, wx.Config)
-        spinnum = cfg.ReadInt(self.varname, 10)
+        cfg = cache901.cfg()
+        spinnum = getattr(cfg, self.varname)
         fp.SetValue(spinnum)
         fp.Refresh()
         
     def TransferFromWindow(self):
         fp = self.GetWindow()
-        cfg = wx.Config.Get()
-        cfg.SetPath('/PerMachine')
         isinstance(fp, wx.SpinCtrl)
-        isinstance(cfg, wx.Config)
+        cfg = cache901.cfg()
         spinnum = fp.GetValue()
-        cfg.WriteInt(self.varname, spinnum)
+        setattr(cfg, self.varname, spinnum)
         
 class cmdValidator(wx.PyValidator):
     def Clone(self):
@@ -199,17 +195,11 @@ class splitValidator(wx.PyValidator):
     def TransferToWindow(self):
         choice = self.GetWindow()
         isinstance(choice, wx.SplitterWindow)
-        win = choice.GetTopLevelParent().__class__.__name__
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/%s' % win)
-        choice.SetSashPosition(cfg.ReadInt(self.varname, 175))
+        cfg = cache901.cfg()
+        choice.SetSashPosition(getattr(cfg, self.varname))
     
     def TransferFromWindow(self):
         choice = self.GetWindow()
         isinstance(choice, wx.SplitterWindow)
-        win = choice.GetTopLevelParent().__class__.__name__
-        cfg = wx.Config.Get()
-        isinstance(cfg, wx.Config)
-        cfg.SetPath('/%s' % win)
-        cfg.WriteInt(self.varname, choice.GetSashPosition())
+        cfg = cache901.cfg()
+        setattr(cfg, self.varname, choice.GetSashPosition())

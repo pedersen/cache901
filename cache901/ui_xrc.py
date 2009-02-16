@@ -3472,6 +3472,7 @@ http://www.justwill.com/</value>
     </object>
     <title>Cache Map</title>
     <style>wxDEFAULT_DIALOG_STYLE</style>
+    <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
   </object>
   <object class="wxMenu" name="CwMenu">
     <object class="wxMenuItem" name="popSendToGPS">
@@ -4015,6 +4016,7 @@ http://www.justwill.com/</value>
     <size>750,400</size>
     <title>GPX Data Sources</title>
     <style>wxDEFAULT_DIALOG_STYLE</style>
+    <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
   </object>
   <object class="wxDialog" name="LogUploadUI">
     <title>Cache Logs To Upload</title>

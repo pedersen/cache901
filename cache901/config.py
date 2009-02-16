@@ -157,19 +157,109 @@ class Config(object):
         self.config.Write('GPSBabelLoc', gpsbabel)
         return gpsbabel
     
-    dbMaxLogs      = property(getDbMaxLogs,      setDbMaxLogs)
-    gpstype        = property(getGpsType,        setGpsType)
-    gpsport        = property(getGpsPort,        setGpsPort)
-    degdisplay     = property(getDegDisplay,     setDegDisplay)
-    mainwinsize    = property(getMainWinSize,    setMainWinSize)
-    detailsplitpos = property(getDetailSplitPos, setDetailSplitPos)
-    listsplitpos   = property(getListSplitPos,   setListSplitPos)
-    descsplitpos   = property(getDescSplitPos,   setDescSplitPos)
-    logsplitpos    = property(getLogSplitPos,    setLogSplitPos)
-    picsplitpos    = property(getPicSplitPos,    setPicSplitPos)
-    lastimportdir  = property(getLastImportDir,  setLastImportDir)
-    lastphotodir   = property(getLastPhotoDir,   setLastPhotoDir)
-    gpsbabel       = property(getGpsbabelLoc,    setGpsbabelLoc)
+    def getSearchSplitSave(self):
+        self.config.SetPath('/SearchBox')
+        return self.config.ReadInt('splitterSave', 175)
+    
+    def setSearchSplitSave(self, pos):
+        self.config.SetPath('/SearchBox')
+        self.config.WriteInt('splitterSave', 175)
+        return pos
+    
+    def getSearchSplitType(self):
+        self.config.SetPath('/SearchBox')
+        return self.config.ReadInt('splitterType', 175)
+    
+    def setSearchSplitType(self, pos):
+        self.config.SetPath('/SearchBox')
+        self.config.WriteInt('splitterType', 175)
+        return pos
+    
+    def getSearchSplitRegions(self):
+        self.config.SetPath('/SearchBox')
+        return self.config.ReadInt('splitRegions', 175)
+    
+    def setSearchSplitRegions(self, pos):
+        self.config.SetPath('/SearchBox')
+        self.config.WriteInt('splitRegions', 175)
+        return pos
+    
+    def getOptSplitLoc(self):
+        self.config.SetPath('/OptionsUI')
+        return self.config.ReadInt('locSplit', 175)
+    
+    def setOptSplitLoc(self, pos):
+        self.config.SetPath('/OptionsUI')
+        self.config.WriteInt('locSplit', pos)
+        return pos
+    
+    def getOptSplitAcct(self):
+        self.config.SetPath('/OptionsUI')
+        return self.config.ReadInt('acctTabSplit', 175)
+    
+    def setOptSplitAcct(self, pos):
+        self.config.SetPath('/OptionsUI')
+        self.config.WriteInt('acctTabSplit', 175)
+        return pos
+    
+    def getGpxFolderSplit(self):
+        self.config.SetPath('/GPXSourceUI')
+        return self.config.ReadInt('foldersWptsSplit', 175)
+    
+    def setGpxFolderSplit(self, pos):
+        self.config.SetPath('/GPXSourceUI')
+        self.config.WriteInt('foldersWptsSplit', pos)
+        return pos
+        
+    def getGpxPop3Split(self):
+        self.config.SetPath('/GPXSourceUI')
+        return self.config.ReadInt('pop3Split', 175)
+    
+    def setGpxPop3Split(self, pos):
+        self.config.SetPath('/GPXSourceUI')
+        self.config.WriteInt('pop3Split', pos)
+        return pos
+        
+    def getGpxImap4Split(self):
+        self.config.SetPath('/GPXSourceUI')
+        return self.config.ReadInt('imap4Split', 175)
+    
+    def setGpxImap4Split(self, pos):
+        self.config.SetPath('/GPXSourceUI')
+        self.config.WriteInt('imap4Split', pos)
+        return pos
+    
+    def getMapSplit(self):
+        self.config.SetPath('/MapUI')
+        return self.config.ReadInt('mapSplit', 175)
+    
+    def setMapSplit(self, pos):
+        self.config.SetPath('/MapUI')
+        self.config.WriteInt('mapSplit', pos)
+        return pos
+        
+    dbMaxLogs          = property(getDbMaxLogs,          setDbMaxLogs)
+    gpstype            = property(getGpsType,            setGpsType)
+    gpsport            = property(getGpsPort,            setGpsPort)
+    degdisplay         = property(getDegDisplay,         setDegDisplay)
+    mainwinsize        = property(getMainWinSize,        setMainWinSize)
+    detailsplitpos     = property(getDetailSplitPos,     setDetailSplitPos)
+    listsplitpos       = property(getListSplitPos,       setListSplitPos)
+    descsplitpos       = property(getDescSplitPos,       setDescSplitPos)
+    logsplitpos        = property(getLogSplitPos,        setLogSplitPos)
+    picsplitpos        = property(getPicSplitPos,        setPicSplitPos)
+    lastimportdir      = property(getLastImportDir,      setLastImportDir)
+    lastphotodir       = property(getLastPhotoDir,       setLastPhotoDir)
+    gpsbabel           = property(getGpsbabelLoc,        setGpsbabelLoc)
+    searchsplitsave    = property(getSearchSplitSave,    setSearchSplitSave)
+    searchsplittype    = property(getSearchSplitType,    setSearchSplitType)
+    searchsplitregions = property(getSearchSplitRegions, setSearchSplitRegions)
+    optsplitloc        = property(getOptSplitLoc,        setOptSplitLoc)
+    optsplitacct       = property(getOptSplitAcct,       setOptSplitAcct)
+    gpxfoldersplit     = property(getGpxFolderSplit,     setGpxFolderSplit)
+    gpxpop3split       = property(getGpxPop3Split,       setGpxPop3Split)
+    gpximap4split      = property(getGpxImap4Split,      setGpxImap4Split)
+    mapsplit           = property(getMapSplit,           setMapSplit)
     
     def forWingIde(self):
         isinstance(self.config, wx.Config)

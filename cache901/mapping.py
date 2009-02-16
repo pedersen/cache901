@@ -90,7 +90,7 @@ class MapUI(cache901.ui_xrc.xrcMapUI):
                 cache901.notify('Loaded search origin %s' % str(cache901.util.forceAscii(self.searches[-1]['name'])))
 
         self.mapArea.SetScrollRate(20, 20)
-        self.mapSplit.SetValidator(cache901.validators.splitValidator("mapSplit"))
+        self.mapSplit.SetValidator(cache901.validators.splitValidator("mapsplit"))
 
         self.mapPanel.Bind(wx.EVT_PAINT,       self.OnPaint)
         self.mapPanel.Bind(wx.EVT_LEFT_DCLICK, self.OnMapDoubleClick)

@@ -390,9 +390,9 @@ def gpxSyncAll(callingwin):
 class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcGPXSourcesUI.__init__(self, parent)
-        self.foldersWaypointSplitter.SetValidator(cache901.validators.splitValidator('foldersWptsSplit'))
-        self.pop3Splitter.SetValidator(cache901.validators.splitValidator('pop3Split'))
-        self.imap4Splitter.SetValidator(cache901.validators.splitValidator('imap4Split'))
+        self.foldersWaypointSplitter.SetValidator(cache901.validators.splitValidator('gpxfoldersplit'))
+        self.pop3Splitter.SetValidator(cache901.validators.splitValidator('gpxpop3split'))
+        self.imap4Splitter.SetValidator(cache901.validators.splitValidator('gpximap4split'))
         
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.folderNames.InsertColumn(0, 'Folder Name', width=w)
