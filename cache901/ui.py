@@ -195,10 +195,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         # read the config file and set all the splitter window sash positions to their previous values
         cfg = cache901.cfg()
         mainwinsize = cfg.mainwinsize
-        if mainwinsize is not None:
-            self.SetSize(mainwinsize)
-        if cfg.detailsplitpos is not None:
-            self.splitListsAndDetails.SetSashPosition(cfg.detailsplitpos)
+        self.SetSize(mainwinsize)
+        self.splitListsAndDetails.SetSashPosition(cfg.detailsplitpos)
             
         self.splitLists.SetSashPosition(cfg.listsplitpos)
         self.descriptionSplitter.SetSashPosition(cfg.descsplitpos)

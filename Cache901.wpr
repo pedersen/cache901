@@ -5,15 +5,19 @@
 ##################################################################
 [project attributes]
 proj.directory-list = [{'dirloc': loc('.'),
-                        'excludes': [u'cache901/searchLocs.py'],
+                        'excludes': [u'cache901',
+                                     u'cache901/searchLocs.py',
+                                     u'cache901/cfg.py'],
+                        'filter': '*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True},
+                       {'dirloc': loc('cache901'),
+                        'excludes': (),
                         'filter': '*',
                         'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True}]
-proj.file-list = [loc('cache901/gpxsource.py'),
-                  loc('cache901/mapping.py'),
-                  loc('cache901/search.py'),
-                  loc('cache901/validators.py')]
 proj.file-type = 'shared'
 proj.main-file = loc('cache901/app.py')
 testing.auto-test-file-specs = ('*Test.py',)

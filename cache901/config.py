@@ -68,7 +68,7 @@ class Config(object):
     
     def getMainWinSize(self):
         self.config.SetPath('/MainWin')
-        if not self.config.HasEntry('Width') or not self.config.HasEntry('Height'): return None
+        if not self.config.HasEntry('Width') or not self.config.HasEntry('Height'): return wx.Size(800, 420)
         size = wx.Size()
         size.width = self.config.ReadInt('Width')
         size.height = self.config.ReadInt('Height')
@@ -82,8 +82,7 @@ class Config(object):
     
     def getDetailSplitPos(self):
         self.config.SetPath('/MainWin')
-        if not self.config.HasEntry('DetailSplitPos'): return None
-        return self.config.ReadInt('DetailSplitPos')
+        return self.config.ReadInt('DetailSplitPos', 200)
     
     def setDetailSplitPos(self, pos):
         self.config.SetPath('/MainWin')
