@@ -138,7 +138,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                         (self.OnGpxSources,     self.mnuGpxSources),
                         (self.OnDeleteCacheLog, self.mnuDeleteThisLog),
                         (self.OnDeleteCacheOrWaypoint, self.mnuDeleteThisCache),
-                        (self.OnDeleteAllCaches, self.mnuDeleteAll)
+                        (self.OnDeleteAllCaches, self.mnuDeleteAll),
+                        (self.OnDbBackup,       self.mnuFileBackup)
                       ] 
 
         for option in menuOptions:
@@ -371,6 +372,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         cache901.db().maintdb()
         self.updStatus()
         
+    def OnDbBackup(self, evt):
+        cache901.db().backup()
+        self.updStatus()
         
     def OnClose(self, evt):
         if  wx.MessageBox("Are you sure you wish to exit?", "Really Exit?", wx.YES_NO | wx.CENTER, self) == wx.YES:
