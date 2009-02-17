@@ -22,7 +22,7 @@ import xml.sax.handler
 import datetime
 import time
 
-import cache901.sqlobjects
+import cache901
 
 class XMLParser(object):
     def __init__(self):
@@ -36,7 +36,7 @@ class XMLParser(object):
             xml.sax.parse(data, self.handler)
         cache901.db().commit()
         if maint:
-            cache901.sql.maintdb()
+            cache901.db().maintdb()
 
 class XMLHandler(xml.sax.handler.ContentHandler):
     def __init__(self):
@@ -46,10 +46,10 @@ class XMLHandler(xml.sax.handler.ContentHandler):
     def reset(self):
         self.ccount  = 0
         self.chdata  = ""
-        self.wpt     = cache901.sqlobjects.xmlWaypointSaver()
-        self.log     = cache901.sqlobjects.xmlLogSaver()
-        self.logwpt  = cache901.sqlobjects.xmlWaypointSaver()
-        self.bug     = cache901.sqlobjects.xmlBugSaver()
+        self.wpt     = xmlWaypointSaver()
+        self.log     = xmlLogSaver()
+        self.logwpt  = xmlWaypointSaver()
+        self.bug     = xmlBugSaver()
         self.hints   = []
         self.read    = 0 # 0=None, 1=Wpt, 2=Log, 3=Bug, 4=Hint, 5=Log Waypoint
 
@@ -199,3 +199,78 @@ class XMLHandler(xml.sax.handler.ContentHandler):
                     self.log.Save()
                     self.read = 1
             self.chdata = ""
+
+class xmlWaypointSaver(object):
+    def __init__(self):
+        self.Clear()
+
+    def isCache(self):
+        return self.cache == True
+
+    def Clear(self):
+        for strs in ['name', 'desc', 'comment', 'url', 'url_name',
+                'url_desc', 'sym', 'type', 'placed_by', 'owner_name',
+                'container', 'country', 'state', 'short_desc', 'long_desc']:
+            setattr(self, strs, "")
+        for ints in ['loc_type', 'refers_to', 'id', 'catid', 'owner_id', 'hidden']:
+            setattr(self, ints, 0)
+        for floats in ['lat', 'lon', 'difficulty', 'terrain' ]:
+            setattr(self, floats, 0.00)
+        for bools in ['available', 'archived', 'short_desc_html',
+                'long_desc_html', 'cache']:
+            setattr(self, bools, False)
+
+    def Save(self):
+        cur = cache901.db().cursor()
+        ret = -1
+        if not self.isCache():
+            wpt_id = -1
+            cur.execute("delete from locations where name=?", (self.name, ))
+            r=cur.execute("insert into locations(loc_type, refers_to, name, desc, comment, lat, lon, hidden) values(?,?,?,?,?,?,?,?)", (self.loc_type, self.refers_to, self.name, self.desc, self.comment, self.lat, self.lon, self.hidden))
+            ret=r.lastrowid
+        else:
+            ret = self.cache_id
+            cur.execute("delete from caches where cache_id=?", (self.cache_id, ))
+            cur.execute("insert into caches(cache_id, name, lat, lon, url, url_name, url_desc, sym, type, available, archived, placed_by, owner_id, owner_name, container, difficulty, terrain, country, state, short_desc, short_desc_html, long_desc, long_desc_html, hidden) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (self.cache_id, self.name, self.lat, self.lon, self.url, self.url_name, self.url_desc, self.sym, self.type, self.available, self.archived, self.placed_by, self.owner_id, self.owner_name, self.container, self.difficulty, self.terrain, self.country, self.state, self.short_desc, self.short_desc_html, self.long_desc, self.long_desc_html, self.hidden))
+        self.Clear()
+        return ret
+
+class xmlLogSaver(object):
+    def __init__(self):
+        self.Clear()
+
+    def Clear(self):
+        self.id = -1
+        self.cache_id = -1
+        self.date = 0
+        self.type = ""
+        self.finder = ""
+        self.finder_id = ""
+        self.log_entry = ""
+        self.log_entry_encoded = ""
+        self.my_log = False
+        self.my_log_found = False
+
+    def Save(self):
+        cur=cache901.db().cursor()
+        cur.execute("delete from logs where id=?", (self.id, ))
+        cur.execute("insert into logs(id, finder, log_entry, log_entry_encoded, my_log, my_log_found, cache_id, date, type, finder_id) values(?,?,?,?,0,0,?,?,?,?)", (self.id, self.finder, self.log_entry, self.log_entry_encoded, self.cache_id, self.date, self.type, self.finder_id))
+        self.Clear()
+
+class xmlBugSaver(object):
+    def __init__(self):
+        self.Clear()
+
+    def Clear(self):
+        self.id = -1
+        self.cache_id = -1
+        self.name = ""
+        self.ref = ""
+
+    def Save(self):
+        ret = self.id
+        cur = cache901.db().cursor()
+        cur.execute("delete from travelbugs where id=?", (self.id, ))
+        r=cur.execute("insert into travelbugs(id, cache_id, name, ref) values(?,?,?,?)", (self.id, self.cache_id, self.name, self.ref))
+        self.Clear()
+        return ret

@@ -18,6 +18,7 @@ proj.directory-list = [{'dirloc': loc('.'),
                         'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True}]
+proj.file-list = [loc('cache901')]
 proj.file-type = 'shared'
 proj.main-file = loc('cache901/app.py')
 testing.auto-test-file-specs = ('*Test.py',)

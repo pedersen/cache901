@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import os
+import sys
+
 import wx
 
 import cache901
@@ -236,6 +239,29 @@ class Config(object):
         self.config.SetPath('/MapUI')
         self.config.WriteInt('mapSplit', pos)
         return pos
+    
+    def getDbPath(self):
+        if sys.platform == 'win32':
+            envvar = 'HOMEPATH'
+        else:
+            envvar = 'HOME'
+        return(os.sep.join([os.environ[envvar], cache901.appname]))
+        
+    def getDbFile(self):
+        self.config.SetPath('/PerMachine')
+        if not self.config.HasEntry('LastOpenedDb'):
+            return os.sep.join([self.dbpath, '%s.sqlite' % (cache901.appname)])
+        else:
+            return os.sep.join([self.dbpath, self.config.Read('LastOpenedDb')])
+        
+    def setDbFile(self, lastdb):
+        self.config.SetPath('/PerMachine')
+        isinstance(lastdb, str)
+        dbfile = lastdb.replace('%s%s' % (self.dbpath, os.sep), '')
+        if dbfile == lastdb:
+            raise Exception('Invalid Database Location. Database must be under %s' % (self.dbpath))
+        self.config.Write('LastOpenedDb', dbfile)
+        return lastdb
         
     dbMaxLogs          = property(getDbMaxLogs,          setDbMaxLogs)
     gpstype            = property(getGpsType,            setGpsType)
@@ -259,6 +285,8 @@ class Config(object):
     gpxpop3split       = property(getGpxPop3Split,       setGpxPop3Split)
     gpximap4split      = property(getGpxImap4Split,      setGpxImap4Split)
     mapsplit           = property(getMapSplit,           setMapSplit)
+    dbpath             = property(getDbPath)
+    dbfile             = property(getDbFile,             setDbFile)
     
     def forWingIde(self):
         isinstance(self.config, wx.Config)

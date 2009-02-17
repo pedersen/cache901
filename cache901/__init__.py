@@ -26,34 +26,14 @@ if not hasattr(sys, "frozen") and 'wx' not in sys.modules and 'wxPython' not in 
     wxversion.ensureMinimal("2.8")
 import wx
 
-import cache901.sql
 import cache901.config
-
-def cfg():
-    return cache901.config.Config()
+import cache901.database
 
 version = "0.6.1"
 appname = 'Cache901'
 
-if sys.platform == 'win32':
-    envvar = 'HOMEPATH'
-else:
-    envvar = 'HOME'
-dbfile = "%s.sqlite" % appname
-dbpath = os.sep.join([os.environ[envvar], appname])
-dbfname = os.sep.join([dbpath, dbfile])
-
-database = None
-def db(debugging=False):
-    global database
-    if database is None:
-        if debugging:
-            database = cache901.sql.prepdb(":memory:")
-        else:
-            if not os.path.isdir(dbpath):
-                os.makedirs(dbpath)
-            database = cache901.sql.prepdb(dbfname)
-    return database
+def cfg(): return cache901.config.Config()
+def db(debugging=False): return cache901.database.Database(debugging)
 
 updating = False
 def notify(message):

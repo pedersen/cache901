@@ -37,12 +37,10 @@ import wx.html
 
 import cache901
 import cache901.dbobjects
-import cache901.dbm
 import cache901.gpxsource
 import cache901.mapping
 import cache901.options
 import cache901.search
-import cache901.sql
 import cache901.ui_xrc
 import cache901.util as util
 import cache901.xml901
@@ -303,7 +301,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         if self.ld_cache is not None:
             for fname in self.ld_cache.photolist.names:
                 cache901.notify('Retreiving photo %s' % fname)
-                img = wx.BitmapFromImage(wx.Image(os.sep.join([cache901.dbpath, fname])).Scale(64, 64))
+                img = wx.BitmapFromImage(wx.Image(os.sep.join([cache901.cfg().dbpath, fname])).Scale(64, 64))
                 pnum = self.photoImageList.Add(img)
                 self.photoList.InsertImageItem(pnum, pnum)
             if self.photoList.GetItemCount() > 0:
@@ -370,7 +368,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
 
     def OnDbMaint(self, evt):
-        cache901.sql.maintdb()
+        cache901.db().maintdb()
         self.updStatus()
         
         
@@ -397,7 +395,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
     def OnDeleteAllCaches(self, evt):
         if  wx.MessageBox("Are you sure you wish to delete *all* caches and waypoints?\nThis action *cannot* be undone!", "Really Delete?", wx.YES_NO | wx.CENTER, self) == wx.YES:
-            cache901.dbm.delAllCaches()
+            cache901.db().delAllCaches()
             self.clearAllGui()
             self.loadData()
             self.loadWaypoints()
@@ -574,7 +572,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         else:
             cache901.notify('Unable to process file %s' % path)
         if maintdb:
-            cache901.sql.maintdb()
+            cache901.db().maintdb()
     
     
     def OnImportFile(self, evt):
@@ -586,7 +584,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             cfg.lastimportdir = fdg.GetDirectory()
             for path in fdg.GetPaths():
                 self.importSpecificFile(path, False)
-            cache901.sql.maintdb()
+            cache901.db().maintdb()
             self.loadData()
         self.updStatus()
 
@@ -785,9 +783,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             for fname in fdg.GetPaths():
                 dest = os.path.split(fname)[1]
                 idx = 0
-                while os.path.exists(os.sep.join([cache901.dbpath, dest])):
+                while os.path.exists(os.sep.join([cache901.cfg().dbpath, dest])):
                     dest = "%06d-%s" % (idx, dest)
-                fulldest = os.sep.join([cache901.dbpath, dest])
+                fulldest = os.sep.join([cache901.cfg().dbpath, dest])
                 cache901.notify('Copying file %s to %s' % (fname, fulldest))
                 shutil.copyfile(fname, fulldest)
                 self.ld_cache.photolist.names.append(dest)
@@ -799,7 +797,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
     def OnSwitchPhoto(self, evt):
         idx = evt.GetImage()
-        fname = os.sep.join([cache901.dbpath, self.ld_cache.photolist.names[idx]])
+        fname = os.sep.join([cache901.cfg().dbpath, self.ld_cache.photolist.names[idx]])
         img = wx.Image(fname)
         
         # Get photo size and scale it
@@ -829,7 +827,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnRemovePhoto(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             idx = self.photoList.GetFirstSelected()
-            fname = os.sep.join([cache901.dbpath, self.ld_cache.photolist.names[idx]])
+            fname = os.sep.join([cache901.cfg().dbpath, self.ld_cache.photolist.names[idx]])
             os.unlink(fname)
             del self.ld_cache.photolist.names[idx]
             self.ld_cache.photolist.Save()
@@ -1028,7 +1026,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnDropFiles(self, x, y, filenames):
         for filename in filenames:
             self.importSpecificFile(filename, False)
-        cache901.sql.maintdb()
+        cache901.db().maintdb()
         self.updStatus()
             
     

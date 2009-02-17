@@ -76,6 +76,10 @@ class Cache901App(wx.App):
         self.mainwin.updStatus()
         self.mainwin.SetFocus()
         return(True)
+    
+    def OnExit(self):
+        cache901.db().close
+        return 0
 
 def main():
     app = Cache901App(redirect=False, useBestVisual=True)

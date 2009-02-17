@@ -192,7 +192,7 @@ class GeoCachingComSource(GPXSource):
         self.password = password
         self.wptnames = wptnames
         self.useragent = 'Mozilla/4.0 (compatible; MSIE 5.5; Cache 901)'
-        self.cfilename = os.sep.join([cache901.dbpath, 'gccom_cookie.jar'])
+        self.cfilename = os.sep.join([cache901.cfg().dbpath, 'gccom_cookie.jar'])
         self.ltrans = cache901.ui.logTrans()
         self.login()
         
@@ -385,7 +385,7 @@ def gpxSyncAll(callingwin):
             parser.parse(gpxfile, False)
             
     # Finally, perform all database maintenance
-    cache901.sql.maintdb()
+    cache901.db().maintdb()
 
 class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def __init__(self, parent=None):
