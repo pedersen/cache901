@@ -17,9 +17,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import datetime
 import os
 import os.path
 import sqlite3
+import zipfile
 
 import cache901
 
@@ -134,6 +136,18 @@ class Database(object):
         cur.execute("analyze")
         self.commit()
 
+    def backup(self):
+        self.close()
+        today = datetime.date.today().isoformat()
+        ext = "-%s.zip" % (today)
+        dbfile = cache901.cfg().dbfile.encode('ascii')
+        zfilename = "%s%s" % (os.path.splitext(dbfile)[0], ext)
+        arcname = "%s-%s.sqlite" % (os.path.splitext(os.path.split(dbfile)[1])[0], today)
+        arcname = arcname.encode('ascii')
+        z=zipfile.ZipFile(zfilename, "w", allowZip64=True)
+        z.write(dbfile, arcname, compress_type=zipfile.ZIP_DEFLATED)
+        z.close()
+        self.open()
     
     statements_v001 = [
         "CREATE TABLE version (version integer)",
