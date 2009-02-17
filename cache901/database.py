@@ -35,6 +35,7 @@ class Database(object):
             self.open(cache901.cfg().dbfile, debugging)
     
     def open(self, dbfile=None, debugging=False):
+        if dbfile is None: dbfile = cache901.cfg().dbfile
         self.close()
         if debugging:
             self.prepdb(":memory:")
@@ -138,14 +139,17 @@ class Database(object):
 
     def backup(self):
         self.close()
+        dbpath = cache901.cfg().dbpath
         today = datetime.date.today().isoformat()
         ext = "-%s.zip" % (today)
-        dbfile = cache901.cfg().dbfile.encode('ascii')
-        zfilename = "%s%s" % (os.path.splitext(dbfile)[0], ext)
-        arcname = "%s-%s.sqlite" % (os.path.splitext(os.path.split(dbfile)[1])[0], today)
-        arcname = arcname.encode('ascii')
+        zfilename = os.sep.join([dbpath, 'Cache901_Backup%s' % ext])
         z=zipfile.ZipFile(zfilename, "w", allowZip64=True)
-        z.write(dbfile, arcname, compress_type=zipfile.ZIP_DEFLATED)
+        for dbfile in filter(lambda x:x.lower().endswith('.sqlite'), os.listdir(cache901.cfg().dbpath)):
+            dbfile = os.sep.join([dbpath, dbfile.encode('ascii')])
+            arcname = "%s-%s.sqlite" % (os.path.splitext(os.path.split(dbfile)[1])[0], today)
+            arcname = arcname.encode('ascii')
+            cache901.notify('Backing up %s into %s' % (arcname, zfilename))
+            z.write(dbfile, arcname, compress_type=zipfile.ZIP_DEFLATED)
         z.close()
         self.open()
     
