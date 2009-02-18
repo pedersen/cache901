@@ -1051,12 +1051,6 @@ Line 7</value>
               <assign_var>1</assign_var>
             </XRCED>
           </object>
-          <object class="wxMenuItem" name="mnuFileRestore">
-            <label>Restore Database</label>
-            <XRCED>
-              <assign_var>1</assign_var>
-            </XRCED>
-          </object>
           <label>Database</label>
           <XRCED>
             <assign_var>1</assign_var>

@@ -95,7 +95,6 @@ class xrcCache901UI(wx.Frame):
             self.mnuDatabase = self.GetMenuBar().FindItemById(xrc.XRCID("mnuDatabase")).GetSubMenu()
         self.mnuFileDbMaint = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileDbMaint"))
         self.mnuFileBackup = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileBackup"))
-        self.mnuFileRestore = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileRestore"))
         idx = self.GetMenuBar().FindMenu("Switch Database")
         if idx != wx.NOT_FOUND:
             self.mnuSwitchDb = self.GetMenuBar().GetMenu(idx)
@@ -1534,12 +1533,6 @@ Line 7</value>
           </object>
           <object class="wxMenuItem" name="mnuFileBackup">
             <label>Backup All Databases</label>
-            <XRCED>
-              <assign_var>1</assign_var>
-            </XRCED>
-          </object>
-          <object class="wxMenuItem" name="mnuFileRestore">
-            <label>Restore Database</label>
             <XRCED>
               <assign_var>1</assign_var>
             </XRCED>
@@ -16843,7 +16836,6 @@ def __gettext_strings():
     _("Synchronize GPX Sources")
     _("Database Maintenance")
     _("Backup All Databases")
-    _("Restore Database")
     _("Database")
     _("Switch Database")
     _("Delete All Caches / Waypoints")
