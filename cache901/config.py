@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 """
 
 import os
+import os.path
 import sys
 
 import wx
@@ -253,6 +254,13 @@ class Config(object):
             return os.sep.join([self.dbpath, '%s.sqlite' % (cache901.appname)])
         else:
             return os.sep.join([self.dbpath, self.config.Read('LastOpenedDb')])
+    
+    def getDbFileBase(self):
+        self.config.SetPath('/PerMachine')
+        if not self.config.HasEntry('LastOpenedDb'):
+            return cache901.appname
+        else:
+            return os.path.splitext(self.config.Read('LastOpenedDb'))[0]
         
     def setDbFile(self, lastdb):
         self.config.SetPath('/PerMachine')
@@ -287,6 +295,7 @@ class Config(object):
     mapsplit           = property(getMapSplit,           setMapSplit)
     dbpath             = property(getDbPath)
     dbfile             = property(getDbFile,             setDbFile)
+    dbfilebase         = property(getDbFileBase)
     
     def forWingIde(self):
         isinstance(self.config, wx.Config)

@@ -40,10 +40,10 @@ class Database(object):
         if debugging:
             self.prepdb(":memory:")
         else:
+            cache901.cfg().dbfile = dbfile
             if not os.path.isdir(cache901.cfg().dbpath):
                 os.makedirs(cache901.cfg().dbpath)
             self.prepdb(cache901.cfg().dbfile)
-            cache901.cfg().dbfile = dbfile
     
     def close(self):
         if hasattr(self, "database"):
@@ -66,14 +66,14 @@ class Database(object):
             row = cur.fetchone()
             vname = 'statements_v%03d' % row[0]
             for stgrp in self.allstatements[self.allstatements.index(vname)+1:]:
-                stmts = globals()[stgrp]
+                stmts = Database.__dict__[stgrp]
                 self.sqlexec(stmts, debug)
                 vnum = int(stgrp[-3:])
                 cur.execute("UPDATE version SET version=?", (vnum, ))
                 self.database.commit()
         except sqlite3.OperationalError:
-            for stgrp in allstatements:
-                stmts = globals()[stgrp]
+            for stgrp in self.allstatements:
+                stmts = Database.__dict__[stgrp]
                 self.sqlexec(stmts, debug)
                 vnum = int(stgrp[-3:])
                 cur.execute("UPDATE version SET version=?", (vnum, ))

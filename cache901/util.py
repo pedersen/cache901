@@ -241,6 +241,9 @@ def getDefaultCoords(cache):
     return (cache.lat, cache.lon)
     
 
+def getDbList():
+    return map(lambda x: os.path.splitext(x)[0], filter(lambda x: x.lower().endswith('.sqlite'), os.listdir(cache901.cfg().dbpath)))
+
 def CacheToGPX(cache):
     gpx = gpsbabel.GPXData()
     wpt = gpsbabel.GPXWaypoint()

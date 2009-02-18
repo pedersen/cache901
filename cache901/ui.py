@@ -79,6 +79,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.updPhotoList()
         # The following is done last, since some menu items are dynamically generated.
         self.bindMenuOptions()
+        self.buildDbMenu()
 
 
     def miscBinds(self):
@@ -276,6 +277,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         
     def OnGpxSync(self, evt):
         cache901.gpxsource.gpxSyncAll(self)
+        self.loadData()
         self.updStatus()
     
     
@@ -1083,6 +1085,45 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                 if wx.MessageBox('Really remove coordinates for "%s"?' % (rowname), "Confirm Deletion", wx.ICON_QUESTION | wx.YES_NO, self) == wx.YES:
                     self.grdAltCoords.DeleteRows(row-1)
         
+    def OnNewDatabase(self, evt):
+        newdb = wx.GetTextFromUser('Enter the new database name:', 'Make A New Database')
+        newdbname = filter(lambda x:x.isalnum() or x in ['_', '-'] or x.isspace(), newdb)
+        if newdbname != '':
+            newdb = os.sep.join([cache901.cfg().dbpath, "%s.sqlite" % (newdbname)])
+            cache901.db().open(newdb)
+            self.buildDbMenu()
+            self.loadData()
+            self.updStatus()
+        else:
+            wx.MessageBox('New Database Name "%s" Invalid.\nOnly use letters,numbers, spaces, _ and -.\nAborting' % newdb,
+                          "Invalid Database Name", wx.ICON_ERROR)
+    
+    def OnSwitchDatabase(self, evt):
+        isinstance(evt, wx.CommandEvent)
+        item = self.mnuSwitchDb.FindItemById(evt.GetId())
+        isinstance(item, wx.MenuItem)
+        dbname = os.sep.join([cache901.cfg().dbpath, "%s.sqlite" % (item.GetItemLabel())])
+        cache901.db().open(dbname)
+        self.loadData()
+        dbname = cache901.cfg().dbfilebase
+        for item in self.mnuSwitchDb.GetMenuItems():
+                item.Check(dbname == item.GetLabel())
+        self.updStatus()
+    
+    def buildDbMenu(self):
+        for item in self.mnuSwitchDb.GetMenuItems():
+            self.mnuSwitchDb.RemoveItem(item)
+        item = self.mnuSwitchDb.Append(-1, 'New Database')
+        self.Bind(wx.EVT_MENU, self.OnNewDatabase, item)
+        self.mnuSwitchDb.AppendSeparator()
+        dbname = cache901.cfg().dbfilebase
+        for db in cache901.util.getDbList():
+            item = self.mnuSwitchDb.AppendCheckItem(-1, db)
+            isinstance(item, wx.MenuItem)
+            self.Bind(wx.EVT_MENU, self.OnSwitchDatabase, item)
+            if dbname == db:
+                item.Check()
+    
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)
@@ -1149,6 +1190,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.btnRemAltCoords, wx.Button)
         isinstance(self.grdAltCoords, wx.grid.Grid)
         isinstance(self.mnuDeleteAll, wx.MenuItem)
+        isinstance(self.mnuDatabase, wx.Menu)
+        isinstance(self.mnuFileBackup, wx.MenuItem)
+        isinstance(self.mnuSwitchDb, wx.Menu)
+        isinstance(self.mnuFileRestore, wx.MenuItem)
 
         
 class AltCoordsTable(wx.grid.PyGridTableBase):

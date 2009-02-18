@@ -32,8 +32,11 @@ import cache901.database
 version = "0.6.1"
 appname = 'Cache901'
 
-def cfg(): return cache901.config.Config()
-def db(debugging=False): return cache901.database.Database(debugging)
+def cfg():
+    return cache901.config.Config()
+
+def db(debugging=False):
+    return cache901.database.Database(debugging)
 
 updating = False
 def notify(message):

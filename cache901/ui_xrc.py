@@ -88,8 +88,19 @@ class xrcCache901UI(wx.Frame):
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
         self.mnuGpxSync = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGpxSync"))
+        idx = self.GetMenuBar().FindMenu("Database Maintenance")
+        if idx != wx.NOT_FOUND:
+            self.mnuDatabase = self.GetMenuBar().GetMenu(idx)
+        else:
+            self.mnuDatabase = self.GetMenuBar().FindItemById(xrc.XRCID("mnuDatabase")).GetSubMenu()
         self.mnuFileDbMaint = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileDbMaint"))
         self.mnuFileBackup = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileBackup"))
+        self.mnuFileRestore = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileRestore"))
+        idx = self.GetMenuBar().FindMenu("Switch Database")
+        if idx != wx.NOT_FOUND:
+            self.mnuSwitchDb = self.GetMenuBar().GetMenu(idx)
+        else:
+            self.mnuSwitchDb = self.GetMenuBar().FindItemById(xrc.XRCID("mnuSwitchDb")).GetSubMenu()
         self.mnuDeleteAll = self.GetMenuBar().FindItemById(xrc.XRCID("mnuDeleteAll"))
         self.mnuFileExit = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileExit"))
         idx = self.GetMenuBar().FindMenu("&Search")
@@ -1514,14 +1525,34 @@ Line 7</value>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        <object class="wxMenuItem" name="mnuFileDbMaint">
-          <label>Database Maintenance</label>
+        <object class="wxMenu" name="mnuDatabase">
+          <object class="wxMenuItem" name="mnuFileDbMaint">
+            <label>Database Maintenance</label>
+            <XRCED>
+              <assign_var>1</assign_var>
+            </XRCED>
+          </object>
+          <object class="wxMenuItem" name="mnuFileBackup">
+            <label>Backup All Databases</label>
+            <XRCED>
+              <assign_var>1</assign_var>
+            </XRCED>
+          </object>
+          <object class="wxMenuItem" name="mnuFileRestore">
+            <label>Restore Database</label>
+            <XRCED>
+              <assign_var>1</assign_var>
+            </XRCED>
+          </object>
+          <label>Database</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        <object class="wxMenuItem" name="mnuFileBackup">
-          <label>Backup All Databases</label>
+        
+        
+        <object class="wxMenu" name="mnuSwitchDb">
+          <label>Switch Database</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -16812,6 +16843,9 @@ def __gettext_strings():
     _("Synchronize GPX Sources")
     _("Database Maintenance")
     _("Backup All Databases")
+    _("Restore Database")
+    _("Database")
+    _("Switch Database")
     _("Delete All Caches / Waypoints")
     _("E&xit")
     _("&Search")

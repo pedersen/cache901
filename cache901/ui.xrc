@@ -1038,14 +1038,34 @@ Line 7</value>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        <object class="wxMenuItem" name="mnuFileDbMaint">
-          <label>Database Maintenance</label>
+        <object class="wxMenu" name="mnuDatabase">
+          <object class="wxMenuItem" name="mnuFileDbMaint">
+            <label>Database Maintenance</label>
+            <XRCED>
+              <assign_var>1</assign_var>
+            </XRCED>
+          </object>
+          <object class="wxMenuItem" name="mnuFileBackup">
+            <label>Backup All Databases</label>
+            <XRCED>
+              <assign_var>1</assign_var>
+            </XRCED>
+          </object>
+          <object class="wxMenuItem" name="mnuFileRestore">
+            <label>Restore Database</label>
+            <XRCED>
+              <assign_var>1</assign_var>
+            </XRCED>
+          </object>
+          <label>Database</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        <object class="wxMenuItem" name="mnuFileBackup">
-          <label>Backup All Databases</label>
+        
+        
+        <object class="wxMenu" name="mnuSwitchDb">
+          <label>Switch Database</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
