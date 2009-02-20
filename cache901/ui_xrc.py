@@ -1542,8 +1542,6 @@ Line 7</value>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
-        
-        
         <object class="wxMenu" name="mnuSwitchDb">
           <label>Switch Database</label>
           <XRCED>
@@ -1693,7 +1691,7 @@ Line 7</value>
     </object>
     <object class="wxStatusBar" name="statusBar">
       <fields>2</fields>
-      <widths>-3,-1</widths>
+      <widths>-3,-2</widths>
       <XRCED>
         <assign_var>1</assign_var>
       </XRCED>

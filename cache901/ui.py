@@ -95,8 +95,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         rect = self.statusBar.GetFieldRect(1)
         self.searchlabel = wx.StaticText(self.statusBar, label="Search:", pos=(rect.x+8, rect.y+2))
         w,h = self.searchlabel.GetSizeTuple()
-        self.search = wx.TextCtrl(self.statusBar, pos=(rect.x+5+w, rect.y+2), style=wx.WANTS_CHARS, size=(rect.width-15-w, rect.height))
-        self.search.SetToolTipString("At least three characters to search")
+        self.searchbtn = wx.Button(self.statusBar, -1, "Search", pos=(0,0), style=wx.BU_EXACTFIT)
+        self.search = wx.TextCtrl(self.statusBar, pos=(rect.x+5+w, rect.y+2), style=wx.WANTS_CHARS)
         self.search.SetLabel('Search: ')
         self.search.SetValue("")
         font = self.search.GetFont()
@@ -106,16 +106,21 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             font.SetPointSize(font.GetPointSize() - 0.5)
             w,h = self.search.GetTextExtent('lq')
             self.search.SetFont(font)
+            self.searchbtn.SetFont(font)
 
         # bind the key up event to the event handler
-        self.search.Bind(wx.EVT_KEY_UP, self.OnChangeSearch)
+        self.Bind(wx.EVT_BUTTON, self.OnChangeSearch)
         self.moveStatusBarSearchField()
 
     def moveStatusBarSearchField(self):
         rect = self.statusBar.GetFieldRect(1)
         self.searchlabel.SetPosition(wx.Point(rect.x+8, rect.y+2))
         w,h = self.searchlabel.GetSizeTuple()
+        w2, h2 = self.searchbtn.GetSizeTuple()
         self.search.SetPosition(wx.Point(rect.x+5+w, rect.y+2))
+        self.search.SetSize((rect.width-20-w-w2, rect.height))
+        self.searchbtn.SetPosition(wx.Point(rect.x+rect.width-17-w, rect.y+1))
+        self.searchbtn.SetSize(wx.Size(w2, rect.height+2))
 
     def bindMenuOptions(self):
         # bind the menu options to their event handlers
@@ -596,11 +601,12 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
 
     def OnChangeSearch(self, evt):
-        if len(self.search.GetValue()) > 2 or len(self.search.GetValue()) == 0:
-            self.loadData()
-            self.search.SetFocus()
-            self.search.SetSelection(0, 0)
-            self.search.SetInsertionPointEnd()
+        self.clearAllGui()
+        self.loadData()
+        self.search.SetFocus()
+        self.search.SetSelection(0, 0)
+        self.search.SetInsertionPointEnd()
+        self.updStatus()
 
 
     def OnAbout(self, evt):
