@@ -49,6 +49,7 @@ class xrcCache901UI(wx.Frame):
         self.sizeText = xrc.XRCCTRL(self, "sizeText")
         self.placedByText = xrc.XRCCTRL(self, "placedByText")
         self.cacheType = xrc.XRCCTRL(self, "cacheType")
+        self.ownerLabel = xrc.XRCCTRL(self, "ownerLabel")
         self.ownerText = xrc.XRCCTRL(self, "ownerText")
         self.difficultyText = xrc.XRCCTRL(self, "difficultyText")
         self.terrainText = xrc.XRCCTRL(self, "terrainText")
@@ -723,7 +724,7 @@ def __init_resources():
                           <cellpos>3,1</cellpos>
                         </object>
                         <object class="sizeritem">
-                          <object class="wxStaticText">
+                          <object class="wxStaticText" name="ownerLabel">
                             <label>Owner:</label>
                             <font>
                               <size>9</size>
@@ -733,6 +734,9 @@ def __init_resources():
                               <family>swiss</family>
                               <face>Sans</face>
                             </font>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
                           </object>
                           <cellpos>2,2</cellpos>
                         </object>

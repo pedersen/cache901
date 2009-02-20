@@ -497,6 +497,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.sizeText.SetLabel(self.ld_cache.container)
         self.placedByText.SetLabel(self.ld_cache.placed_by.replace('&', '&&')[:25])
         self.ownerText.SetLabel(self.ld_cache.owner_name.replace('&', '&&')[:25])
+        self.ownerLabel.Show(self.placedByText.GetLabel() != self.ownerText.GetLabel())
+        self.ownerText.Show(self.placedByText.GetLabel() != self.ownerText.GetLabel())
         bmp = wx.ImageFromBitmap(self.geoicons[self.ld_cache.type]).Scale(32,32)
         self.cacheTypeIcon.SetBitmap(wx.BitmapFromImage(bmp))
         self.stateText.SetLabel(self.ld_cache.state)
