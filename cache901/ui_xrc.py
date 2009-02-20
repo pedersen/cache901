@@ -51,6 +51,7 @@ class xrcCache901UI(wx.Frame):
         self.cacheType = xrc.XRCCTRL(self, "cacheType")
         self.ownerLabel = xrc.XRCCTRL(self, "ownerLabel")
         self.ownerText = xrc.XRCCTRL(self, "ownerText")
+        self.bugCount = xrc.XRCCTRL(self, "bugCount")
         self.difficultyText = xrc.XRCCTRL(self, "difficultyText")
         self.terrainText = xrc.XRCCTRL(self, "terrainText")
         self.stateText = xrc.XRCCTRL(self, "stateText")
@@ -749,6 +750,39 @@ def __init_resources():
                           </object>
                           <minsize>125,15</minsize>
                           <cellpos>2,3</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText">
+                            <label># Bugs:</label>
+                            <font>
+                              <size>9</size>
+                              <style>normal</style>
+                              <weight>bold</weight>
+                              <underlined>0</underlined>
+                              <family>swiss</family>
+                              <face>Sans</face>
+                              <encoding>UTF-8</encoding>
+                            </font>
+                          </object>
+                          <cellpos>3,2</cellpos>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxStaticText" name="bugCount">
+                            <label>0</label>
+                            <font>
+                              <size>9</size>
+                              <style>normal</style>
+                              <weight>normal</weight>
+                              <underlined>0</underlined>
+                              <family>swiss</family>
+                              <face>Sans</face>
+                              <encoding>UTF-8</encoding>
+                            </font>
+                            <XRCED>
+                              <assign_var>1</assign_var>
+                            </XRCED>
+                          </object>
+                          <cellpos>3,3</cellpos>
                         </object>
                         <object class="sizeritem">
                           <object class="wxStaticText">
@@ -16788,6 +16822,8 @@ def __gettext_strings():
     _("Cache Type Here")
     _("Owner:")
     _("Cacher Name Here")
+    _("# Bugs:")
+    _("0")
     _("Diff:")
     _("4.0")
     _("Terr:")

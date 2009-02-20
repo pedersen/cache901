@@ -234,6 +234,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.available.SetValue(True)
         self.archived.SetValue(False)
         self.hintText.SetValue("")
+        self.bugCount.SetLabel("")
         
         # Clear the descriptions tab
         self.cacheDescriptionShort.SetPage("")
@@ -505,6 +506,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.countryText.SetLabel(self.ld_cache.country)
         self.available.SetValue(self.ld_cache.available)
         self.archived.SetValue(self.ld_cache.archived)
+        self.bugCount.SetLabel(str(len(self.ld_cache.bugs)))
         self.cacheType.SetLabel(self.ld_cache.type.split("|")[-1])
         self.cacheBasics.Fit()
         try:
@@ -1202,6 +1204,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.mnuFileBackup, wx.MenuItem)
         isinstance(self.mnuSwitchDb, wx.Menu)
         isinstance(self.mnuFileRestore, wx.MenuItem)
+        isinstance(self.searchbtn, wx.Button)
+        isinstance(self.ownerLabel, wx.StaticText)
+        isinstance(self.bugCount, wx.StaticText)
 
         
 class AltCoordsTable(wx.grid.PyGridTableBase):
