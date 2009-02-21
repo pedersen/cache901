@@ -109,7 +109,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             self.searchbtn.SetFont(font)
 
         # bind the key up event to the event handler
-        self.Bind(wx.EVT_BUTTON, self.OnChangeSearch)
+        self.searchbtn.Bind(wx.EVT_BUTTON, self.OnChangeSearch)
         self.moveStatusBarSearchField()
 
     def moveStatusBarSearchField(self):
