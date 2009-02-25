@@ -46,6 +46,19 @@ import cache901.util as util
 import cache901.xml901
 
 class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.ColumnSorterMixin):
+    """
+    The main UI class.
+    """
+    # define a dictionary that we'll use when allowing a different order to the list columns of the main list control.
+    # data in the tuple elements are in the format (db Column Number, Heading Text, Text Extent)
+    LISTDATA =  {
+                    "Difficulty" : (1, "D", "5.00"), 
+                    "Terrain"    : (2, "T", "5.00"), 
+                    "Cache Name" : (3, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), 
+                    "Cache ID"   : (5, "Cache ID", "QQQQQQQQ"), 
+                    "Distance"   : (4, "Dist", "QQQQQQ")
+                }
+
     def __init__(self, parent=None):
         cache901.ui_xrc.xrcCache901UI.__init__(self, parent)
         wx.FileDropTarget.__init__(self)
@@ -194,9 +207,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.grdAltCoords.EnableDragGridSize()
 
     def setSashPositionsFromConfig(self):
-        #-----------------------------------------------------------------------------------------
-        # The following code block is a prime candidate for refactoring out into a separate object
-        #-----------------------------------------------------------------------------------------
         # read the config file and set all the splitter window sash positions to their previous values
         cfg = cache901.cfg()
         mainwinsize = cfg.mainwinsize
@@ -352,9 +362,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.caches.DeleteAllItems()
         self.caches.DeleteAllColumns()
         self.itemDataMap = {}
-        for i in ((0, "D", "5.00"), (1, "T", "5.00"), (2, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), (3, "Cache ID", "QQQQQQQQ"), (4, "Dist", "QQQQQQ")):
-            w, h = self.GetTextExtent(i[2])
-            self.caches.InsertColumn(i[0], i[1], width=w)
+        columnOrder = self.getCacheListColumns()
+        for colName in columnOrder:
+            w, h = self.GetTextExtent(self.LISTDATA[colName][2])
+            self.caches.InsertColumn(columnOrder.index(colName), self.LISTDATA[colName][1], width=w)
 
         if len(self.search.GetValue()) > 2:
             params["urlname"] = self.search.GetValue()
@@ -363,14 +374,19 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                 del params["urlname"]
         cache901.notify('Refreshing cache list from database')
         for row in cache901.search.execSearch(params):
-            cache_id = self.caches.Append((row[1], row[2], row[3], row[5], row[4]))
+            cacheElements = [row[self.LISTDATA[colName][0]] for colName in columnOrder]
+            cacheTuple = tuple(cacheElements)
+            cache_id = self.caches.Append(cacheTuple)
             self.caches.SetItemData(cache_id, row[0])
-            self.itemDataMap[row[0]] = (row[1], row[2], row[3], row[5], row[4])
+            self.itemDataMap[row[0]] = cacheTuple
         if self.caches.GetItemCount() > 0:
             self.caches.Select(0)
 
         #self.loadWaypoints(wpt_params)
 
+    def getCacheListColumns(self):
+        cfg = cache901.cfg()
+        return cfg.cachecolumnorder
 
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
@@ -387,7 +403,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnClose(self, evt):
         if  wx.MessageBox("Are you sure you wish to exit?", "Really Exit?", wx.YES_NO | wx.CENTER, self) == wx.YES:
             #-----------------------------------------------------------------------------------------
-            # The following code block is a prime candidate for refactoring out into a separate object
+            # Save the positions of the various GUI controls, so they can be restored next time
             #-----------------------------------------------------------------------------------------
             cfg=cache901.cfg()
             cfg.listsplitpos = self.splitLists.GetSashPosition()
@@ -623,6 +639,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnSearchLocs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showSearch()
+        # if the column orders were changed in the preferences dialog, then we need
+        # to reload all the cache data to make sure the new prefs are picked up
+        if opts.colsRearranged:
+            self.loadData()
         self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:
@@ -642,6 +662,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnGeoAccounts(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeoAccounts()
+        # if the column orders were changed in the preferences dialog, then we need
+        # to reload all the cache data to make sure the new prefs are picked up
+        if opts.colsRearranged:
+            self.loadData()
         self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:
@@ -661,6 +685,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnPrefs(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showGeneral()
+        # if the column orders were changed in the preferences dialog, then we need
+        # to reload all the cache data to make sure the new prefs are picked up
+        if opts.colsRearranged:
+            self.loadData()
         self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:
@@ -680,6 +708,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
+        # if the column orders were changed in the preferences dialog, then we need
+        # to reload all the cache data to make sure the new prefs are picked up
+        if opts.colsRearranged:
+            self.loadData()
         self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
         iid = self.caches.GetFirstSelected()
         if iid == -1:

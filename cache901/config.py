@@ -270,6 +270,24 @@ class Config(object):
             raise Exception('Invalid Database Location. Database must be under %s' % (self.dbpath))
         self.config.Write('LastOpenedDb', dbfile)
         return lastdb
+
+    def getCacheColumnOrder(self):
+        self.config.SetPath("/OptionsUI")
+        if not self.config.HasEntry("CacheColumnOrder"): 
+            return ["Difficulty", "Terrain", "Cache Name", "Distance", "Cache ID"]
+        else:
+            colOrderString = self.config.Read("CacheColumnOrder")
+            return colOrderString.split(",")
+
+    def setCacheColumnOrder(self, colOrderList):
+        self.config.SetPath("/OptionsUI")
+        orderString = ""
+        for col in colOrderList:
+            orderString = orderString + col
+            if col != colOrderList[-1]:
+                orderString = orderString + ","
+        self.config.Write("CacheColumnOrder", orderString)
+        return colOrderList
         
     dbMaxLogs          = property(getDbMaxLogs,          setDbMaxLogs)
     gpstype            = property(getGpsType,            setGpsType)
@@ -293,6 +311,7 @@ class Config(object):
     gpxpop3split       = property(getGpxPop3Split,       setGpxPop3Split)
     gpximap4split      = property(getGpxImap4Split,      setGpxImap4Split)
     mapsplit           = property(getMapSplit,           setMapSplit)
+    cachecolumnorder   = property(getCacheColumnOrder,   setCacheColumnOrder)
     dbpath             = property(getDbPath)
     dbfile             = property(getDbFile,             setDbFile)
     dbfilebase         = property(getDbFileBase)

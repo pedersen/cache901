@@ -34,6 +34,7 @@ import gpsbabel
 class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def __init__(self, listOfCaches, parent=None):
         cache901.ui_xrc.xrcOptionsUI.__init__(self, parent)
+        self.colsRearranged = False
         self.gpsbabelLoc.SetValidator(cache901.validators.cmdValidator())
         self.gpsPort.SetValidator(cache901.validators.portValidator())
         self.gpsType.SetValidator(cache901.validators.gpsTypeValidator())
@@ -60,6 +61,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.loadOrigins()
         self.listCacheDays()
         self.loadAccounts()
+        self.loadGUIPreferences()
         
         self.Bind(wx.EVT_BUTTON, self.OnRemoveOrigin,   self.remLoc)
         self.Bind(wx.EVT_BUTTON, self.OnAddOrigin,      self.addLoc)
@@ -75,10 +77,15 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.Bind(wx.EVT_BUTTON, self.OnAddAccount,     self.btnAddAcount)
         self.Bind(wx.EVT_BUTTON, self.OnRemAccount,     self.btnRemAccount)
         self.Bind(wx.EVT_BUTTON, self.OnSaveAccount,    self.btnSaveAccount)
+        self.Bind(wx.EVT_BUTTON, self.OnColMoveUp,      self.colMoveUpButton)
+        self.Bind(wx.EVT_BUTTON, self.OnColMoveDown,    self.colMoveDownButton)
         
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadOrigin,   self.locations)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadCacheDay, self.cacheDays)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadAccount,  self.accountNames)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnColumnSelect, self.colOrderList)
+
+        self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.OnColumnDeselect, self.colOrderList)
         
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnAddCache, self.availCaches)
         
@@ -110,6 +117,13 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         for row in cache901.util.getSearchLocs():
             sid = self.locations.Append((row[1],))
             self.locations.SetItemData(sid, row[0])
+            
+    def loadGUIPreferences(self):
+        # get the current column order list from the config
+        cfg = cache901.cfg()
+        orderList = cfg.cachecolumnorder
+        for column in orderList:
+            self.colOrderList.InsertStringItem(orderList.index(column), column)
 
     def OnAddAccount(self, evt):
         acct = cache901.dbobjects.Account(cache901.dbobjects.minint)
@@ -366,6 +380,55 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             elif isinstance(cache, cache901.dbobjects.Waypoint):
                 iid = self.cachesForDay.Append((cache.name, ))
                 self.cachesForDay.SetItemData(iid, cache.wpt_id)
+
+    def OnColMoveUp(self, evt):
+        index = self.colOrderList.GetFirstSelected()
+        newIndex = index - 1
+        itemText = self.colOrderList.GetItemText(index)
+        self.colOrderList.DeleteItem(index)
+        self.colOrderList.InsertStringItem(newIndex, itemText)
+        self.colOrderList.Select(newIndex)
+        self.saveColumnOrder()
+        
+    def OnColMoveDown(self, evt):
+        index = self.colOrderList.GetFirstSelected()
+        newIndex = index + 1
+        itemText = self.colOrderList.GetItemText(index)
+        self.colOrderList.DeleteItem(index)
+        self.colOrderList.InsertStringItem(newIndex, itemText)
+        self.colOrderList.Select(newIndex)
+        self.saveColumnOrder()
+
+    def OnColumnSelect(self, evt):
+        maxIndex = self.colOrderList.GetItemCount()
+        index = self.colOrderList.GetFirstSelected()
+        if index == 0:
+            self.colMoveUpButton.Disable()
+            self.colMoveDownButton.Enable()
+        elif index == maxIndex - 1:
+            self.colMoveUpButton.Enable()
+            self.colMoveDownButton.Disable()
+        else:
+            self.colMoveUpButton.Enable()
+            self.colMoveDownButton.Enable()
+            
+    def OnColumnDeselect(self, evt):
+        index = self.colOrderList.GetFirstSelected()
+        if index == -1:
+            self.colMoveUpButton.Disable()
+            self.colMoveDownButton.Disable()
+            
+    def saveColumnOrder(self):
+        # get the column titles in the order they appear now
+        newOrderList = []
+        maxIndex = self.colOrderList.GetItemCount()
+        for index in range(maxIndex):
+            newOrderList.append(self.colOrderList.GetItemText(index))
+            
+        # save the new order list to the config
+        cfg = cache901.cfg()
+        cfg.cachecolumnorder = newOrderList
+        self.colsRearranged = True
     
     def forWingIde(self):
         """
@@ -423,4 +486,10 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         isinstance(self.acctIsTeam,     wx.CheckBox)
         isinstance(self.acctIsPremium,  wx.CheckBox)
         isinstance(self.btnSaveAccount, wx.Button)
+        
+        # GUI Preferences Tab
+        isinstance(self.guiPreferences,    wx.Panel)
+        isinstance(self.colOrderList,      wx.ListCtrl)
+        isinstance(self.colMoveUpButton,   wx.Button)
+        isinstance(self.colMoveDownButton, wx.Button)
         

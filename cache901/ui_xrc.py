@@ -287,6 +287,9 @@ class xrcOptionsUI(wx.Dialog):
         self.acctIsTeam = xrc.XRCCTRL(self, "acctIsTeam")
         self.acctIsPremium = xrc.XRCCTRL(self, "acctIsPremium")
         self.btnSaveAccount = xrc.XRCCTRL(self, "btnSaveAccount")
+        self.colOrderList = xrc.XRCCTRL(self, "colOrderList")
+        self.colMoveUpButton = xrc.XRCCTRL(self, "colMoveUpButton")
+        self.colMoveDownButton = xrc.XRCCTRL(self, "colMoveDownButton")
 
 
 
@@ -486,8 +489,7 @@ def __init_resources():
     wx.FileSystem.AddHandler(wx.MemoryFSHandler())
 
     ui_xrc = '''\
-<?xml version="1.0" ?>
-<resource>
+<?xml version="1.0" ?><resource>
   <object class="wxFrame" name="Cache901UI">
     <object class="wxSplitterWindow" name="splitListsAndDetails">
       <object class="wxPanel" name="cachesAndPoints">
@@ -1690,25 +1692,25 @@ Line 7</value>
       <object class="wxMenu">
         <label>&amp;Preferences</label>
         <object class="wxMenuItem" name="mnuFilePrefs">
-          <label>&amp;Preferences</label>
+          <label>&amp;Preferences...</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
         <object class="wxMenuItem" name="mnuFileLocs">
-          <label>&amp;Search Locations</label>
+          <label>&amp;Centerpoints...</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
         <object class="wxMenuItem" name="mnuPrefsAccounts">
-          <label>GeoCaching Accounts</label>
+          <label>Geocaching Accounts...</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
         <object class="wxMenuItem" name="mnuGpxSources">
-          <label>GPX Sources</label>
+          <label>GPX Sources...</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -2724,6 +2726,77 @@ http://www.justwill.com/</value>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
+          <object class="notebookpage">
+            <object class="wxPanel" name="guiPreferences">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxGridBagSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="sizeritem">
+                          <object class="wxGridBagSizer">
+                            <object class="sizeritem">
+                              <object class="wxListCtrl" name="colOrderList">
+                                <style>wxSUNKEN_BORDER|wxLC_LIST</style>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <option>1</option>
+                              <flag>wxEXPAND|wxGROW</flag>
+                              <cellpos>0,0</cellpos>
+                              <cellspan>1,2</cellspan>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton" name="colMoveUpButton">
+                                <label>Move Up</label>
+                                <enabled>0</enabled>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxALL</flag>
+                              <cellpos>1,0</cellpos>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton" name="colMoveDownButton">
+                                <label>Move Down</label>
+                                <enabled>0</enabled>
+                                <XRCED>
+                                  <assign_var>1</assign_var>
+                                </XRCED>
+                              </object>
+                              <flag>wxALL</flag>
+                              <cellpos>1,1</cellpos>
+                            </object>
+                            <vgap>5</vgap>
+                            <hgap>5</hgap>
+                            <growablerows>0</growablerows>
+                          </object>
+                          <option>1</option>
+                          <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                          <border>3</border>
+                        </object>
+                        <label>Cache List Column Order</label>
+                        <orient>wxVERTICAL</orient>
+                      </object>
+                      <option>1</option>
+                      <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                      <cellpos>0,0</cellpos>
+                    </object>
+                    <vgap>10</vgap>
+                    <hgap>10</hgap>
+                    <growablerows>0</growablerows>
+                  </object>
+                  <option>1</option>
+                  <flag>wxALL|wxEXPAND|wxGROW|wxADJUST_MINSIZE</flag>
+                  <border>5</border>
+                </object>
+              </object>
+            </object>
+            <label>GUI Preferences</label>
+          </object>
         </object>
         <option>1</option>
         <flag>wxEXPAND|wxGROW</flag>
@@ -16894,10 +16967,10 @@ def __gettext_strings():
     _("Send To GPS")
     _("CacheDay")
     _("&Preferences")
-    _("&Preferences")
-    _("&Search Locations")
-    _("GeoCaching Accounts")
-    _("GPX Sources")
+    _("&Preferences...")
+    _("&Centerpoints...")
+    _("Geocaching Accounts...")
+    _("GPX Sources...")
     _("&Help")
     _("&About")
     _("Cache 901 - Caching At The Upper Levels")
@@ -16960,6 +17033,10 @@ def __gettext_strings():
     _("Is Premium Account?")
     _("Save")
     _("Accounts")
+    _("Move Up")
+    _("Move Down")
+    _("Cache List Column Order")
+    _("GUI Preferences")
     _("&OK")
     _("&Cancel")
     _("Cache901 Options")
