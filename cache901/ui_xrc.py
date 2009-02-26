@@ -133,6 +133,7 @@ class xrcCache901UI(wx.Frame):
         self.mnuFileLocs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileLocs"))
         self.mnuPrefsAccounts = self.GetMenuBar().FindItemById(xrc.XRCID("mnuPrefsAccounts"))
         self.mnuGpxSources = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGpxSources"))
+        self.mnuGuiPrefs = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGuiPrefs"))
         self.mnuHelpAbout = self.GetMenuBar().FindItemById(xrc.XRCID("mnuHelpAbout"))
         self.statusBar = xrc.XRCCTRL(self, "statusBar")
 
@@ -1711,6 +1712,12 @@ Line 7</value>
         </object>
         <object class="wxMenuItem" name="mnuGpxSources">
           <label>GPX Sources...</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuGuiPrefs">
+          <label>GUI Preferences</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -16971,6 +16978,7 @@ def __gettext_strings():
     _("&Centerpoints...")
     _("Geocaching Accounts...")
     _("GPX Sources...")
+    _("GUI Preferences")
     _("&Help")
     _("&About")
     _("Cache 901 - Caching At The Upper Levels")

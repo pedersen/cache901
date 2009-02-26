@@ -144,6 +144,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                         (self.OnAbout,          self.mnuHelpAbout),
                         (self.OnSearchLocs,     self.mnuFileLocs),
                         (self.OnPrefs,          self.mnuFilePrefs),
+                        (self.OnGuiPrefs,       self.mnuGuiPrefs),
                         (self.OnShowMap,        self.showMap),
                         (self.OnAddPhoto,       self.mnuAddPhoto),
                         (self.OnRemovePhoto,    self.mnuRemovePhoto),
@@ -701,6 +702,29 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
 
 
+    def OnGuiPrefs(self, evt):
+        opts = cache901.options.OptionsUI(self.caches, self)
+        opts.showGuiPrefs()
+        # if the column orders were changed in the preferences dialog, then we need
+        # to reload all the cache data to make sure the new prefs are picked up
+        if opts.colsRearranged:
+            self.loadData()
+        self.mnuLogThisCache.Enable(len(self.listGCAccounts()) > 0)
+        iid = self.caches.GetFirstSelected()
+        if iid == -1:
+            iid = self.points.GetFirstSelected()
+            self.points.Select(iid, 0)
+            self.points.Select(iid, 1)
+        else:
+            self.caches.Select(iid, 0)
+            self.caches.Select(iid, 1)
+        self.updSearchMenu()
+        for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
+            self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
+        for item in self.updCacheDayMenus(self.mnuSendCacheDayToGPS, False):
+            self.Bind(wx.EVT_MENU, self.OnSendCacheDayToGPS, item)
+
+
     def OnCacheDay(self, evt):
         opts = cache901.options.OptionsUI(self.caches, self)
         opts.showCacheDay()
@@ -1235,6 +1259,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.searchbtn, wx.Button)
         isinstance(self.ownerLabel, wx.StaticText)
         isinstance(self.bugCount, wx.StaticText)
+        isinstance(self.mnuGuiPrefs, wx.MenuItem)
 
         
 class AltCoordsTable(wx.grid.PyGridTableBase):

@@ -184,6 +184,10 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def showGeoAccounts(self):
         self.tabs.ChangeSelection(3)
         self.ShowModal()
+    
+    def showGuiPrefs(self):
+        self.tabs.ChangeSelection(4)
+        self.ShowModal()
         
     def OnRemoveOrigin(self, evt):
         sel = self.locations.GetFirstSelected()
