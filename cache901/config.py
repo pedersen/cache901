@@ -281,11 +281,7 @@ class Config(object):
 
     def setCacheColumnOrder(self, colOrderList):
         self.config.SetPath("/OptionsUI")
-        orderString = ""
-        for col in colOrderList:
-            orderString = orderString + col
-            if col != colOrderList[-1]:
-                orderString = orderString + ","
+        orderString = ",".join(colOrderList)
         self.config.Write("CacheColumnOrder", orderString)
         return colOrderList
         

@@ -420,11 +420,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             
     def saveColumnOrder(self):
         # get the column titles in the order they appear now
-        newOrderList = []
-        maxIndex = self.colOrderList.GetItemCount()
-        for index in range(maxIndex):
-            newOrderList.append(self.colOrderList.GetItemText(index))
-            
+        newOrderList = map(lambda idx: self.colOrderList.GetItemText(idx), range(self.colOrderList.GetItemCount()))
         # save the new order list to the config
         cfg = cache901.cfg()
         cfg.cachecolumnorder = newOrderList

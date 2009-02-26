@@ -362,7 +362,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.caches.DeleteAllItems()
         self.caches.DeleteAllColumns()
         self.itemDataMap = {}
-        columnOrder = self.getCacheListColumns()
+        columnOrder = cache901.cfg().cachecolumnorder
         for colName in columnOrder:
             w, h = self.GetTextExtent(self.LISTDATA[colName][2])
             self.caches.InsertColumn(columnOrder.index(colName), self.LISTDATA[colName][1], width=w)
@@ -383,10 +383,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             self.caches.Select(0)
 
         #self.loadWaypoints(wpt_params)
-
-    def getCacheListColumns(self):
-        cfg = cache901.cfg()
-        return cfg.cachecolumnorder
 
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
