@@ -1,4 +1,17 @@
 """
+This module contains a single class, Config. The idea behind this class is
+to provide transparent access to the wx.Config class, and make it easier
+to store and retrieve arbitrary data.
+
+The rest of the code should not know or care how the data is structured
+for storage. As such, this class should always accept program ready data,
+and return program ready data.
+
+For instance, if a window size is stored, then the class should accept a
+wx.Size object to be stored, and return a wx.Size object to the calling
+code. The same goes for lists, integers, etc.
+"""
+"""
 Cache901 - GeoCaching Software for the Asus EEE PC 901
 Copyright (C) 2008, Michael J. Pedersen <m.pedersen@icelus.org>
 
