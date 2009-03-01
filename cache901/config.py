@@ -80,7 +80,7 @@ class Config(object):
     
     def setDegDisplay(self, degdisplay):
         self.config.SetPath('/PerMachine')
-        self.config.Write('degDisplay', 'deg min')
+        self.config.Write('degDisplay', degdisplay)
         return degdisplay
     
     def getMainWinSize(self):
@@ -179,7 +179,7 @@ class Config(object):
     
     def setSearchSplitSave(self, pos):
         self.config.SetPath('/SearchBox')
-        self.config.WriteInt('splitterSave', 175)
+        self.config.WriteInt('splitterSave', pos)
         return pos
     
     def getSearchSplitType(self):
@@ -188,7 +188,7 @@ class Config(object):
     
     def setSearchSplitType(self, pos):
         self.config.SetPath('/SearchBox')
-        self.config.WriteInt('splitterType', 175)
+        self.config.WriteInt('splitterType', pos)
         return pos
     
     def getSearchSplitRegions(self):
@@ -197,7 +197,7 @@ class Config(object):
     
     def setSearchSplitRegions(self, pos):
         self.config.SetPath('/SearchBox')
-        self.config.WriteInt('splitRegions', 175)
+        self.config.WriteInt('splitRegions', pos)
         return pos
     
     def getOptSplitLoc(self):
@@ -215,7 +215,7 @@ class Config(object):
     
     def setOptSplitAcct(self, pos):
         self.config.SetPath('/OptionsUI')
-        self.config.WriteInt('acctTabSplit', 175)
+        self.config.WriteInt('acctTabSplit', pos)
         return pos
     
     def getGpxFolderSplit(self):

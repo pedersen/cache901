@@ -1475,3 +1475,20 @@ class geoicons(cache901.ui_xrc.xrcgeoIcons):
             return self.appicon.GetBitmap()
         else:
             return self.mystery.GetBitmap()
+
+    
+    def keys(self):
+        return ("Geocache|Cache In Trash Out Event",
+        "Geocache|Earthcache",
+        "Geocache|Event Cache",
+        "Geocache|Letterbox Hybrid",
+        "Geocache|Mega-Event Cache",
+        "Geocache|Multi-cache",
+        "Geocache|Traditional Cache",
+        "Geocache|Unknown Cache",
+        "Geocache|Virtual Cache",
+        "Geocache|Webcam Cache",
+        "Geocache|Wherigo Cache",
+        "www.geocaching.com",
+        "appicon",
+        "searchloc")
