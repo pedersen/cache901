@@ -242,16 +242,14 @@ def getDefaultCoords(cache):
     return (cache.lat, cache.lon)
     
 
-def exportKML(cacheids, confirmDir=True):
-    outdir = cache901.cfg().lastkmldir
+def exportKML(cacheids, outdir=None, confirmDir=True):
     if outdir is None and not confirmDir:
         raise Exception('Never exported KML before, no idea where to write it.')
     if confirmDir:
         if outdir is None: outdir = wx.EmptyString
-        dirsel=wx.DirSelector("Select output directory", outdir, parent=wx.GetApp().GetTopWindow())
-        if dirsel != "":
-            cache901.cfg().lastkmldir = dirsel
-    outdir = cache901.cfg().lastkmldir
+        outdir=wx.DirSelector("Select output directory", outdir, parent=wx.GetApp().GetTopWindow())
+        if outdir != "":
+            cache901.cfg().lastkmldir = outdir
     k = cache901.kml.KML()
     k.export(cacheids, outdir)
 
