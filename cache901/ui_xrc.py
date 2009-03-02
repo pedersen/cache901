@@ -90,6 +90,7 @@ class xrcCache901UI(wx.Frame):
         self.mainMenu = self.GetMenuBar()
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
         self.mnuGpxSync = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGpxSync"))
+        self.mnuExportKML = self.GetMenuBar().FindItemById(xrc.XRCID("mnuExportKML"))
         idx = self.GetMenuBar().FindMenu("Database Maintenance")
         if idx != wx.NOT_FOUND:
             self.mnuDatabase = self.GetMenuBar().GetMenu(idx)
@@ -1561,6 +1562,12 @@ Line 7</value>
         </object>
         <object class="wxMenuItem" name="mnuGpxSync">
           <label>Synchronize GPX Sources</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
+        <object class="wxMenuItem" name="mnuExportKML">
+          <label>Export to KML</label>
           <XRCED>
             <assign_var>1</assign_var>
           </XRCED>
@@ -16952,6 +16959,7 @@ def __gettext_strings():
     _("&File")
     _("&Import GPX/Zip File")
     _("Synchronize GPX Sources")
+    _("Export to KML")
     _("Database Maintenance")
     _("Backup All Databases")
     _("Database")

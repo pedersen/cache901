@@ -42,7 +42,7 @@ import cache901.mapping
 import cache901.options
 import cache901.search
 import cache901.ui_xrc
-import cache901.util as util
+import cache901.util
 import cache901.xml901
 
 class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.ColumnSorterMixin):
@@ -159,7 +159,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                         (self.OnDeleteCacheLog, self.mnuDeleteThisLog),
                         (self.OnDeleteCacheOrWaypoint, self.mnuDeleteThisCache),
                         (self.OnDeleteAllCaches, self.mnuDeleteAll),
-                        (self.OnDbBackup,       self.mnuFileBackup)
+                        (self.OnDbBackup,       self.mnuFileBackup),
+                        (self.OnExportKML,      self.mnuExportKML)
                       ] 
 
         for option in menuOptions:
@@ -458,7 +459,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         try:
             self.hintText.SetValue(self.hintText.GetValue().encode('rot13'))
         except:
-            self.hintText.SetValue(util.forceAscii(self.ld_cache.hint.hint).encode('rot13'))
+            self.hintText.SetValue(cache901.util.forceAscii(self.ld_cache.hint.hint).encode('rot13'))
         dectext = self.decodeButton.GetLabel()
         dectext = "Encode" if dectext == "Decode" else "Decode"
         self.decodeButton.SetLabel(dectext)
@@ -1186,6 +1187,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             if dbname == db:
                 item.Check()
     
+    def OnExportKML(self, evt):
+        cache901.util.exportKML(self.itemDataMap.keys())
+        self.updStatus()
+    
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)
@@ -1260,6 +1265,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(self.ownerLabel, wx.StaticText)
         isinstance(self.bugCount, wx.StaticText)
         isinstance(self.mnuGuiPrefs, wx.MenuItem)
+        isinstance(self.mnuExportKML, wx.MenuItem)
 
         
 class AltCoordsTable(wx.grid.PyGridTableBase):
@@ -1490,5 +1496,4 @@ class geoicons(cache901.ui_xrc.xrcgeoIcons):
         "Geocache|Webcam Cache",
         "Geocache|Wherigo Cache",
         "www.geocaching.com",
-        "appicon",
         "searchloc")

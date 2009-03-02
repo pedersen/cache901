@@ -142,6 +142,16 @@ class Config(object):
         self.config.WriteInt('PicSplitPos', pos)
         return pos
     
+    def getLastKMLDir(self):
+        self.config.SetPath("/Files")
+        if not self.config.HasEntry("LastKMLDir"): return None
+        return self.config.Read("LastKMLDir")
+    
+    def setLastKMLDir(self, lastdir):
+        self.config.SetPath("/Files")
+        self.config.Write("LastKMLDir", lastdir)
+        return lastdir
+        
     def getLastPhotoDir(self):
         self.config.SetPath("/Files")
         if not self.config.HasEntry("LastPhotoDir"): return None
@@ -310,6 +320,7 @@ class Config(object):
     picsplitpos        = property(getPicSplitPos,        setPicSplitPos)
     lastimportdir      = property(getLastImportDir,      setLastImportDir)
     lastphotodir       = property(getLastPhotoDir,       setLastPhotoDir)
+    lastkmldir         = property(getLastKMLDir,         setLastKMLDir)
     gpsbabel           = property(getGpsbabelLoc,        setGpsbabelLoc)
     searchsplitsave    = property(getSearchSplitSave,    setSearchSplitSave)
     searchsplittype    = property(getSearchSplitType,    setSearchSplitType)

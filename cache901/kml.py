@@ -27,6 +27,7 @@ import wx
 import cache901
 import cache901.dbobjects
 import cache901.ui
+import cache901.util
 
 from xml.sax.saxutils import escape
 
@@ -34,7 +35,7 @@ class KML(object):
     def __init__(self):
         self.fh = None
         self.cacheids = None
-        #self.geo = wx.GetApp().GetTopWindow().geoicons
+        self.geo = wx.GetApp().GetTopWindow().geoicons
     
     def export(self, cacheids, outdir):
         """
@@ -42,13 +43,21 @@ class KML(object):
             database
         """
         self.cacheids = cacheids
+        cache901.notify('Validating output directory')
         self.validateOutdir(outdir)
-        #self.saveImages(outdir)
+        cache901.notify('Exporting icons')
+        self.saveImages(outdir)
+        cache901.notify('Writing KML header')
         self.writeHeader(outdir)
-        #self.writeStyles()
+        cache901.notify('Writing KML styles')
+        self.writeStyles()
+        cache901.notify('Writing Search Locations')
         self.writeSearchLocations()
+        cache901.notify('Writing CacheDays')
         self.writeCacheDays()
+        cache901.notify('Writing Caches')
         self.writeCaches()
+        cache901.notify('Writing KML footer')
         self.writeFooter()
     
     def safeName(self, name):
@@ -104,7 +113,7 @@ class KML(object):
         for loc in cache901.util.getSearchLocs():
             wpt = cache901.dbobjects.Waypoint(loc[0])
             self.fh.write('    <Placemark>\n')
-            self.fh.write('      <name>%s</name>\n' % escape(wpt.name))
+            self.fh.write('      <name>%s</name>\n' % escape(cache901.util.forceAscii(wpt.name)))
             self.fh.write('      <styleUrl>#searchloc</styleUrl>\n')
             self.fh.write('      <Point>\n')
             self.fh.write('        <extrude>1</extrude>\n')
@@ -127,7 +136,7 @@ class KML(object):
                         visible = visible and (cache.cache_id in self.cacheids)
                 if visible:
                     self.fh.write('    <Placemark>\n')
-                    self.fh.write('      <name>%s</name>\n' % escape(cd.dayname))
+                    self.fh.write('      <name>%s</name>\n' % escape(cache901.util.forceAscii(cd.dayname)))
                     self.fh.write('      <LineString>\n')
                     self.fh.write('        <extrude>1</extrude>\n')
                     self.fh.write('        <tesselate>1</tesselate>\n')
@@ -144,7 +153,7 @@ class KML(object):
         cur = cache901.db().cursor()
         cur.execute('select cache_id,type,name,url_name,difficulty,terrain,url,lat,lon from caches where cache_id in (%s) order by type, name' % ",".join(map(lambda x: "%d" % x, self.cacheids)))
         for row in cur:
-            kmlname = "%s - %s (%1.1f / %1.1f)" % (row['name'], row['url_name'], row['difficulty'], row['terrain'])
+            kmlname = escape("%s - %s (%1.1f / %1.1f)" % (cache901.util.forceAscii(row['name']), cache901.util.forceAscii(row['url_name']), row['difficulty'], row['terrain']))
             if row['type'] != curtype:
                 curtype = row['type']
                 if not first: self.fh.write('  </Folder>\n\n')

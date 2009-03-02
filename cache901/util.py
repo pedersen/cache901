@@ -28,6 +28,7 @@ import wx
 from decimal import Decimal, InvalidOperation
 
 import cache901
+import cache901.kml
 import cache901.dbobjects
 import gpsbabel
 
@@ -240,6 +241,19 @@ def getDefaultCoords(cache):
             return (Decimal(dmsToDec(coords['lat'])), Decimal(dmsToDec(coords['lon'])))
     return (cache.lat, cache.lon)
     
+
+def exportKML(cacheids, confirmDir=True):
+    outdir = cache901.cfg().lastkmldir
+    if outdir is None and not confirmDir:
+        raise Exception('Never exported KML before, no idea where to write it.')
+    if confirmDir:
+        if outdir is None: outdir = wx.EmptyString
+        dirsel=wx.DirSelector("Select output directory", outdir, parent=wx.GetApp().GetTopWindow())
+        if dirsel != "":
+            cache901.cfg().lastkmldir = dirsel
+    outdir = cache901.cfg().lastkmldir
+    k = cache901.kml.KML()
+    k.export(cacheids, outdir)
 
 def getDbList():
     return map(lambda x: os.path.splitext(x)[0], filter(lambda x: x.lower().endswith('.sqlite'), os.listdir(cache901.cfg().dbpath)))
