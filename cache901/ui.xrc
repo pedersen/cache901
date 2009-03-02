@@ -1080,6 +1080,12 @@ Line 7</value>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuExportTomTomPOI">
+          <label>Export TomTom POI File</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <object class="wxMenu" name="mnuDatabase">
           <object class="wxMenuItem" name="mnuFileDbMaint">
             <label>Database Maintenance</label>
@@ -1373,6 +1379,12 @@ Line 7</value>
     </object>
     <object class="wxStaticBitmap" name="appiconLarge">
       <bitmap>icons/shield-large.png</bitmap>
+      <XRCED>
+        <assign_var>1</assign_var>
+      </XRCED>
+    </object>
+    <object class="wxStaticBitmap" name="shield_poi">
+      <bitmap>icons/shield-poi.bmp</bitmap>
       <XRCED>
         <assign_var>1</assign_var>
       </XRCED>

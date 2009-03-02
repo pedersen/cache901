@@ -160,7 +160,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                         (self.OnDeleteCacheOrWaypoint, self.mnuDeleteThisCache),
                         (self.OnDeleteAllCaches, self.mnuDeleteAll),
                         (self.OnDbBackup,       self.mnuFileBackup),
-                        (self.OnExportKML,      self.mnuExportKML)
+                        (self.OnExportKML,      self.mnuExportKML),
+                        (self.OnExportTomTomPOI, self.mnuExportTomTomPOI)
                       ] 
 
         for option in menuOptions:
@@ -1191,6 +1192,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         cache901.util.exportKML(self.itemDataMap.keys())
         self.updStatus()
     
+    def OnExportTomTomPOI(self, evt):
+        cache901.util.exportTomTomPOI(self.itemDataMap.keys())
+        self.updStatus()
+    
     def forWingIde(self):
         cwmenu = cache901.ui_xrc.xrcCwMenu()
         isinstance(cwmenu.popSendToGPS, wx.MenuItem)
@@ -1442,6 +1447,7 @@ class geoicons(cache901.ui_xrc.xrcgeoIcons):
         isinstance(self.virtual, wx.StaticBitmap) 
         isinstance(self.webcam, wx.StaticBitmap) 
         isinstance(self.wherigo, wx.StaticBitmap)
+        isinstance(self.shield_poi, wx.StaticBitmap)
         self.www_geocaching_com = xrc.XRCCTRL(self, "www_geocaching_com")
         isinstance(self.www_geocaching_com, wx.StaticBitmap)
 
@@ -1479,6 +1485,8 @@ class geoicons(cache901.ui_xrc.xrcgeoIcons):
                 return wx.Icon(os.path.join(cache901.__path__[0], 'shield.ico'), wx.BITMAP_TYPE_ICO)
         elif key == "searchloc":
             return self.appicon.GetBitmap()
+        elif key == "shield_poi":
+            return self.shield_poi.GetBitmap()
         else:
             return self.mystery.GetBitmap()
 

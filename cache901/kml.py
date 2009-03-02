@@ -37,12 +37,13 @@ class KML(object):
         self.cacheids = None
         self.geo = wx.GetApp().GetTopWindow().geoicons
     
-    def export(self, cacheids, outdir):
+    def export(self, cacheids, outdir, nodesc=False):
         """
         cacheids is a list of cache id numbers that can be found in the
             database
         """
         self.cacheids = cacheids
+        self.nodesc = nodesc
         cache901.notify('Validating output directory')
         self.validateOutdir(outdir)
         cache901.notify('Exporting icons')
@@ -163,7 +164,7 @@ class KML(object):
             self.fh.write('    <Placemark>\n')
             self.fh.write('      <name>%s</name>\n' % kmlname)
             self.fh.write('      <styleUrl>#%s</styleUrl>\n' % self.safeName(row['type']))
-            if row['url'] is not None and len(row['url']) > 0:
+            if not self.nodesc and row['url'] is not None and len(row['url']) > 0:
                 self.fh.write('      <description><![CDATA[<a href="%s">Full Cache Listing</a>]]></description>\n' % row['url'])
             self.fh.write('      <Point>\n')
             self.fh.write('        <extrude>1</extrude>\n')

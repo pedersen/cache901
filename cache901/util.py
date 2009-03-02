@@ -22,7 +22,9 @@ import math
 import os
 import os.path
 import serial
+import shutil
 import sys
+import tempfile
 import wx
 
 from decimal import Decimal, InvalidOperation
@@ -246,12 +248,40 @@ def exportKML(cacheids, outdir=None, confirmDir=True):
     if outdir is None and not confirmDir:
         raise Exception('Never exported KML before, no idea where to write it.')
     if confirmDir:
+        outdir = cache901.cfg().lastkmldir
         if outdir is None: outdir = wx.EmptyString
         outdir=wx.DirSelector("Select output directory", outdir, parent=wx.GetApp().GetTopWindow())
         if outdir != "":
             cache901.cfg().lastkmldir = outdir
+        else:
+            return
     k = cache901.kml.KML()
     k.export(cacheids, outdir)
+
+def exportTomTomPOI(cacheids, outdir=None, confirmDir=True):
+    if outdir is None and not confirmDir:
+        raise Exception('Never exported TomTom POI before, no idea where to write it.')
+    if confirmDir:
+        outdir = cache901.cfg().lasttomtompoidir
+        if outdir is None: outdir = wx.EmptyString
+        outdir=wx.DirSelector("Select output directory", outdir, parent=wx.GetApp().GetTopWindow())
+        if outdir != "":
+            cache901.cfg().lasttomtompoidir = outdir
+        else:
+            return
+    tmpdir = tempfile.mkdtemp()
+    k = cache901.kml.KML()
+    k.export(cacheids, tmpdir, True)
+    gpsbabel.gps.addInputFile(os.sep.join([tmpdir, "cache901.kml"]), "kml")
+    gpsbabel.gps.addOutputFile(os.sep.join([outdir, "Cache901.ov2"]), "tomtom")
+    gpsbabel.gps.procWpts = True
+    (retcode, output) = gpsbabel.gps.execCmd(parseOutput = False)
+    if retcode != 0:
+        raise Exception(output)
+    shutil.rmtree(tmpdir)
+    geoicons = wx.GetApp().GetTopWindow().geoicons
+    bmp = geoicons['shield_poi']
+    bmp.SaveFile(os.sep.join([outdir, "Cache901.bmp"]), wx.BITMAP_TYPE_BMP)
 
 def getDbList():
     return map(lambda x: os.path.splitext(x)[0], filter(lambda x: x.lower().endswith('.sqlite'), os.listdir(cache901.cfg().dbpath)))

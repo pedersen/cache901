@@ -142,6 +142,16 @@ class Config(object):
         self.config.WriteInt('PicSplitPos', pos)
         return pos
     
+    def getLastTomTomPOIDir(self):
+        self.config.SetPath("/Files")
+        if not self.config.HasEntry("LastTomTomPOIDir"): return None
+        return self.config.Read("LastTomTomPOIDir")
+    
+    def setLastTomTomPOIDir(self, lastdir):
+        self.config.SetPath("/Files")
+        self.config.Write("LastTomTomPOIDir", lastdir)
+        return lastdir
+    
     def getLastKMLDir(self):
         self.config.SetPath("/Files")
         if not self.config.HasEntry("LastKMLDir"): return None
@@ -321,6 +331,7 @@ class Config(object):
     lastimportdir      = property(getLastImportDir,      setLastImportDir)
     lastphotodir       = property(getLastPhotoDir,       setLastPhotoDir)
     lastkmldir         = property(getLastKMLDir,         setLastKMLDir)
+    lasttomtompoidir   = property(getLastTomTomPOIDir,   setLastTomTomPOIDir)
     gpsbabel           = property(getGpsbabelLoc,        setGpsbabelLoc)
     searchsplitsave    = property(getSearchSplitSave,    setSearchSplitSave)
     searchsplittype    = property(getSearchSplitType,    setSearchSplitType)

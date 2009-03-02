@@ -91,6 +91,7 @@ class xrcCache901UI(wx.Frame):
         self.mnuFileImport = self.GetMenuBar().FindItemById(xrc.XRCID("mnuFileImport"))
         self.mnuGpxSync = self.GetMenuBar().FindItemById(xrc.XRCID("mnuGpxSync"))
         self.mnuExportKML = self.GetMenuBar().FindItemById(xrc.XRCID("mnuExportKML"))
+        self.mnuExportTomTomPOI = self.GetMenuBar().FindItemById(xrc.XRCID("mnuExportTomTomPOI"))
         idx = self.GetMenuBar().FindMenu("Database Maintenance")
         if idx != wx.NOT_FOUND:
             self.mnuDatabase = self.GetMenuBar().GetMenu(idx)
@@ -179,6 +180,7 @@ class xrcgeoIcons(wx.Frame):
         self.www_geocaching_com = xrc.XRCCTRL(self, "www_geocaching_com")
         self.appicon = xrc.XRCCTRL(self, "appicon")
         self.appiconLarge = xrc.XRCCTRL(self, "appiconLarge")
+        self.shield_poi = xrc.XRCCTRL(self, "shield_poi")
 
 
 
@@ -1572,6 +1574,12 @@ Line 7</value>
             <assign_var>1</assign_var>
           </XRCED>
         </object>
+        <object class="wxMenuItem" name="mnuExportTomTomPOI">
+          <label>Export TomTom POI File</label>
+          <XRCED>
+            <assign_var>1</assign_var>
+          </XRCED>
+        </object>
         <object class="wxMenu" name="mnuDatabase">
           <object class="wxMenuItem" name="mnuFileDbMaint">
             <label>Database Maintenance</label>
@@ -1865,6 +1873,12 @@ Line 7</value>
     </object>
     <object class="wxStaticBitmap" name="appiconLarge">
       <bitmap>icons_shield_large_png</bitmap>
+      <XRCED>
+        <assign_var>1</assign_var>
+      </XRCED>
+    </object>
+    <object class="wxStaticBitmap" name="shield_poi">
+      <bitmap>icons_shield_poi_bmp</bitmap>
       <XRCED>
         <assign_var>1</assign_var>
       </XRCED>
@@ -16861,6 +16875,29 @@ W\xa2R@*Q\x897\x8a\xed\xdb\xb7\xeb\x9e\x9e\x1e:;;\xd9\xb1c\x07\xdb\xba\xb7\
 \xd1\x8f\x0dkj\xa8t\x0b\x95\xf8\xbb\x89\xff\x0f\xa3\xa1\xba\xa1\xe3\x15\
 :\xcc\x00\x00\x00\x00IEND\xaeB`\x82'''
 
+    icons_shield_poi_bmp = '''\
+BM~\x01\x00\x00\x00\x00\x00\x00v\x00\x00\x00(\x00\x00\x00\x16\x00\x00\x00\
+\x16\x00\x00\x00\x01\x00\x04\x00\x00\x00\x00\x00\x08\x01\x00\x00\x13\x0b\
+\x00\x00\x13\x0b\x00\x00\x10\x00\x00\x00\x10\x00\x00\x00,\x18u\x00JK\x00\
+Bs\x9e\x00ar\x97\x00t\x96\xad\x00Q\x99\xb7\x00[\xa8\xb5\x00A\xa2\xd7\x00\
+H\xb6\xc9\x00\x8b\xb4\xbd\x00\xaf\xba\xb9\x00f\xc2\xcf\x00x\xc4\xd2\x00\
+\x9b\xd1\xdb\x00\xae\xd3\xd9\x00\xce\xdb\xdd\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x0331\x00\x00\x00\x00\x00\x00\x00\x00\x00\xcc\xd9\xbc\x00\
+\x00\x00\x00\x00\x00\x00\x01\x00hf\x86\x00\x00\x00\x00\x00\x00\x00\x01K\
+\x85\x11V\x04\x10\x00\x00\x00\x00\x00\x04h"U!f0\x00\x00\x00\x00\x03\x19\
+\xc1+\xbb\xc2\x15\x91 \x00\x00
+\x96l"\xbb\xcc\xd9B\xc6i\x90\x00\xfa\xe9\x02(\xbb\xde\xaa\xa3&l\x9e\x00\
+\xaf\xdc\xb3[\xbc\xef\xaa\xaa8\x8c\xda\x00
+\xdcCk\xcd\xff\xff\xe94\x8c\x90\x00
+\x96U\xbc\xdf\xaa\xff\xedUl\x90\x00\xaa\x99e\xbd\xef\xaa\xff\xedU\x99\x9a\
+\x00\xaf\x94U\xbd\xff\xaa\xff\xdcUI\xea\x00
+\x99\x03\x9e\xef\xfa\xe5x \x99\xaa\x00\x00\x0c!J\xaa\xdd\xc7x#\xd0\x00\
+\x00\x00\x0b\x87\x9a\xa9\xbb\xb8\x88i\xe0\x00\x00\x00k\x82#2""R)\xea\x00\
+\x00\x00\xc8\x82\x11\x11\x11\x11\x119\xef\x00\x00\x00\xc8\x80\x00\x00\x00\
+\x00\x00\x09\xff\x00\x00\x00`\x00\x00\x00\x00\x00\x00\x00
+\x00\x00'''
+
     wx.MemoryFSHandler.AddFile('XRC/ui/ui_xrc', ui_xrc)
     wx.MemoryFSHandler.AddFile('XRC/ui/icons_traditional_gif', icons_traditional_gif)
     wx.MemoryFSHandler.AddFile('XRC/ui/icons_cito_gif', icons_cito_gif)
@@ -16881,6 +16918,7 @@ W\xa2R@*Q\x897\x8a\xed\xdb\xb7\xeb\x9e\x9e\x1e:;;\xd9\xb1c\x07\xdb\xba\xb7\
     wx.MemoryFSHandler.AddFile('XRC/ui/icons_logo_gc_small_gif', icons_logo_gc_small_gif)
     wx.MemoryFSHandler.AddFile('XRC/ui/icons_shield_png', icons_shield_png)
     wx.MemoryFSHandler.AddFile('XRC/ui/icons_shield_large_png', icons_shield_large_png)
+    wx.MemoryFSHandler.AddFile('XRC/ui/icons_shield_poi_bmp', icons_shield_poi_bmp)
     __res.Load('memory:XRC/ui/ui_xrc')
 
 
@@ -16960,6 +16998,7 @@ def __gettext_strings():
     _("&Import GPX/Zip File")
     _("Synchronize GPX Sources")
     _("Export to KML")
+    _("Export TomTom POI File")
     _("Database Maintenance")
     _("Backup All Databases")
     _("Database")
