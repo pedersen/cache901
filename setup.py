@@ -41,7 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 # Had to correct by installing an updated version. Used this command:
 # sudo easy_install "macholib==dev"
 
-from distutils.core import setup
+from setuptools import setup
 import os, os.path, sys
 
 
@@ -55,48 +55,14 @@ try:
 except ImportError, e:
     pass
 
+dependencies = ['pyserial', 'gpsbabel', 'wxPython-common>=2.8', 'sqlalchemy>=0.5', 'sqlalchemy-migrate', 'pysqlite']
 if sys.platform == "win32":
-    try:
-        import win32file
-    except:
-        print "Without win32file, pyserial will fail on Windows. Aborting."
-        print "Get it at http://sourceforge.net/projects/pywin32/"
-        sys.exit(1)
+    dependencies.append('pywin32')
     datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico']), os.sep.join(['osfiles', 'gpsbabel.exe']), os.sep.join(['osfiles', 'libexpat.dll'])],) ]
 elif sys.platform == "darwin":
     datafiles = []
 else:
     datafiles = []
-
-try:
-    import wxversion
-    wxversion.ensureMinimal("2.8")
-    import wx
-except:
-    print "Without wx, this program will fail. Aborting."
-    print "Get it at http://www.wxpython.org/"
-    sys.exit(1)
-
-try:
-    import serial
-except:
-    print "Without serial, this program will fail. Aborting."
-    print "Get it at http://pyserial.sourceforge.net/"
-    sys.exit(1)
-
-try:
-    import sqlite3
-except:
-    print "Without sqlite3, this program will fail. Aborting."
-    print "Get it at http://www.sqlite.org/"
-    sys.exit(1)
-
-try:
-    import gpsbabel
-except:
-    print "Without gpsbabel, this program will fail. Aborting."
-    print "Get it at http://www.cache901.org/developers-corner/python-gpsbabel"
-    sys.exit(1)
 
 setup(name='Cache901',
         version="0.6.1",
@@ -107,6 +73,7 @@ setup(name='Cache901',
         scripts=['geocache901',],
         packages=['cache901', ],
         package_data={'cache901' : ['shield.ico', ]},
+        install_requires=dependencies,
         # Combined options for py2app and py2exe
         options = {
             "py2exe": {
@@ -119,10 +86,6 @@ setup(name='Cache901',
         },
         # py2exe options below here
         data_files = datafiles,
-        console=[{
-            'script' : 'geocache901',
-            'icon_resources' : [(1, os.sep.join(['cache901', 'shield.ico']))]
-        }],
         windows=[{
             'script' : 'geocache901',
             'icon_resources' : [(1, os.sep.join(['cache901', 'shield.ico']))]
