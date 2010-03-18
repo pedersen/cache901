@@ -15,7 +15,7 @@ import zipfile
 from sqlalchemy import *
 from sqlalchemy.types import *
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, relation, backref
 
 import migrate.changeset
 
@@ -293,38 +293,46 @@ class Locations(DeclarativeBase):
 
 class AltCoords(DeclarativeBase):
     __tablename__ =  'alt_coords'
-    cache_id = Column(Integer, primary_key=True)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
     sequence_num = Column(Integer, primary_key=True)
     name = Column(UnicodeText(), primary_key=False)
-    Column(u'lat', UnicodeText(), primary_key=False)
-    Column(u'lon', UnicodeText(), primary_key=False)
-    Column(u'setdefault', Integer(), primary_key=False)
+    lat = Column(UnicodeText(), primary_key=False)
+    lon = Column(UnicodeText(), primary_key=False)
+    setdefault = Column(Integer, primary_key=False)
+        
+    cache = relation(Caches, backref=backref('alt_coords'))
 
 
 class Attributes(DeclarativeBase):
     __tablename__ =  'attributes'
-    cache_id = Column(Integer, primary_key=True)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
     attribute = Column(UnicodeText(), primary_key=False)
+        
+    cache = relation(Caches, backref=backref('attributes'))
 
 
 class CacheDay(DeclarativeBase):
     __tablename__ =  'cacheday'
-    dayname = Column(UnicodeText(), primary_key=True)
-    cache_id = Column(Integer, primary_key=True)
+    dayname = Column(UnicodeText(), ForeignKey(CacheDayNames.dayname), primary_key=True)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
     cache_type = Column(Integer, primary_key=False)
     cache_order = Column(Integer, primary_key=False)
-
+        
+    cache = relation(Caches, backref=backref('cachedays'))
+    cachedayname = relation(CacheDayNames, backref=backref('cachedays'))
 
 class Hints(DeclarativeBase):
     __tablename__ = 'hints'
-    cache_id = Column(Integer, primary_key=True)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
     hint = Column(Unicode(), primary_key=False)
+        
+    cache = relation(Caches, backref=backref('hints'))
 
 
 class Logs(DeclarativeBase):
     __tablename__ = 'logs'
     id = Column(Integer, primary_key=True)
-    cache_id = Column(Integer, primary_key=False)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=False)
     date = Column(Integer, primary_key=False)
     type = Column(Unicode(), primary_key=False)
     finder = Column(Unicode(), primary_key=False)
@@ -334,26 +342,34 @@ class Logs(DeclarativeBase):
     my_log = Column(Integer, primary_key=False)
     my_log_found = Column(Integer, primary_key=False)
     my_log_uploaded = Column(Integer, primary_key=False)
+        
+    cache = relation(Caches, backref=backref('logs'))
 
 
 class Notes(DeclarativeBase):
     __tablename__ = 'notes'
-    cache_id = Column(Integer, primary_key=True)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
     note = Column(Unicode(), primary_key=False)
+        
+    cache = relation(Caches, backref=backref('notes'))
 
 
 class Photos(DeclarativeBase):
     __tablename__ = 'photos'
-    cache_id = Column(Integer, primary_key=True)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
     photofile = Column(Unicode(), primary_key=True)
+        
+    cache = relation(Caches, backref=backref('photos'))
 
-
+    
 class TravelBugs(DeclarativeBase):
     __tablename__ = 'travelbugs'
     id = Column(Integer, primary_key=True)
-    cache_id = Column(Integer, primary_key=False)
+    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=False)
     name = Column(Unicode(), primary_key=False)
     ref = Column(Unicode(), primary_key=False)
+        
+    cache = relation(Caches, backref=backref('travelbugs'))
 
 
 Index(u'alt_coords_cid_seq', AltCoords.cache_id, AltCoords.sequence_num, unique=False)
