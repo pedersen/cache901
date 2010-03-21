@@ -46,6 +46,9 @@ import cache901.ui_xrc
 import cache901.validators
 import cache901.xml901
 
+from cache901.sadbobjects import *
+from sqlalchemy import func
+
 class GPXSource(object):
     # Objects of this interface must be iterable. Furthermore, they must
     # return the next gpx file in their data set. Callers will only care
@@ -308,12 +311,14 @@ class GeoCachingComSource(GPXSource):
         cache901.notify('Posted log entry for cache id %s' % cachename)
     
 def gpxSyncAll(callingwin):
-    cur = cache901.db().cursor()
+    dbsession = cache901.db()
     
     # Next, validate that we have some sources to synchronize
-    cur.execute('select (select count(emailid) from emailsources)+(select count(foldername) from gpxfolders)+(select count(waypoint_name) from watched_waypoints) as total_sources')
-    row = cur.fetchone()
-    if row['total_sources'] == 0:
+    srccount = dbsession.query(func.count(EmailSources.emailid).label('cnt')).first().cnt + \
+             dbsession.query(func.count(GpxFolders.foldername).label('cnt')).first().cnt + \
+             dbsession.query(func.count(WatchedWayPoints.waypoint_name).label('cnt')).first().cnt
+
+    if srccount == 0:
         wx.MessageBox('Warning: No GPX Sources have been defined yet.\nPlease define some now.', 'No GPX Sources', wx.ICON_EXCLAMATION | wx.OK)
         gpxsrc = GPXSourceUI()
         gpxsrc.ShowModal()

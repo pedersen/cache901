@@ -27,7 +27,7 @@ if not hasattr(sys, "frozen") and 'wx' not in sys.modules and 'wxPython' not in 
 import wx
 
 import cache901.config
-import cache901.database
+import cache901.sadbobjects
 
 version = "0.6.1"
 appname = 'Cache901'
@@ -36,7 +36,9 @@ def cfg():
     return cache901.config.Config()
 
 def db(debugging=False):
-    return cache901.database.Database(debugging)
+    if cache901.sadbobjects.DBSession is None:
+        cache901.sadbobjects.init_db(debugging)
+    return cache901.sadbobjects.DBSession
 
 updating = False
 def notify(message):

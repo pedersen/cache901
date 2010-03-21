@@ -22,66 +22,104 @@ import xml.sax.handler
 import datetime
 import time
 
+from decimal import Decimal
+from xml.etree import cElementTree
+
 import cache901
+
+from cache901.sadbobjects import *
 
 class XMLParser(object):
     def __init__(self):
-        self.handler = XMLHandler()
+        self.ccount = 0
 
     def parse(self, data, maint=True):
-        self.handler.reset()
         if (type(data) is str):
-            xml.sax.parseString(data, self.handler)
+            parsed = cElementTree.fromstring(data)
         else:
-            xml.sax.parse(data, self.handler)
+            parsed = cElementTree.parse(data)
+        # manage the parsed data here
+        for wpt in parsed.findall('{http://www.topografix.com/GPX/1/0}wpt'):
+            cachedata = wpt.find('{http://www.groundspeak.com/cache/1/0}cache')
+            if cachedata:
+                cache_id = int(cachedata.get('id'))
+                cache = cache901.db().query(Caches).filter(Caches.cache_id == cache_id).first()
+                if not cache:
+                    cache = Caches()
+                cache.available = (cachedata.get('available').lower() == 'true')
+                cache.archived = (cachedata.get('archived').lower() == 'true')
+                for node in cachedata.getchildren():
+                    if node.tag.endswith('}placed_by'): cache.placed_by = node.text
+                    elif node.tag.endswith('}owner'):
+                        cache.owner_name = node.text
+                        cache.owner_id = node.get('id')
+                    elif node.tag.endswith('}container'): cache.container = node.text
+                    elif node.tag.endswith('}country'): cache.country = node.text
+                    elif node.tag.endswith('}state'): cache.state = node.text
+                    elif node.tag.endswith('}short_description'):
+                        cache.short_desc = node.text
+                        cache.short_desc_html = (node.get('html').lower() == 'true')
+                    elif node.tag.endswith('}long_description'):
+                        cache.long_desc = node.text
+                        cache.long_desc_html = (node.get('html').lower() == 'true')
+                    elif node.tag.endswith('}difficulty'): cache.difficulty = Decimal(node.text)
+                    elif node.tag.endswith('}terrain'): cache.terrain = Decimal(node.text)
+                    elif node.tag.endswith('}encoded_hints'):
+                        hint = cache901.db().query(Hints).filter(Hints.cache_id == cache_id).first()
+                        if not hint:
+                            hint = Hints()
+                            cache901.db().add(hint)
+                            cache.hint.append(hint)
+                        cache.hint[0].hint = node.text
+                    elif node.tag.endswith('}travelbugs'):
+                        for bugnode in node.findall('{http://www.groundspeak.com/cache/1/0}travelbug'):
+                            ref = bugnode.get('ref')
+                            bug = cache901.db().query(TravelBugs).filter(TravelBugs.ref == ref).first()
+                            if not bug:
+                                bug = TravelBugs()
+                                cache901.db().add(bug)
+                            bug.cache_id = cache_id
+                            bug.ref = ref
+                            bug.id = int(bugnode.get('id'))
+                            bug.name = bugnode.find('{http://www.groundspeak.com/cache/1/0}name').text
+            else:
+                cache = Locations()
+                cache.loc_type = 1
+                cache.refers_to = -1
+            cache.lat = Decimal(wpt.get('lat'))
+            cache.lon = Decimal(wpt.get('lon'))
+            for node in wpt.getchildren():
+                if node.tag.endswith('}name'): cache.name = node.text
+                elif node.tag.endswith('}time'):
+                    (year, mon, day)=map(lambda x: int(x), node.text.split('T')[0].split('-'))
+                    d = datetime.datetime(year, mon, day, 0, 0, 0)
+                    hidden = time.mktime(d.timetuple())
+                    if time.daylight:
+                        hidden -= time.altzone
+                    else:
+                        hidden -= time.timezone
+                    cache.hidden = hidden
+                elif node.tag.endswith('}cmt'): cache.comment = node.text
+                elif node.tag.endswith('}desc'):
+                    cache.desc = node.text
+                    cache.url_desc = node.text
+                elif node.tag.endswith('}url'): cache.url = node.text
+                elif node.tag.endswith('}urlname'):
+                    cache.url_name = node.text
+                    if self.ccount == 0:
+                        cache901.notify("Processing %s" % cache901.util.forceAscii(cache.url_name))
+                    self.ccount = (self.ccount + 1) % 5
+                elif node.tag.endswith('}sym'): cache.sym = node.text
+                elif node.tag.endswith('}type'): cache.type = node.text
+            cache901.db().add(cache)
         cache901.db().commit()
         if maint:
             cache901.db().maintdb()
 
 class XMLHandler(xml.sax.handler.ContentHandler):
-    def __init__(self):
-       xml.sax.handler.ContentHandler.__init__(self)
-       self.reset()
-
-    def reset(self):
-        self.ccount  = 0
-        self.chdata  = ""
-        self.wpt     = xmlWaypointSaver()
-        self.log     = xmlLogSaver()
-        self.logwpt  = xmlWaypointSaver()
-        self.bug     = xmlBugSaver()
-        self.hints   = []
-        self.read    = 0 # 0=None, 1=Wpt, 2=Log, 3=Bug, 4=Hint, 5=Log Waypoint
-
     def startElement(self, name, attrs):
         if name == 'wpt':
-            if self.read == 0:
-                self.read    = 1
-            else:
-                self.read = 5
-            self.wpt.lat = float(attrs['lat'])
-            self.wpt.lon = float(attrs['lon'])
-            self.chdata  = ""
-        elif name == 'groundspeak:cache':
-            self.wpt.cache_id  = int(attrs['id'])
-            self.wpt.available = (attrs['available'].lower() == 'true')
-            self.wpt.archived  = (attrs['archived'].lower() == 'true')
-            self.wpt.cache = True
-        elif name == 'groundspeak:owner':
-            self.wpt.owner_id = int(attrs['id'])
-            self.wpt.cache = True
-        elif name == 'groundspeak:short_description':
-            self.wpt.short_desc_html = (attrs['html'].lower() == 'true')
-            self.wpt.cache = True
-        elif name == 'groundspeak:long_description':
-            self.wpt.long_desc_html = (attrs['html'].lower() == 'true')
-            self.wpt.cache = True
-        elif name == 'groundspeak:encoded_hints':
-            self.read = 4
-        elif name == 'groundspeak:travelbug':
-            self.read=3
-            self.bug.id  = int(attrs['id'])
-            self.bug.ref = attrs['ref']
+            pass
         elif name == 'groundspeak:log':
             self.read = 2
             self.log.id = int(attrs['id'])
@@ -90,9 +128,6 @@ class XMLHandler(xml.sax.handler.ContentHandler):
         elif name == 'groundspeak:text':
                 self.log.log_entry_encoded = (attrs['encoded'].lower() == 'true')
 
-    def characters(self, ch):
-        if self.read:
-            self.chdata = "%s%s" % (self.chdata, ch)
 
     def endElement(self, name):
         if self.read:
@@ -100,61 +135,8 @@ class XMLHandler(xml.sax.handler.ContentHandler):
             if self.read in (1,5):
                 if self.read == 1:
                     wpt = self.wpt
-                else:
+                elif 1==1:
                     wpt = self.logwpt
-                if name == 'name':
-                    wpt.name = self.chdata
-                elif name == 'time':
-                    (year, mon, day)=map(lambda x: int(x), self.chdata.split('T')[0].split('-'))
-                    d = datetime.datetime(year, mon, day, 0, 0, 0)
-                    self.wpt.hidden = time.mktime(d.timetuple())
-                    if time.daylight:
-                        self.wpt.hidden -= time.altzone
-                    else:
-                        self.wpt.hidden -= time.timezone
-                elif name == 'cmt':
-                    wpt.comment = self.chdata
-                elif name == 'desc':
-                    wpt.desc = self.chdata
-                    wpt.url_desc = self.chdata
-                elif name == 'url':
-                    wpt.url = self.chdata
-                elif name == 'urlname':
-                    wpt.url_name = self.chdata
-                    if self.ccount == 0:
-                        cache901.notify("Processing %s" % cache901.util.forceAscii(wpt.url_name))
-                    self.ccount = (self.ccount + 1) % 5
-                elif name == 'sym':
-                    wpt.sym = self.chdata
-                elif name == 'type':
-                    wpt.type = self.chdata
-                elif name == 'groundspeak:placed_by':
-                    wpt.placed_by = self.chdata
-                    wpt.cache = True
-                elif name == 'groundspeak:owner':
-                    wpt.owner_name = self.chdata
-                    wpt.cache = True
-                elif name == 'groundspeak:container':
-                    wpt.container = self.chdata
-                    wpt.cache = True
-                elif name == 'groundspeak:country':
-                    wpt.country = self.chdata
-                    wpt.cache = True
-                elif name == 'groundspeak:state':
-                    wpt.state = self.chdata
-                    wpt.cache = True
-                elif name == 'groundspeak:short_description':
-                    wpt.short_desc = self.chdata
-                    wpt.cache = True
-                elif name == 'groundspeak:long_description':
-                    wpt.long_desc = self.chdata
-                    wpt.cache = True
-                elif name == 'groundspeak:difficulty':
-                    wpt.difficulty = float(self.chdata)
-                    wpt.cache = True
-                elif name == 'groundspeak:terrain':
-                    wpt.terrain = float(self.chdata)
-                    wpt.cache = True
                 elif name == 'wpt':
                     if not self.wpt.isCache():
                         wpt.loc_type = 1
@@ -167,18 +149,6 @@ class XMLHandler(xml.sax.handler.ContentHandler):
                     else:
                         self.read = 0
                     wpt.Save()
-            elif self.read == 4:
-                cur=cache901.db().cursor()
-                cur.execute("delete from hints where cache_id=?", (self.wpt.cache_id,))
-                cur.execute("insert into hints(cache_id, hint) values(?,?)", (self.wpt.cache_id, self.chdata))
-                self.read=1
-            elif self.read == 3:
-                if name == 'groundspeak:name':
-                    self.bug.name = self.chdata
-                elif name == 'groundspeak:travelbug':
-                    self.bug.cache_id = self.wpt.cache_id
-                    self.bug.Save()
-                    self.read=1
             elif self.read == 2:
                 if name == 'groundspeak:date':
                     (year, mon, day)=map(lambda x: int(x), self.chdata.split('T')[0].split('-'))
