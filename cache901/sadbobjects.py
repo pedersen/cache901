@@ -46,7 +46,7 @@ def init_db(debugging=False):
     else:
         url = cache901.cfg().dbfile
     
-    engine = create_engine(url, echo=True)
+    engine = create_engine(url)
     engine.connect().connection.create_function("distance", 4, cache901.util.distance_exact)
     
     maker = sessionmaker(autoflush=True, autocommit=False)
