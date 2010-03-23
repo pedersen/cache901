@@ -22,13 +22,16 @@ import time
 
 import wx
 
+from sqlalchemy import and_, or_,  func
+
 import gpsbabel
 
 import cache901
-import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
 import cache901.validators
+
+from cache901 import sadbobjects
 
 class SearchBox(cache901.ui_xrc.xrcSearchUI):
     def __init__(self, parent=None):
@@ -38,7 +41,6 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.splitRegions.SetValidator(cache901.validators.splitValidator("searchsplitregions"))
         
         self.w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQQQ")
-        self.cur = cache901.db().cursor()
     
         self.loadCacheContainers()
         self.loadCacheTypes()
@@ -87,45 +89,42 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.searchOrigin.Clear()
         self.searchOrigin.Append("None")
         self.searchOrigin.Append("From GPS")
-        for row in cache901.util.getSearchLocs():
-            self.searchOrigin.Append(row['name'], row['wpt_id'])
+        for loc in cache901.util.getSearchLocs():
+            self.searchOrigin.Append(loc.name, loc.wpt_id)
         self.searchOrigin.SetSelection(0)
         
     def loadCacheTypes(self):
         self.cacheTypes.DeleteAllItems()
-        self.cur.execute("select distinct type from caches order by type")
-        for row in self.cur:
-            self.cacheTypes.Append((row['type'], ))
+        for cachetype in cache901.db().query(sadbobjects.Caches.type.distinct().label('type')):
+            self.cacheTypes.Append((cachetype.type, ))
         
     def loadCacheContainers(self):
         self.cacheContainers.DeleteAllItems()
-        self.cur.execute("select distinct container from caches order by container")
-        for row in self.cur:
-            self.cacheContainers.Append((row['container'], ))
+        for container in cache901.db().query(sadbobjects.Caches.container.distinct().label('container')):
+            self.cacheContainers.Append((container.container, ))
         
     def loadCountries(self):
         self.countriesList.DeleteAllItems()
         self.countriesList.DeleteAllColumns()
         self.countriesList.InsertColumn(0, "Country", width=self.w)
-        self.cur.execute("select distinct country from caches order by country")
-        for row in self.cur:
-            self.countriesList.Append((row['country'], ))
+        for country in cache901.db().query(sadbobjects.Caches.country.distinct().label('country')):
+            self.countriesList.Append((country.country, ))
             
     def loadStates(self):
         self.statesList.DeleteAllItems()
         self.statesList.DeleteAllColumns()
         self.statesList.InsertColumn(0, "State / Province", width=self.w)
         self.cur.execute("select distinct state from caches order by state")
-        for row in self.cur:
-            self.statesList.Append((row['state'], ))
+        for state in cache901.db().query(sadbobjects.Caches.state.distinct().label('state')):
+            self.statesList.Append((state.state, ))
         
     def loadSavedSearches(self):
         self.savedSearches.DeleteAllItems()
         self.savedSearches.DeleteAllColumns()
         self.savedSearches.InsertColumn(0, "Search Name", width = self.w)
         self.cur.execute("SELECT DISTINCT name FROM searches ORDER BY name")
-        for row in self.cur:
-            self.savedSearches.Append((row['name'], ))
+        for search in cache901.db().query(sadbobjects.Searches.name.distinct().label('name')):
+            self.savedSearches.Append((search.name, ))
     
     def OnLoadSavedSearch(self, evt):
         item = self.savedSearches.GetNextSelected(-1)
@@ -187,11 +186,21 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
     
     def OnSaveSearch(self, evt):
         sname = self.searchName.GetValue()
-        self.cur.execute("DELETE FROM searches WHERE name=?", (sname, ))
+        db = cache901.db()
+        
         sparams = self.getSearchParams()
         for sparam in sparams.keys():
-            self.cur.execute("INSERT INTO searches(name, param, value) VALUES(?, ?, ?)", (sname, sparam, sparams[sparam]))
-        cache901.db().commit()
+            searchparm = db.query(sadbobjects.Searches).filter(
+                and_(sadbobjects.Searches.name == sname,
+                     sadbobjects.Searches.param == sparam)
+                ).first()
+            if searchparm is None:
+                searchparm = sadbobjects.Searches()
+                db.add(searchparm)
+            searchparm.name = sname
+            searchparm.param = sparam
+            searchparm.value = sparams[sparam]
+        db.commit()
         self.loadSavedSearches()
     
     def getSearchParams(self):
@@ -380,38 +389,35 @@ class FloatValidator(wx.PyValidator):
 
 def loadSavedSearch(sname):
     params = {}
-    cur = cache901.db().cursor()
-    cur.execute("SELECT name, param, value FROM searches WHERE name = ?", (sname, ))
-    for row in cur:
-        params[row['param']] = row['value']
+    for search in cache901.db().query(sadbobjects.Searches).filter(sadbobjects.Searches.name == sname):
+        params[search.param] = search.value
     return params
 
 def execSearch(params):
     seconds = 86400*7 # Number of seconds in a week
     now = int(time.time())
     isinstance(params, dict)
-    query = "select cache_id, difficulty, terrain, url_name, 0 as distance, name from caches "
-    where = []
-    sqlparams = []
-    order_by = "order by url_name"
+    orderbycol = sadbobjects.Caches.url_name
+    qry = cache901.db().query(sadbobjects.Caches).order_by(sadbobjects.Caches.url_name)
     if params.has_key('ids'):
-        query = "select cache_id, difficulty, terrain, url_name, 0 as distance, name, (select cache_order from cacheday as cd where cd.cache_id=c.cache_id and cd.dayname='%s') as cache_order  from caches as c " % params['dayname']
-        order_by = "order by cache_order"
-        where.append('cache_id in (%s)' % ",".join(map(lambda x: '?', params['ids'])))
-        sqlparams.extend(params['ids'])
+        qry = qry.add_column(sadbobjects.CacheDay.cache_order)
+        qry = qry.outerjoin((sadbobjects.CacheDay, sadbobjects.CacheDay.cache_id == sadbobjects.Caches.cache_id))
+        qry = qry.filter(sadbobjects.CacheDay.cache_id.in_(params['ids']))
+        orderbycol = sadbobjects.CacheDay.cache_order
     if params.has_key("urlname"):
-        sname = '%%%s%%' % params['urlname'].replace('*', '%').lower()
-        where.append('lower(url_name) like ? or lower(name) like ?')
-        sqlparams.append(sname)
-        sqlparams.append(sname)
+        sname = params['urlname'].replace('*', '%').lower()
+        qry = qry.filter(or_(
+            func.lower(sadbobjects.Caches.url_name).like(sname),
+            func.lower(sadbobjects.Caches.name).like(sname)
+            ))
     if params.has_key('terrain'):
         vals=params['terrain'].split(' ')
-        where.append('terrain %s ?' % vals[0])
-        sqlparams.append(vals[1])
+        diff = float(vals[1])
+        qry = qry.filter(sadbobjects.Caches.terrain.op(vals[0])(diff))
     if params.has_key('difficulty'):
         vals=params['difficulty'].split(' ')
-        where.append('difficulty %s ?' % vals[0])
-        sqlparams.append(vals[1])
+        diff = float(vals[1])
+        qry = qry.filter(sadbobjects.Caches.difficulty.op(vals[0])(diff))
     if params.has_key("searchDist"):
         dist = float(params["searchDist"])
     else:

@@ -40,7 +40,7 @@ def parse(data, maint=True):
         cachedata = wpt.find('{http://www.groundspeak.com/cache/1/0}cache')
         if cachedata:
             cache_id = int(cachedata.get('id'))
-            cache = cache901.db().query(Caches).filter(Caches.cache_id == cache_id).first()
+            cache = cache901.db().query(Caches).get(cache_id)
             if not cache:
                 cache = Caches()
             cache.cache_id = cache_id
@@ -63,7 +63,7 @@ def parse(data, maint=True):
                 elif node.tag.endswith('}difficulty'): cache.difficulty = Decimal(node.text)
                 elif node.tag.endswith('}terrain'): cache.terrain = Decimal(node.text)
                 elif node.tag.endswith('}encoded_hints'):
-                    hint = cache901.db().query(Hints).filter(Hints.cache_id == cache_id).first()
+                    hint = cache901.db().query(Hints).get(cache_id)
                     if not hint:
                         hint = Hints()
                         cache901.db().add(hint)
@@ -83,7 +83,7 @@ def parse(data, maint=True):
                 elif node.tag.endswith('}logs'):
                     for lognode in node.findall('{http://www.groundspeak.com/cache/1/0}log'):
                         logid = lognode.get('id')
-                        log = cache901.db().query(Logs).filter(Logs.id == logid).first()
+                        log = cache901.db().query(Logs).get(logid)
                         if not log:
                             log = Logs()
                             cache901.db().add(log)

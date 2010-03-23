@@ -29,9 +29,10 @@ import wx
 
 from decimal import Decimal, InvalidOperation
 
+from sqlalchemy import func, or_
 import cache901
 import cache901.kml
-import cache901.dbobjects
+from cache901 import sadbobjects
 import gpsbabel
 
 degsym = u'\u00B0'
@@ -191,56 +192,33 @@ def scanForSerial():
     return available
 
 def getWaypoints(params={}):
-    where = []
-    sqlparams = []
-    query = "select wpt_id, name, desc from locations"
-    order_by = "order by name"
-    where.append("loc_type = 1")
+    qry = cache901.db().query(sadbobjects.Locations).filter(sadbobjects.Locations.loc_type == 1).order_by(sadbobjects.Locations.name)
     if params.has_key('ids'):
-        query = "select wpt_id, name, desc, (select cache_order from cacheday as cd where cd.cache_id=c.wpt_id and cd.dayname='%s') as cache_order  from locations as c " % params['dayname']
-        order_by = "order by cache_order"
-        where.append('wpt_id in (%s)' % ",".join(map(lambda x: '?', params['ids'])))
-        sqlparams.extend(params['ids'])
+        qry = qry.add_column(sadbobjects.CacheDay.cache_order)
+        qry = qry.outerjoin((sadbobjects.CacheDay, sadbobjects.CacheDay.cache_id == sadbobjects.Locations.wpt_id))
+        qry = qry.filter(sadbobjects.Locations.loc_type == 1)
+        qry = qry.filter(sadbobjects.Locations.wpt_id.in_(params['ids']))
+        qry = qry.order_by(sadbobjects.CacheDay.cache_order)
     if params.has_key('searchpat') and len(params['searchpat']) >= 2:
-        where.append("(lower(name) like ? or lower(desc) like ?)")
-        sname = '%%%s%%' % params['searchpat']
-        sqlparams.append(sname)
-        sqlparams.append(sname)
+        qry = qry.filter(func.lower(sadbobjects.Locations.name).like(params['searchpat']))
     if params.has_key('addwpts'): # additional waypoints listing
-        if len(params['addwpts']) > 0:
-            where.append('name in (%s)' % ','.join(map(lambda x: '?', params['addwpts'])))
-            sqlparams.extend(params['addwpts'])
-        else:
-            where.append('name="NotAWaypointName"')
-    if len(where) > 0:
-        where_clause = 'where %s' % " and ".join(where)
-    else:
-        where_clause = ""
-    query = "%s %s %s" % (query, where_clause, order_by)
-    cur = cache901.db().cursor()
-    cur.execute(query, sqlparams)
-    for row in cur:
-        yield row
+        qry = qry.filter(sadbobjects.Locations.name.in_(params['addwpts']))
+    return qry
 
 def getSearchLocs(searchpat=None):
-    if searchpat in (None, "", "*") or len(searchpat) < 2:
-        where = "where loc_type = 2"
-        params = ()
-    else:
-        where = "where loc_type = 2 and (lower(name) like ? or lower(desc) like ?)"
-        params = (searchpat, searchpat)
-    query = "%s %s %s" % ("select wpt_id, name, desc from locations", where, "order by name")
-    cur = cache901.db().cursor()
-    cur.execute(query, params)
-    for row in cur:
-        yield row
-    
+    qry = cache901.db().query(sadbobjects.Locations).filter(sadbobjects.Locations.loc_type == 2)
+    if searchpath is not None or len(searchpat) >= 2:
+        qry = qry.filter(or_(
+            func.lower(sadbobjects.Locations.name).like(searchpat),
+            func.lower(sadbobjects.Locations.desc).like(searchpat)
+        ))
+    qry = qry.order_by(sadbobjects.Locations.name)
+    return qry
 
 def getDefaultCoords(cache):
-    alts = cache901.dbobjects.AltCoordsList(cache.cache_id)
-    for coords in alts.alts:
-        if coords['setdefault'] == 1:
-            return (Decimal(dmsToDec(coords['lat'])), Decimal(dmsToDec(coords['lon'])))
+    for coords in cache.alt_coords:
+        if coords.setdefault == 1:
+            return (Decimal(dmsToDec(coords.lat)), Decimal(dmsToDec(coords.lon)))
     return (cache.lat, cache.lon)
     
 
