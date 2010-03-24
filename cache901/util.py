@@ -37,7 +37,11 @@ import gpsbabel
 
 degsym = u'\u00B0'
 
-def distance_exact(lat1, lon1, lat2, lon2):
+def distance_exact(lat1_in, lon1_in, lat2_in, lon2_in):
+    lat1 = float(lat1_in)
+    lon1 = float(lon1_in)
+    lat2 = float(lat2_in)
+    lon2 = float(lon2_in)
     return 3958.75 * math.acos(math.sin(lat1/57.2958) *
           math.sin(lat2/57.2958) + 
           math.cos(lat1/57.2958) * 
@@ -207,7 +211,7 @@ def getWaypoints(params={}):
 
 def getSearchLocs(searchpat=None):
     qry = cache901.db().query(sadbobjects.Locations).filter(sadbobjects.Locations.loc_type == 2)
-    if searchpath is not None or len(searchpat) >= 2:
+    if searchpat is not None or len(searchpat) >= 2:
         qry = qry.filter(or_(
             func.lower(sadbobjects.Locations.name).like(searchpat),
             func.lower(sadbobjects.Locations.desc).like(searchpat)

@@ -22,7 +22,10 @@ import time
 
 import wx
 
-from sqlalchemy import and_, or_,  func
+from sqlalchemy import and_, or_, not_, func
+from sqlalchemy.sql.expression import cast
+from sqlalchemy import types
+from sqlalchemy.sql import select
 
 import gpsbabel
 
@@ -435,38 +438,29 @@ def execSearch(params):
             cache901.notify('Retrieving current GPS position')
             loc = gpsbabel.gps.getCurrentGpsLocation(gpsport, gpstype)
         else:
-            wpt_id = cache901.util.getSearchLocs(org).next()[0]
-            loc = cache901.dbobjects.Waypoint(wpt_id)
-        where.append('distance(lat, lon, ?, ?) <= ?')
-        sqlparams.append(float(loc.lat))
-        sqlparams.append(float(loc.lon))
-        sqlparams.append(dist)
-        query = "select cache_id, difficulty, terrain, url_name, cast(distance(lat, lon, ?, ?) * ? as text) || '%s' as distance, name from caches " % (params["searchScale"])
+            loc = cache901.util.getSearchLocs(org).first()
         if params.has_key("searchScale") and params["searchScale"] != "mi":
             scale = 1.61
         else:
             scale = 1.0
-        sqlparams.insert(0, scale)
-        sqlparams.insert(0, float(loc.lon))
-        sqlparams.insert(0, float(loc.lat))
-        order_by = "order by distance"
+        distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)*scale, types.Text)+params['searchScale'])
+        orderbycol = distcol
+        qry = qry.add_column(distcol.label('distance'))
         cache901.notify("Found location")
+    else:
+        qry = qry.add_column(cast(select(['0.00mi']), types.Text).label('distance'))
     if params.has_key('countries'):
         countries = params['countries'].split(',')
-        where.append('country in (%s)' % ','.join(map(lambda x: '?', countries)))
-        sqlparams.extend(countries)
+        qry = qry.filter(sadbobjects.Caches.country.in_(countries))
     if params.has_key('states'):
         states = params['states'].split(',')
-        where.append('state in (%s)' % ','.join(map(lambda x: '?', states)))
-        sqlparams.extend(states)
+        qry = qry.filter(sadbobjects.Caches.state.in_(states))
     if params.has_key('types'):
         types = params['types'].split(',')
-        where.append('type in (%s)' % ','.join(map(lambda x: '?', types)))
-        sqlparams.extend(types)
+        qry = qry.filter(sadbobjects.Caches.type.in_(types))
     if params.has_key('containers'):
         containers = params['containers'].split(',')
-        where.append('container in (%s)' % ','.join(map(lambda x: '?', containers)))
-        sqlparams.extend(containers)
+        qry = qry.filter(sadbobjects.Caches.container.in_(containers))
     if params.has_key('notfoundbyme'):
         where.append("cache_id not in (select cache_id from logs where lower(type)='found it' and finder in (select username from accounts))")
     if params.has_key('found'):
