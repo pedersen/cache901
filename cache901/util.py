@@ -42,6 +42,8 @@ def distance_exact(lat1_in, lon1_in, lat2_in, lon2_in):
     lon1 = float(lon1_in)
     lat2 = float(lat2_in)
     lon2 = float(lon2_in)
+    if lat2 > 90 or lat2 < -90 or lon1 > 180 or lon1 < -180:
+        return 0.00
     return 3958.75 * math.acos(math.sin(lat1/57.2958) *
           math.sin(lat2/57.2958) + 
           math.cos(lat1/57.2958) * 

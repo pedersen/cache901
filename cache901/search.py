@@ -22,6 +22,7 @@ import time
 
 import wx
 
+import sqlalchemy
 from sqlalchemy import and_, or_, not_, func
 from sqlalchemy.sql.expression import cast
 from sqlalchemy import types
@@ -401,14 +402,21 @@ def execSearch(params):
     now = int(time.time())
     isinstance(params, dict)
     orderbycol = sadbobjects.Caches.url_name
-    qry = cache901.db().query(sadbobjects.Caches).order_by(sadbobjects.Caches.url_name)
+    qry = cache901.db().query(sadbobjects.Caches)
+    accounts = cache901.db().query(sadbobjects.Accounts.username)
+    log_cache_ids = sadbobjects.Logs.cache_id
+    log_cache_qry = cache901.db().query(log_cache_ids.distinct().label('cache_id'))
+    cache_id = sadbobjects.Caches.cache_id
+    
+    cachesfoundbyme = cache901.db().query(log_cache_ids).filter(and_(func.lower(sadbobjects.Logs.type) == 'found it', sadbobjects.Logs.finder.in_(accounts)))
+
     if params.has_key('ids'):
         qry = qry.add_column(sadbobjects.CacheDay.cache_order)
-        qry = qry.outerjoin((sadbobjects.CacheDay, sadbobjects.CacheDay.cache_id == sadbobjects.Caches.cache_id))
+        qry = qry.outerjoin((sadbobjects.CacheDay, sadbobjects.CacheDay.cache_id == cache_id))
         qry = qry.filter(sadbobjects.CacheDay.cache_id.in_(params['ids']))
         orderbycol = sadbobjects.CacheDay.cache_order
     if params.has_key("urlname"):
-        sname = params['urlname'].replace('*', '%').lower()
+        sname = '%%%s%%' % (params['urlname'].replace('*', '%').lower())
         qry = qry.filter(or_(
             func.lower(sadbobjects.Caches.url_name).like(sname),
             func.lower(sadbobjects.Caches.name).like(sname)
@@ -443,12 +451,13 @@ def execSearch(params):
             scale = 1.61
         else:
             scale = 1.0
-        distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)*scale, types.Text)+params['searchScale'])
+        distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)*scale, sqlalchemy.types.Text)+params['searchScale'])
         orderbycol = distcol
-        qry = qry.add_column(distcol.label('distance'))
         cache901.notify("Found location")
     else:
-        qry = qry.add_column(cast(select(['0.00mi']), types.Text).label('distance'))
+        distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, 200, 200), sqlalchemy.types.Text)+'mi')
+    qry = qry.add_column(distcol.label('distance'))
+    
     if params.has_key('countries'):
         countries = params['countries'].split(',')
         qry = qry.filter(sadbobjects.Caches.country.in_(countries))
@@ -462,44 +471,33 @@ def execSearch(params):
         containers = params['containers'].split(',')
         qry = qry.filter(sadbobjects.Caches.container.in_(containers))
     if params.has_key('notfoundbyme'):
-        where.append("cache_id not in (select cache_id from logs where lower(type)='found it' and finder in (select username from accounts))")
+        qry = qry.filter(not_(cache_id.in_(cachesfoundbyme)))
     if params.has_key('found'):
-        where.append("cache_id in (select cache_id from logs where lower(type)='found it' and finder in (select username from accounts))")
+        qry = qry.filter(cache_id.in_(cachesfoundbyme))
     if params.has_key('notowned'):
-        where.append('owner_name not in (select username from accounts)')
+        qry = qry.filter(not_(sadbobjects.Caches.owner_name.in_(accounts)))
     if params.has_key('owned'):
-        where.append('owner_name in (select username from accounts)')
+        qry = qry.filter(sadbobjects.Caches.owner_name.in_(accounts))
     if params.has_key('foundlast7'):
-        where.append("cache_id in (select distinct cache_id from logs where date >= ? and logs.cache_id in (select distinct cache_id from logs where type='Found it'))")
-        sqlparams.append(now-seconds)
+        qry = qry.filter(cache_id.in_(log_cache_qry.filter(and_(sadbobjects.Logs.date >= now-seconds, log_cache_ids.in_(log_cache_qry.filter(sadbobjects.Logs.type == 'Found It'))))))
     if params.has_key('notfound'):
-        where.append("cache_id not in (select distinct cache_id from logs where type='Found it')")
+        qry = qry.filter(not_(cache_id.in_(log_cache_qry.filter(sadbobjects.Logs.type=='Found It'))))
     if params.has_key('updatedlast7'):
-        where.append('cache_id in (select distinct cache_id from logs where date >= ?')
-        sqlparams.append(now-seconds)
+        qry = qry.filter(cache_id.in_(log_cache_qry.filter(sadbobjects.Logs.date >= now-seconds)))
     if params.has_key('hasbugs'):
-        where.append("cache_id in (select distinct cache_id from travelbugs)")
+        qry = qry.filter(cache_id.in_(cache901.db().query(sadbobjects.TravelBugs.cache_id.distinct().label('cache_id'))))
     if params.has_key('notactive'):
-        where.append("archived = 1")
+        qry = qry.filter(sadbobjects.Caches.archived == 1)
     if params.has_key('active'):
-        where.append("available = 1")
+        qry = qry.filter(sadbobjects.Caches.available == 1)
     if params.has_key('hasmylogs'):
-        where.append("cache_id in (select cache_id from logs where finder in (select username from accounts))")
+        qry = qry.filter(cache_id.in_(cache901.db().query(sadbobjects.Logs.cache_id).filter(sadbobjects.Logs.finder.in_(accounts))))
     if params.has_key('hasmynotes'):
-        where.append('cache_id in (select cache_id from notes)')
+        qry = qry.filter(cache_id.in_(cache901.db().query(sadbobjects.Notes.cache_id)))
     if params.has_key('hasmyphotos'):
-        where.append('cache_id in (select cache_id from photos)')
-    if len(where) > 0:
-        where_clause = 'where %s' % " and ".join(where)
-    else:
-        where_clause = ""
+        qry = qry.filter(cache_id.in_(cache901.db().query(sadbobjects.Photos.cache_id)))
+    qry = qry.order_by(orderbycol)
     if params.has_key('maxresults'):
-        limit = "limit ?"
-        sqlparams.append(int(params['maxresults']))
-    else:
-        limit = ""
-    fquery = "%s %s %s %s" % (query, where_clause, order_by, limit)
-    cur = cache901.db().cursor()
-    cur.execute(fquery, sqlparams)
-    for row in cur:
-        yield row
+        qry = qry.limit(int(params['maxresults']))
+    return qry
+
