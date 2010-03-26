@@ -452,11 +452,14 @@ def execSearch(params):
         else:
             scale = 1.0
         distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)*scale, sqlalchemy.types.Text)+params['searchScale'])
-        orderbycol = distcol
+        distfloat = func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)
+        orderbycol = func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)
         cache901.notify("Found location")
     else:
         distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, 200, 200), sqlalchemy.types.Text)+'mi')
+        distfloat = func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, 200, 200)
     qry = qry.add_column(distcol.label('distance'))
+    qry = qry.filter(distfloat <= dist)
     
     if params.has_key('countries'):
         countries = params['countries'].split(',')

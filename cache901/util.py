@@ -44,11 +44,11 @@ def distance_exact(lat1_in, lon1_in, lat2_in, lon2_in):
     lon2 = float(lon2_in)
     if lat2 > 90 or lat2 < -90 or lon1 > 180 or lon1 < -180:
         return 0.00
-    return 3958.75 * math.acos(math.sin(lat1/57.2958) *
+    return float('%1.2f' % (3958.75 * math.acos(math.sin(lat1/57.2958) *
           math.sin(lat2/57.2958) + 
           math.cos(lat1/57.2958) * 
           math.cos(lat2/57.2958) * 
-          math.cos(lon2/57.2958 - lon1/57.2958))
+          math.cos(lon2/57.2958 - lon1/57.2958))))
 
 def decToD(decDegree):
     plus = (decDegree >= 0)
@@ -214,6 +214,7 @@ def getWaypoints(params={}):
 def getSearchLocs(searchpat=None):
     qry = cache901.db().query(sadbobjects.Locations).filter(sadbobjects.Locations.loc_type == 2)
     if searchpat is not None or len(searchpat) >= 2:
+        searchpat = '%%%s%%' % (searchpat.lower())
         qry = qry.filter(or_(
             func.lower(sadbobjects.Locations.name).like(searchpat),
             func.lower(sadbobjects.Locations.desc).like(searchpat)
