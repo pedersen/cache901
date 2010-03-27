@@ -453,7 +453,7 @@ def execSearch(params):
             scale = 1.0
         distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)*scale, sqlalchemy.types.Text)+params['searchScale'])
         distfloat = func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)
-        orderbycol = func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, loc.lat, loc.lon)
+        orderbycol = distfloat
         cache901.notify("Found location")
     else:
         distcol = (cast(func.distance(sadbobjects.Caches.lat, sadbobjects.Caches.lon, 200, 200), sqlalchemy.types.Text)+'mi')

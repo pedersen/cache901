@@ -45,6 +45,8 @@ import cache901.ui_xrc
 import cache901.util
 import cache901.xml901
 
+from cache901 import sadbobjects
+
 class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.ColumnSorterMixin):
     """
     The main UI class.
@@ -52,11 +54,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     # define a dictionary that we'll use when allowing a different order to the list columns of the main list control.
     # data in the tuple elements are in the format (db Column Number, Heading Text, Text Extent)
     LISTDATA =  {
-                    "Difficulty" : (1, "D", "5.00"), 
-                    "Terrain"    : (2, "T", "5.00"), 
-                    "Cache Name" : (3, "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), 
-                    "Cache ID"   : (5, "Cache ID", "QQQQQQQQ"), 
-                    "Distance"   : (4, "Dist", "QQQQQQ")
+                    "Difficulty" : ('difficulty', "D", "5.00"), 
+                    "Terrain"    : ('terrain', "T", "5.00"), 
+                    "Cache Name" : ('url_name', "Cache Name", "QQQQQQQQQQQQQQQQQQQQ"), 
+                    "Cache ID"   : ('name', "Cache ID", "QQQQQQQQ"), 
+                    "Distance"   : ('distance', "Dist", "QQQQQQ")
                 }
 
     def __init__(self, parent=None):
@@ -321,7 +323,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.currPhoto.SetBitmap(bmp)
 
         if self.ld_cache is not None:
-            for fname in self.ld_cache.photolist.names:
+            for photo in self.ld_cache.photos:
+                fname = photo.photofile
                 cache901.notify('Retreiving photo %s' % fname)
                 img = wx.BitmapFromImage(wx.Image(os.sep.join([cache901.cfg().dbpath, fname])).Scale(64, 64))
                 pnum = self.photoImageList.Add(img)
@@ -338,15 +341,12 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         item = self.CacheSearchMenu.Append(-1, 'Clear Search')
         self.Bind(wx.EVT_MENU, self.OnSearch, item)
         self.CacheSearchMenu.AppendSeparator()
-        cur = cache901.db().cursor()
-        cur.execute('select distinct name from searches order by name')
-        for i in cur:
-            item = self.CacheSearchMenu.Append(-1, i[0])
+        for i in cache901.db().query(sadbobjects.Searches):
+            item = self.CacheSearchMenu.Append(-1, i.name)
             self.Bind(wx.EVT_MENU, self.OnSearch, item)
         self.CacheSearchMenu.AppendSeparator()
-        cur.execute('select distinct dayname from cacheday_names order by dayname')
-        for i in cur:
-            item = self.CacheSearchMenu.Append(-1, 'Cache Day: %s' % i[0])
+        for i in cache901.db().query(sadbobjects.CacheDayNames):
+            item = self.CacheSearchMenu.Append(-1, 'Cache Day: %s' % i.dayname)
             self.Bind(wx.EVT_MENU, self.OnSearch, item)
 
             
@@ -376,16 +376,20 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             if params.has_key("urlname"):
                 del params["urlname"]
         cache901.notify('Refreshing cache list from database')
-        for row in cache901.search.execSearch(params):
-            cacheElements = [row[self.LISTDATA[colName][0]] for colName in columnOrder]
+        for cache in cache901.search.execSearch(params):
+            cacheElements = []
+            for colName in columnOrder:
+                try:
+                    cacheElements.append(getattr(cache.Caches, self.LISTDATA[colName][0]))
+                except:
+                    cacheElements.append(getattr(cache, self.LISTDATA[colName][0]))
             cacheTuple = tuple(cacheElements)
             cache_id = self.caches.Append(cacheTuple)
-            self.caches.SetItemData(cache_id, row[0])
-            self.itemDataMap[row[0]] = cacheTuple
+            self.caches.SetItemData(cache_id, cache.Caches.cache_id)
+            self.itemDataMap[cache.Caches.cache_id] = cacheTuple
         if self.caches.GetItemCount() > 0:
             self.caches.Select(0)
 
-        #self.loadWaypoints(wpt_params)
 
     def updStatus(self):
         cache901.notify('%d Caches Displayed, %d Waypoints Displayed' % (self.caches.GetItemCount(), self.points.GetItemCount()))
@@ -487,10 +491,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             self.points.Select(iid, 0)
             iid = self.points.GetFirstSelected()
         self.clearAllGui()
-        self.ld_cache = cache901.dbobjects.Cache(evt.GetData())
+        self.ld_cache = cache901.db().query(sadbobjects.Caches).get(evt.GetData())
         # Set up travel bug listings
         self.trackableListCtrl.DeleteAllItems()
-        for bug in self.ld_cache.bugs:
+        for bug in self.ld_cache.travelbugs:
             self.trackableListCtrl.Append((bug.name, ))
         # set up log listings
         self.logDateList.DeleteAllItems()
@@ -501,7 +505,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.logText.SetValue("")
         self.logDate.SetValue(wx.DateTime_Now())
         self.logType.Select(self.logtrans.getIdx("Didn't Find It"))
-        self.currNotes.SetValue(self.ld_cache.note.note)
+        if len(self.ld_cache.notes) > 0:
+            self.currNotes.SetValue(self.ld_cache.notes[0].note)
         self.updPhotoList()
         self.cacheName.SetLabel(self.ld_cache.url_name)
         self.waypointLink.URL = self.ld_cache.url
@@ -521,13 +526,14 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.countryText.SetLabel(self.ld_cache.country)
         self.available.SetValue(self.ld_cache.available)
         self.archived.SetValue(self.ld_cache.archived)
-        self.bugCount.SetLabel(str(len(self.ld_cache.bugs)))
+        self.bugCount.SetLabel(str(len(self.ld_cache.travelbugs)))
         self.cacheType.SetLabel(self.ld_cache.type.split("|")[-1])
         self.cacheBasics.Fit()
-        try:
-            self.hintText.SetValue(self.ld_cache.hint.hint.encode('rot13'))
-        except:
-            self.hintText.SetValue(self.ld_cache.hint.hint)
+        if len(self.ld_cache.hint) > 0:
+            try:
+                self.hintText.SetValue(self.ld_cache.hint[0].hint.encode('rot13'))
+            except:
+                self.hintText.SetValue(self.ld_cache.hint[0].hint)
         self.Disable()
         cache901.notify('Updating short cache description')
         if self.ld_cache.short_desc_html:
@@ -555,7 +561,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.points.Enable()
 
     def OnLoadLog(self, evt):
-        log = cache901.dbobjects.Log(evt.GetData())
+        log = cache901.db().query(sadbobjects.Logs).get(evt.GetData())
         self.logDecodeButton.SetLabel("Decode Log" if log.log_entry_encoded else "Encode Log")
         self.logText.SetEditable(log.finder in self.listGCAccounts())
         self.logType.Enable(self.logText.IsEditable())
@@ -573,15 +579,12 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.logDate.SetValue(wx.DateTimeFromTimeT(log.date))
         self.logType.Select(self.logtrans.getIdx(log.type))
         self.logCacherNameText.SetLabel(log.finder.replace('&', '&&'))
-        self.logSaveButton.Enable(log.my_log)
+        self.logSaveButton.Enable(log.my_log == 1)
 
     def listGCAccounts(self):
-        cur = cache901.db().cursor()
         usernames = []
-        cur.execute('select username from accounts')
-        for row in cur:
-            if row is not None:
-                usernames.append(row['username'])
+        for account in cache901.db().query(sadbobjects.Accounts):
+            usernames.append(account.username)
         return usernames
 
     def importSpecificFile(self, path, maintdb=True):
@@ -1085,11 +1088,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         if includenew:
             mitems.append(menu.Append(-1, 'New Cache Day'))
             menu.AppendSeparator()
-        cur = cache901.db().cursor()
-        cur.execute('select dayname from cacheday_names order by dayname')
-        for row in cur:
-            if row[0].strip() != '':
-                mitems.append(menu.Append(-1, row[0]))
+        for day in cache901.db().query(sadbobjects.CacheDayNames):
+            if day.dayname.strip() != '':
+                mitems.append(menu.Append(-1, day.dayname))
         return mitems
 
 
@@ -1286,7 +1287,7 @@ class AltCoordsTable(wx.grid.PyGridTableBase):
     def GetNumberRows(self):
         if self.cache is None: return 0
         if self.alts is None: return 1
-        return len(self.alts.alts) + 1
+        return len(self.alts) + 1
     
     def GetNumberCols(self):
         return 4
@@ -1301,22 +1302,25 @@ class AltCoordsTable(wx.grid.PyGridTableBase):
             if col == 2: return cache901.util.lonToDMS(self.cache.lon)
             if col == 3: return self.rowIsDefault(row)
         if row <= len(self.alts.alts):
-            if col == 0: return self.alts.alts[row-1]['name']
-            if col == 1: return self.alts.alts[row-1]['lat']
-            if col == 2: return self.alts.alts[row-1]['lon']
+            if col == 0: return self.alts[row-1].name
+            if col == 1: return self.alts[row-1].lat
+            if col == 2: return self.alts[row-1].lon
             if col == 3: return self.rowIsDefault(row)
         if col != 3: return "Unknown"
         else: return 0
     
     def AppendRows(self, numRows=1):
         if numRows == 1:
-            self.alts.alts.append({
-                'name' : 'Stage %d' % (len(self.alts.alts) + 1),
-                'lat' : '',
-                'lon' : '',
-                'setdefault' : 0
-                })
-            self.alts.Save()
+            alt = sadbobjects.AltCoords()
+            alt.cache_id = self.cache.cache_id
+            alt.sequence_num = len(self.alts)+1
+            alt.name = 'Stage %d' % (len(self.alts) + 1)
+            alt.lat = None
+            alt.lon = None
+            alt.setdefault = 0
+            self.alts.append(alt)
+            cache901.db().add(alt)
+            cache901.db().commit()
             self.GetView().SetTable(self)
             self.GetView().AutoSize()
             return True
@@ -1324,31 +1328,31 @@ class AltCoordsTable(wx.grid.PyGridTableBase):
     
     def DeleteRows(self, pos=0, numRows=1):
         for i in range(numRows):
-            del self.alts.alts[pos]
-        self.alts.Save()
+            cache901.db().delete(self.alts.pos)
+            del self.alts[pos]
         self.GetView().SetTable(self)
         self.GetView().AutoSize()
         return True
     
     def SetValue(self, row, col, value):
-        if len(self.alts.alts) > 0 and col == 3:
+        if len(self.alts) > 0 and col == 3:
             try:
-                lat = cache901.util.dmsToDec(self.alts.alts[row-1]['lat'])
-                lon = cache901.util.dmsToDec(self.alts.alts[row-1]['lon'])
-                for idx in range(len(self.alts.alts)):
-                    self.alts.alts[idx]['setdefault'] = 0
+                lat = cache901.util.dmsToDec(self.alts[row-1].lat)
+                lon = cache901.util.dmsToDec(self.alts[row-1].lon)
+                for idx in range(len(self.alts)):
+                    self.alts[idx].setdefault = 0
                 if row > 0:
-                    self.alts.alts[row-1]['setdefault'] = int(value)
+                    self.alts[row-1].setdefault = int(value)
             except Exception, e:
                 wx.MessageBox('Row %d has either latitude or longitude invalid, and cannot be the default\nError Text: %s' % (row, str(e)), 'An Error Occurred', wx.ICON_ERROR | wx.OK)
                 return
         if row > 0:
             row = row - 1
-            if col == 0:   self.alts.alts[row]['name'] = value
-            elif col == 1: self.alts.alts[row]['lat'] = value
-            elif col == 2: self.alts.alts[row]['lon'] = value
+            if col == 0:   self.alts[row].name = value
+            elif col == 1: self.alts[row].lat = value
+            elif col == 2: self.alts[row].lon = value
         self.GetView().ForceRefresh()
-        self.alts.Save()
+        cache901.db().commit()
     
     def GetColLabelValue(self, col):
         return self.colnames[col]
@@ -1373,10 +1377,10 @@ class AltCoordsTable(wx.grid.PyGridTableBase):
     # The following should be called whenever a new cache/waypoint is clicked
     def changeCache(self, newcacheid=None):
         if self.alts is not None:
-            self.alts.Save()
+            cache901.db().commit()
         if newcacheid is not None:
-            self.alts = cache901.dbobjects.AltCoordsList(newcacheid)
-            self.cache = cache901.dbobjects.Cache(newcacheid)
+            self.alts = cache901.db().query(sadbobjects.AltCoords).filter(sadbobjects.AltCoords.cache_id == newcacheid).order_by(sadbobjects.AltCoords.sequence_num).all()
+            self.cache = cache901.db().query(sadbobjects.Caches).get(newcacheid)
         else:
             self.alts = None
             self.cache = None
@@ -1384,10 +1388,10 @@ class AltCoordsTable(wx.grid.PyGridTableBase):
         self.GetView().AutoSize()
         
     def rowIsDefault(self, row):
-        if len(self.alts.alts) == 0: return 1
+        if len(self.alts) == 0: return 1
         if row == 0:
-            return 0 if len(filter(lambda x: x['setdefault'] == 1, self.alts.alts)) > 0 else 1
-        return self.alts.alts[row-1]['setdefault']
+            return 0 if len(filter(lambda x: x.setdefault == 1, self.alts)) > 0 else 1
+        return self.alts[row-1].setdefault
 
 class logTrans(object):
     def __init__(self):

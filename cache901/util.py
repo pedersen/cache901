@@ -284,7 +284,6 @@ def CacheToGPX(cache):
     return gpx
 
 def CacheDayToGPX(cacheday):
-    isinstance(cacheday, cache901.dbobjects.CacheDay)
     gpx = gpsbabel.GPXData()
     route = gpsbabel.GPXRoute()
     route.name = cacheday.dayname
