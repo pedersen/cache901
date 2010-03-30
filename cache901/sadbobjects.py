@@ -203,6 +203,21 @@ class Version(DeclarativeBase):
     version = Column(Integer, primary_key=True)
 
 
+class Logs(DeclarativeBase):
+    __tablename__ = 'logs'
+    id = Column(Integer, primary_key=True)
+    cache_id = Column(Integer, ForeignKey("caches.cache_id"), primary_key=False)
+    date = Column(Integer, primary_key=False)
+    type = Column(Unicode(), primary_key=False)
+    finder = Column(Unicode(), primary_key=False)
+    finder_id = Column(Integer, primary_key=False)
+    log_entry = Column(Unicode(), primary_key=False)
+    log_entry_encoded = Column(Integer, primary_key=False)
+    my_log = Column(Integer, primary_key=False)
+    my_log_found = Column(Integer, primary_key=False)
+    my_log_uploaded = Column(Integer, primary_key=False)
+        
+
 class Accounts(DeclarativeBase):
     __tablename__ = 'accounts'
     
@@ -218,6 +233,7 @@ class CacheDayNames(DeclarativeBase):
     __tablename__ =  'cacheday_names'
     dayname = Column(UnicodeText(), primary_key=True)
 
+    caches = relation('CacheDay', order_by='CacheDay.cache_order', backref=backref('cachedayname'))
 
 class Categories(DeclarativeBase):
     __tablename__ = 'categories'
@@ -281,6 +297,10 @@ class Caches(DeclarativeBase):
     long_desc_html = Column(Integer, primary_key=False)
     hidden = Column(Integer, primary_key=False)
 
+    logs = relation(Logs, order_by=Logs.date.desc(), backref=backref('cache'))
+    alt_coords = relation('AltCoords', order_by='AltCoords.sequence_num', backref=backref('cache'))
+    attributes = relation('Attributes', backref=backref('cache'))
+    
 
 class Locations(DeclarativeBase):
     __tablename__ = 'locations'
@@ -304,16 +324,12 @@ class AltCoords(DeclarativeBase):
     lon = Column(UnicodeText(), primary_key=False)
     setdefault = Column(Integer, primary_key=False)
         
-    cache = relation(Caches, backref=backref('alt_coords'))
-
 
 class Attributes(DeclarativeBase):
     __tablename__ =  'attributes'
     cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
     attribute = Column(UnicodeText(), primary_key=False)
         
-    cache = relation(Caches, backref=backref('attributes'))
-
 
 class CacheDay(DeclarativeBase):
     __tablename__ =  'cacheday'
@@ -324,7 +340,7 @@ class CacheDay(DeclarativeBase):
         
     cache = relation(Caches, primaryjoin=("Caches.cache_id == CacheDay.cache_id"), foreign_keys=[Caches.cache_id], backref=backref('cachedays'))
     loc = relation(Locations, primaryjoin=("Locations.wpt_id == CacheDay.cache_id"), foreign_keys=[Locations.wpt_id], backref=backref('cachedays'))
-    cachedayname = relation(CacheDayNames, backref=backref('caches'))
+
 
 class Hints(DeclarativeBase):
     __tablename__ = 'hints'
@@ -332,23 +348,6 @@ class Hints(DeclarativeBase):
     hint = Column(Unicode(), primary_key=False)
         
     cache = relation(Caches, backref=backref('hint'))
-
-
-class Logs(DeclarativeBase):
-    __tablename__ = 'logs'
-    id = Column(Integer, primary_key=True)
-    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=False)
-    date = Column(Integer, primary_key=False)
-    type = Column(Unicode(), primary_key=False)
-    finder = Column(Unicode(), primary_key=False)
-    finder_id = Column(Integer, primary_key=False)
-    log_entry = Column(Unicode(), primary_key=False)
-    log_entry_encoded = Column(Integer, primary_key=False)
-    my_log = Column(Integer, primary_key=False)
-    my_log_found = Column(Integer, primary_key=False)
-    my_log_uploaded = Column(Integer, primary_key=False)
-        
-    cache = relation(Caches, backref=backref('logs'))
 
 
 class Notes(DeclarativeBase):
