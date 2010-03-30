@@ -318,12 +318,13 @@ class Attributes(DeclarativeBase):
 class CacheDay(DeclarativeBase):
     __tablename__ =  'cacheday'
     dayname = Column(UnicodeText(), ForeignKey(CacheDayNames.dayname), primary_key=True)
-    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
+    cache_id = Column(Integer, primary_key=True)
     cache_type = Column(Integer, primary_key=False)
     cache_order = Column(Integer, primary_key=False)
         
-    cache = relation(Caches, backref=backref('cachedays'))
-    cachedayname = relation(CacheDayNames, backref=backref('cachedays'))
+    cache = relation(Caches, primaryjoin=("Caches.cache_id == CacheDay.cache_id"), foreign_keys=[Caches.cache_id], backref=backref('cachedays'))
+    loc = relation(Locations, primaryjoin=("Locations.wpt_id == CacheDay.cache_id"), foreign_keys=[Locations.wpt_id], backref=backref('cachedays'))
+    cachedayname = relation(CacheDayNames, backref=backref('caches'))
 
 class Hints(DeclarativeBase):
     __tablename__ = 'hints'

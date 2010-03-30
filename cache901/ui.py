@@ -27,6 +27,7 @@ import time
 import zipfile
 
 from urlparse import urlparse
+from sqlalchemy import func, and_
 
 import gpsbabel
 import wx
@@ -36,7 +37,6 @@ import wx.xrc as xrc
 import wx.html
 
 import cache901
-import cache901.dbobjects
 import cache901.gpxsource
 import cache901.mapping
 import cache901.options
@@ -435,7 +435,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnLogToggle(self, evt):
         iid = self.logDateList.GetFirstSelected()
         if iid == -1: return
-        log = cache901.dbobjects.Log(self.logDateList.GetItemData(iid))
+        log = cache901.sadbobjects.Logs().get(self.logDateList.GetItemData(iid))
         try:
             if log.log_entry_encoded:
                 def decode(m):
@@ -476,7 +476,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             self.caches.Select(iid, 0)
             iid = self.caches.GetFirstSelected()
         self.clearAllGui()
-        self.ld_cache = cache901.dbobjects.Waypoint(evt.GetData())
+        self.ld_cache = cache901.sadbobjects.Locations().get(evt.GetData())
         self.cacheName.SetLabel(self.ld_cache.name)
         self.waypointLink.Label = self.ld_cache.name
         self.waypointLink.Refresh()
@@ -776,18 +776,18 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                 wx.MessageBox(str(e), 'An Error Occurred While Searching', wx.ICON_ERROR, self)
         elif mtext.startswith('Cache Day: '):
             mtext = mtext.replace('Cache Day: ', '')
-            day = cache901.dbobjects.CacheDay(mtext)
+            day = cache901.db().query(sadbobjects.CacheDayNames).get(mtext)
             cache_params = {}
             cache_params['dayname'] = mtext
             cache_params['ids'] = []
             wpt_params = {}
             wpt_params['ids'] = []
             wpt_params['dayname'] = mtext
-            for cw in day.caches:
-                if isinstance(cw, cache901.dbobjects.Cache):
-                    cache_params['ids'].append(cw.cache_id)
+            for cd in day.caches:
+                if cd.cache_type == 1:
+                    cache_params['ids'].append(cd.cache_id)
                 else:
-                    wpt_params['ids'].append(cw.wpt_id)
+                    wpt_params['ids'].append(cd.wpt_id)
             if len(cache_params['ids']) == 0: del cache_params['ids']
             if len(wpt_params['ids']) == 0: del wpt_params['ids']
             try:
@@ -912,25 +912,35 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             iid = self.logDateList.GetFirstSelected()
             if iid > -1:
-                log = cache901.dbobjects.Log(self.logDateList.GetItemData(iid))
-                log.Delete()
+                log = cache901.db().query(sadbobjects.Logs).get(self.logDateList.GetItemData(iid))
+                cache901.db().delete(log)
+                cache901.db().commit()
                 cid = self.caches.GetFirstSelected()
                 self.caches.Select(cid, 0)
                 self.caches.Select(cid, 1)
                 
     def OnLogCache(self, evt):
-        log = cache901.dbobjects.Log(cache901.dbobjects.minint)
+        log = sadbobjects.Logs()
         log.cache_id = self.ld_cache.cache_id
         log.my_log = True
         log.date = time.mktime(datetime.datetime.now().timetuple())
-        cur = cache901.db().cursor()
-        cur.execute('select username from accounts where lower(sitename)="geocaching.com" and isteam=0')
-        row = cur.fetchone()
-        if row is None:
+        log.log_entry = u''
+        log.type = ''
+        log.finder_id = 0
+        log.log_entry_encoded = 0
+        log.my_log = 1
+        log.my_log_uploaded = 0
+        acct = cache901.db().query(sadbobjects.Accounts).filter(
+            and_(
+                func.lower(sadbobjects.Accounts.sitename) == 'geocaching.com',
+                sadbobjects.Accounts.isteam == 0
+                )
+            ).first()
+        if acct is None:
             wx.MessageBox('Without a non-team account defined\nin Preferences->GeoCaching Accounts,\nI don\'t know what username to attach\nto this log.\nAborting.', 'Missing Username', wx.ICON_ERROR)
             return
-        log.finder = row['username']
-        log.Save()
+        log.finder = acct.username
+        cache901.db().add(log)
         cache901.db().commit()
         iid = self.caches.GetFirstSelected()
         self.caches.Select(iid, 0)
@@ -948,13 +958,17 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.logType.Enable(self.logText.IsEditable())
         self.logDate.Enable(self.logText.IsEditable())
         self.logSaveButton.Enable(self.logText.IsEditable())
-        log = cache901.dbobjects.Log(self.logDateList.GetItemData(self.logDateList.GetFirstSelected()))
+        log = cache901.db().query(sadbobjects.Logs).get(self.logDateList.GetItemData(self.logDateList.GetFirstSelected()))
         log.log_entry = self.logText.GetValue()
         log.type = self.logtrans.getType(self.logType.GetSelection())
-        cur = cache901.db().cursor()
-        cur.execute('select username from accounts where sitename="GeoCaching.com" and ispremium=1 and isteam=0')
-        row = cur.fetchone()
-        log.finder = row['username']
+        acct = cache901.db().query(sadbobjects.Accounts).filter(
+            and_(
+                func.lower(sadbobjects.Accounts.sitename) == 'geocaching.com',
+                sadbobjects.Accounts.isteam == 0,
+                sadbobjects.Accounts.ispremium == 1
+                )
+            ).first()
+        log.finder = acct.username
 
         dt = self.logDate.GetValue()
         d = datetime.datetime(dt.GetYear(), dt.GetMonth()+1, dt.GetDay(), 0, 0, 0)
@@ -963,9 +977,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             log.date += time.altzone
         else:
             log.date += time.timezone
-        log.Save()
         cache901.db().commit()
-        self.ld_cache = cache901.dbobjects.Cache(log.cache_id)
+        self.ld_cache = cache901.db().query(sadbobjects.Caches).get(log.cache_id)
         self.reloadLogList()
         
         
@@ -1010,10 +1023,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         isinstance(win, wx.Menu)
         cfg = cache901.cfg()
         if self.caches.GetFirstSelected() != -1:
-            cache = cache901.dbobjects.Cache(self.caches.GetItemData(self.caches.GetFirstSelected()))
+            cache = cache901.db().query(sadbobjects.Caches).get(self.caches.GetItemData(self.caches.GetFirstSelected()))
             ctp = 'cache'
         else:
-            cache = cache901.dbobjects.Waypoint(self.points.GetItemData(self.points.GetFirstSelected()))
+            cache = cache901.db().query(sadbobjects.Locations).get(self.points.GetItemData(self.points.GetFirstSelected()))
             ctp = 'waypoint'
         gpx = cache901.util.CacheToGPX(cache)
         cache901.notify('Sending %s "%s" to GPS' % (ctp, cache.name))
@@ -1040,21 +1053,23 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         if mtext == "New Cache Day":
             mtext =  wx.GetTextFromUser('New Cache Day Name', 'New Cache Day Name', parent = self)
             if mtext.strip() != '':
-                day = cache901.dbobjects.CacheDay(mtext)
-                day.Save()
+                day = sadbobjects.CacheDayNames()
+                day.name = mtext
+                cache901.db().add(day)
+                cache901.db().commit()
             else:
                 day = None
                 wx.MessageBox('Cowardly refusing to create a day name with just spaces in it', 'Bad Cache Day Name', wx.ICON_EXCLAMATION)
                 return
         else:
-            day = cache901.dbobjects.CacheDay(mtext)
+            day = cache901.db().query(sadbobjects.CacheDayNames).get(mtext)
         if day is not None:
             iid = self.caches.GetFirstSelected()
             if iid != -1:
-                day.caches.append(cache901.dbobjects.Cache(self.caches.GetItemData(iid)))
+                day.caches.append(cache901.db().query(sadbobjects.Caches).get(self.caches.GetItemData(iid)))
             else:
-                day.caches.append(cache901.dbobjects.Waypoint(self.points.GetItemData(self.points.GetFirstSelected())))
-            day.Save()
+                day.caches.append(cache901.db().query(sadbobjects.Locations).get(self.points.GetItemData(self.points.GetFirstSelected())))
+            cache901.db().commit()
         self.updSearchMenu()
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
@@ -1068,7 +1083,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         itemid = evt.GetId()
         item = self.GetMenuBar().FindItemById(itemid)
         mtext = item.GetLabel()
-        day = cache901.dbobjects.CacheDay(mtext)
+        day = cache901.db().query(sadbobjects.CacheDay).get(mtext)
         gpx = cache901.util.CacheDayToGPX(day)
         cfg = cache901.cfg()
         cache901.notify('Sending Cache Day "%s" to GPS' % (mtext, ))
@@ -1107,9 +1122,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnDeleteCacheOrWaypoint(self, evt):
         iid = self.caches.GetFirstSelected()
         if iid > -1:
-            cache = cache901.dbobjects.Cache(self.caches.GetItemData(iid))
+            cache = cache901.db().query(sadbobjects.Caches).get(self.caches.GetItemData(iid))
             if wx.MessageBox('Warning! This cannot be undone!\nReally delete cache: "%s"?' % cache.url_name, 'Really Delete?', wx.ICON_WARNING | wx.YES_NO, self) == wx.YES:
-                cache.Delete()
+                cache901.db().delete(cache)
+                cache901.db().commit()
                 if self.caches.GetItemCount() > 1:
                     if iid == 0:
                         self.caches.Select(iid+1)
@@ -1123,9 +1139,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         else:
             iid = self.points.GetFirstSelected()
             if iid > -1:
-                wpt = cache901.dbobjects.Waypoint(self.points.GetItemData(iid))
+                wpt = cache901.db().query(sadbobjects.Locations).get(self.points.GetItemData(iid))
                 if wx.MessageBox('Warning! This cannot be undone!\nReally delete waypoint: "%s"?' % wpt.name, 'Really Delete?', wx.ICON_WARNING | wx.YES_NO, self) == wx.YES:
-                    wpt.Delete()
+                    cache901.db().delete(wpt)
+                    cache901.db().commit()
                     if self.points.GetItemCount() > 1:
                         if iid == 0:
                             self.points.Select(iid+1)

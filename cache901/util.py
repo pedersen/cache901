@@ -287,7 +287,11 @@ def CacheDayToGPX(cacheday):
     gpx = gpsbabel.GPXData()
     route = gpsbabel.GPXRoute()
     route.name = cacheday.dayname
-    for wptdata in cacheday.caches:
+    for cdata in cacheday.caches:
+        if cdata.cache_type == 1:
+            wptdata = cdata.cache
+        else:
+            wptdata = cdata.loc
         wpt = gpsbabel.GPXWaypoint()
         wpt.lat = wptdata.lat
         wpt.lon = wptdata.lon
