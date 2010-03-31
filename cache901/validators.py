@@ -24,7 +24,6 @@ import serial
 import wx
 
 import cache901
-import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
 
