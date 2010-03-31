@@ -213,7 +213,7 @@ def getWaypoints(params={}):
 
 def getSearchLocs(searchpat=None):
     qry = cache901.db().query(sadbobjects.Locations).filter(sadbobjects.Locations.loc_type == 2)
-    if searchpat is not None or len(searchpat) >= 2:
+    if searchpat is not None and len(searchpat) >= 2:
         searchpat = '%%%s%%' % (searchpat.lower())
         qry = qry.filter(or_(
             func.lower(sadbobjects.Locations.name).like(searchpat),
@@ -287,11 +287,7 @@ def CacheDayToGPX(cacheday):
     gpx = gpsbabel.GPXData()
     route = gpsbabel.GPXRoute()
     route.name = cacheday.dayname
-    for cdata in cacheday.caches:
-        if cdata.cache_type == 1:
-            wptdata = cdata.cache
-        else:
-            wptdata = cdata.loc
+    for wptdata in cacheday.caches:
         wpt = gpsbabel.GPXWaypoint()
         wpt.lat = wptdata.lat
         wpt.lon = wptdata.lon

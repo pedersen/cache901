@@ -20,7 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import wx
 
 import cache901
-import cache901.dbobjects
 import cache901.ui
 import cache901.ui_xrc
 import cache901.util

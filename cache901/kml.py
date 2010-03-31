@@ -25,7 +25,6 @@ import urllib
 import wx
 
 import cache901
-import cache901.dbobjects
 import cache901.ui
 import cache901.util
 

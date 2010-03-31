@@ -234,6 +234,12 @@ class CacheDayNames(DeclarativeBase):
     dayname = Column(UnicodeText(), primary_key=True)
 
     caches = relation('CacheDay', order_by='CacheDay.cache_order', backref=backref('cachedayname'))
+    
+    def reindex(self):
+        idx = 1
+        for cache in self.caches:
+            cache.cache_order = idx
+            idx = idx+1
 
 class Categories(DeclarativeBase):
     __tablename__ = 'categories'
@@ -337,9 +343,15 @@ class CacheDay(DeclarativeBase):
     cache_id = Column(Integer, primary_key=True)
     cache_type = Column(Integer, primary_key=False)
     cache_order = Column(Integer, primary_key=False)
-        
-    cache = relation(Caches, primaryjoin=("Caches.cache_id == CacheDay.cache_id"), foreign_keys=[Caches.cache_id], backref=backref('cachedays'))
-    loc = relation(Locations, primaryjoin=("Locations.wpt_id == CacheDay.cache_id"), foreign_keys=[Locations.wpt_id], backref=backref('cachedays'))
+    
+    def _get_cache(self):
+        if self.cache_type==1:
+            cache = DBSession.query(Caches).get(self.cache_id)
+        else:
+            cache = DBSession.query(Locations).get(self.cache_id)
+        return cache
+    
+    cache=property(_get_cache)
 
 
 class Hints(DeclarativeBase):

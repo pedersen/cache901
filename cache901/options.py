@@ -23,11 +23,14 @@ import os.path
 import serial
 import wx
 
+from sqlalchemy import and_
+
 import cache901
-import cache901.dbobjects
 import cache901.ui_xrc
 import cache901.util
 import cache901.validators
+
+from cache901 import sadbobjects
 
 import gpsbabel
 
@@ -91,11 +94,9 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         
     def loadAccounts(self):
         self.accountNames.DeleteAllItems()
-        cur = cache901.db().cursor()
-        cur.execute('select username || "@" || sitename as acctname, accountid from accounts order by acctname')
-        for row in cur:
-            aid = self.accountNames.Append((row['acctname'], ))
-            self.accountNames.SetItemData(aid, row['accountid'])
+        for acct in cache901.db().query(sadbobjects.Accounts):
+            aid = self.accountNames.Append(('%s@%s' % (acct.username, acct.sitename), ))
+            self.accountNames.SetItemData(aid, acct.accountid)
         self.btnRemAccount.Disable()
         self.acctType.Disable()
         self.acctType.SetSelection(0)
@@ -114,9 +115,9 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         self.locations.DeleteAllColumns()
         w,h = self.GetTextExtent("QQQQQQQQQQQQQQQQQQ")
         self.locations.InsertColumn(0, 'Location Name', width=w)
-        for row in cache901.util.getSearchLocs():
-            sid = self.locations.Append((row[1],))
-            self.locations.SetItemData(sid, row[0])
+        for loc in cache901.util.getSearchLocs():
+            sid = self.locations.Append((loc.name,))
+            self.locations.SetItemData(sid, loc.wpt_id)
             
     def loadGUIPreferences(self):
         # get the current column order list from the config
@@ -126,24 +127,26 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             self.colOrderList.InsertStringItem(orderList.index(column), column)
 
     def OnAddAccount(self, evt):
-        acct = cache901.dbobjects.Account(cache901.dbobjects.minint)
+        acct = cache901.sadbobjects.Accounts()
         acct.username = 'unknown'
         acct.sitename = self.acctType.GetItems()[0]
-        acct.Save()
+        cache901.db().add(acct)
+        cache901.db().commit()
         self.loadAccounts()
         self.accountNames.Select(self.accountNames.FindItemData(0, acct.acctid))
     
     def OnRemAccount(self, evt):
         acctid = self.accountNames.GetFirstSelected()
         if acctid > -1:
-            acct = cache901.dbobjects.Account(self.accountNames.GetItemData(acctid))
-            acct.Delete()
+            acct = cache901.db().query(sadbobjects.Accounts).get(self.accountNames.GetItemData(acctid))
+            cache901.db().delete(acct)
+            cache901.db().commit()
             self.loadAccounts()
     
     def OnLoadAccount(self, evt):
         acctid = self.accountNames.GetFirstSelected()
         if acctid > -1:
-            acct = cache901.dbobjects.Account(self.accountNames.GetItemData(acctid))
+            acct = cache901.db().query(sadbobjects.Accounts).get(self.accountNames.GetItemData(acctid))
             self.btnRemAccount.Enable()
             self.acctType.Enable()
             self.acctType.SetValue(acct.sitename)
@@ -160,13 +163,13 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def OnSaveAccount(self, evt):
         acctid = self.accountNames.GetFirstSelected()
         if acctid > -1:
-            acct = cache901.dbobjects.Account(self.accountNames.GetItemData(acctid))
+            acct = cache901.db().query(sadbobjects.Accounts).get(self.accountNames.GetItemData(acctid))
             acct.sitename = self.acctType.GetValue()
             acct.username = self.acctUsername.GetValue()
             acct.password = self.acctPassword.GetValue()
             acct.ispremium = self.acctIsPremium.GetValue()
             acct.isteam = self.acctIsTeam.GetValue()
-            acct.Save()
+            cache901.db().commit()
             self.loadAccounts()
     
     def showGeneral(self):
@@ -192,8 +195,13 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def OnRemoveOrigin(self, evt):
         sel = self.locations.GetFirstSelected()
         wptid = self.locations.GetItemData(sel)
-        cur = cache901.db().cursor()
-        cur.execute('delete from locations where loc_type=2 and wpt_id=?', (wptid, ))
+        for loc in cache901.db().query(sadbobjects.Locations).filter(
+            and_(
+                sadbobjects.Locations.loc_type == 2,
+                sadbobjects.Locations.wpt_id == wptid,
+                )):
+            cache901.db().delete(loc)
+        cache901.db().commit()
         self.loadOrigins()
         cache901.db().commit()
     
@@ -203,7 +211,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             lid = self.locations.GetItemData(lid)
         else:
             lid = -999999
-        wpt = cache901.dbobjects.Waypoint(lid)
+        wpt = cache901.db().query(sadbobjects.Locations).get(lid)
         wpt.name = self.locName.GetValue()
         wpt.loc_type = 2
         if len(wpt.name) != 0:
@@ -221,7 +229,6 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
                 wx.MessageBox(str(msg), "Invalid Longitude", parent=self)
                 failed = True
             if not failed:
-                wpt.Save()
                 cache901.db().commit()
                 self.loadOrigins()
                 wpt_id = self.locations.FindItemData(0, wpt.wpt_id)
@@ -236,7 +243,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     
     def OnLoadOrigin(self, evt):
         wptid = evt.GetData()
-        wpt = cache901.dbobjects.Waypoint(wptid)
+        wpt = cache901.db().query(sadbobjects.Locations).get(wptid)
         self.locName.SetValue(wpt.name)
         self.latitude.SetValue(cache901.util.latToDMS(wpt.lat))
         self.longitude.SetValue(cache901.util.lonToDMS(wpt.lon))
@@ -278,11 +285,9 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             wx.MessageBox(str(e), "An Error Occured")
     
     def listCacheDays(self):
-        cur = cache901.db().cursor()
-        cur.execute('select dayname from cacheday_names order by dayname')
         self.cacheDays.DeleteAllItems()
-        for row in cur:
-            self.cacheDays.Append((row['dayname'], ))
+        for cday in cache901.db().query(sadbobjects.CacheDayNames).order_by(sadbobjects.CacheDayNames.dayname):
+            self.cacheDays.Append((cday.dayname, ))
         if self.cacheDays.GetItemCount() > 0:
             self.cacheDays.Select(0)
             self.OnLoadCacheDay(None)
@@ -290,17 +295,18 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def OnAddCacheDay(self, evt):
         newname = wx.GetTextFromUser('New Cache Day:', 'Enter The Name', parent=self)
         if newname != '':
-            day = cache901.dbobjects.CacheDay(newname)
-            day.Save()
+            day = sadbobjects.CacheDayNames(newname)
+            sadbobjects.DBSession.add(newname)
+            cache901.db().commit()
             self.listCacheDays()
     
     def OnRemCacheDay(self, evt):
         iid = self.cacheDays.GetFirstSelected()
         while iid != -1:
             dname = self.cacheDays.GetItemText(iid)
-            day = cache901.dbobjects.CacheDay(dname)
+            day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
             if wx.MessageBox('Really delete cache day %s?' % dname, 'Remove Cache Day', style=wx.YES_NO, parent=self) == wx.YES:
-                day.Delete()
+                cache901.db().delete(day)
             iid = self.cacheDays.GetNextSelected(iid)
         self.listCacheDays()
     
@@ -310,8 +316,11 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             dname = self.cacheDays.GetItemText(iid)
             newdname = wx.GetTextFromUser('Rename %s to what?' % dname, 'Rename Cache Day').strip()
             if newdname != '':
-                day = cache901.dbobjects.CacheDay(dname)
-                day.Rename(newdname)
+                day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
+                day.dayname = newdname
+                for c in day.caches:
+                    c.dayname = newdname
+                cache901.db().commit()
                 self.listCacheDays()
             else:
                 wx.MessageBox('Cowardly refusing to rename a day to an empty name', 'Bad Cache Day Name', wx.ICON_EXCLAMATION)
@@ -319,47 +328,50 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def OnCacheUp(self, evt):
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
-        day = cache901.dbobjects.CacheDay(dname)
+        day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
         
         iid = self.cachesForDay.GetFirstSelected()
         if iid > 0:
             cache = day.caches[iid]
             del day.caches[iid]
             day.caches.insert(iid-1, cache)
-            day.Save()
+            day.reindex()
+            cache901.db().commit()
             self.OnLoadCacheDay(evt)
             self.cachesForDay.Select(iid-1)
     
     def OnCacheDown(self, evt):
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
-        day = cache901.dbobjects.CacheDay(dname)
+        day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
         
         iid = self.cachesForDay.GetFirstSelected()
         if iid < len(day.caches)-1:
             cache = day.caches[iid]
             del day.caches[iid]
             day.caches.insert(iid+1, cache)
-            day.Save()
+            day.reindex()
+            cache901.db().commit()
             self.OnLoadCacheDay(evt)
             self.cachesForDay.Select(iid+1)
     
     def OnAddCache(self, evt):
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
-        day = cache901.dbobjects.CacheDay(dname)
+        day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
         
         iid = self.availCaches.GetFirstSelected()
         while iid != -1:
-            day.caches.append(cache901.dbobjects.Cache(self.availCaches.GetItemData(iid)))
+            day.caches.append(cache901.db().query(saobjects.Cache).get(self.availCaches.GetItemData(iid)))
             iid = self.availCaches.GetNextSelected(iid)
-        day.Save()
+        cache901.db().commit()
         self.OnLoadCacheDay(evt)
     
     def OnRemCache(self, evt):
+        # TODO: Delete the cache from the cache day, but don't delete the cache
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
-        day = cache901.dbobjects.CacheDay(dname)
+        day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
         
         iid = self.cachesForDay.GetFirstSelected()
         delme = []
@@ -375,15 +387,15 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def OnLoadCacheDay(self, evt):
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
-        day = cache901.dbobjects.CacheDay(dname)
+        day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
         self.cachesForDay.DeleteAllItems()
         for cache in day.caches:
-            if isinstance(cache, cache901.dbobjects.Cache):
-                iid = self.cachesForDay.Append((cache.url_name, ))
+            if cache.cache_type == 1:
+                iid = self.cachesForDay.Append((cache.cache.url_name, ))
                 self.cachesForDay.SetItemData(iid, cache.cache_id)
-            elif isinstance(cache, cache901.dbobjects.Waypoint):
-                iid = self.cachesForDay.Append((cache.name, ))
-                self.cachesForDay.SetItemData(iid, cache.wpt_id)
+            elif cache.cache_type == 2:
+                iid = self.cachesForDay.Append((cache.loc.name, ))
+                self.cachesForDay.SetItemData(iid, cache.cache_id)
 
     def OnColMoveUp(self, evt):
         index = self.colOrderList.GetFirstSelected()
