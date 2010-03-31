@@ -28,6 +28,8 @@ import cache901
 import cache901.ui
 import cache901.util
 
+from cache901 import sadbobjects
+
 from xml.sax.saxutils import escape
 
 class KML(object):
@@ -110,8 +112,7 @@ class KML(object):
     def writeSearchLocations(self):
         self.fh.write('  <Folder>\n')
         self.fh.write('    <name>Search Origins</name>\n')
-        for loc in cache901.util.getSearchLocs():
-            wpt = cache901.dbobjects.Waypoint(loc[0])
+        for wpt in cache901.util.getSearchLocs():
             self.fh.write('    <Placemark>\n')
             self.fh.write('      <name>%s</name>\n' % escape(cache901.util.forceAscii(wpt.name)))
             self.fh.write('      <styleUrl>#searchloc</styleUrl>\n')
@@ -125,49 +126,46 @@ class KML(object):
     def writeCacheDays(self):
         self.fh.write('  <Folder>\n')
         self.fh.write('    <name>Cache Days</name>\n')
-        cur=cache901.db().cursor()
-        cur.execute('select dayname from cacheday_names order by dayname')
-        for row in cur:
-            if row is not None:
-                cd = cache901.dbobjects.CacheDay(row['dayname'])
-                visible = True
-                for cache in cd.caches:
-                    if type(cache) is cache901.dbobjects.Cache:
-                        visible = visible and (cache.cache_id in self.cacheids)
-                if visible:
-                    self.fh.write('    <Placemark>\n')
-                    self.fh.write('      <name>%s</name>\n' % escape(cache901.util.forceAscii(cd.dayname)))
-                    self.fh.write('      <LineString>\n')
-                    self.fh.write('        <extrude>1</extrude>\n')
-                    self.fh.write('        <tesselate>1</tesselate>\n')
-                    self.fh.write('        <coordinates>')
-                    self.fh.write(' '.join(map(lambda x: "%f,%f" % (x.lon, x.lat), cd.caches)))
-                    self.fh.write('</coordinates>\n')
-                    self.fh.write('      </LineString>\n')
-                    self.fh.write('    </Placemark>\n')
+        for cd in cache901.db().query(sadbobjects.CacheDayNames):
+            visible = True
+            for cache in cd.caches:
+                if cache.cache_type == 1:
+                    visible = visible and (cache.cache_id in self.cacheids)
+            if visible:
+                self.fh.write('    <Placemark>\n')
+                self.fh.write('      <name>%s</name>\n' % escape(cache901.util.forceAscii(cd.dayname)))
+                self.fh.write('      <LineString>\n')
+                self.fh.write('        <extrude>1</extrude>\n')
+                self.fh.write('        <tesselate>1</tesselate>\n')
+                self.fh.write('        <coordinates>')
+                self.fh.write(' '.join(map(lambda x: "%f,%f" % (x.cache.lon, x.cache.lat), cd.caches)))
+                self.fh.write('</coordinates>\n')
+                self.fh.write('      </LineString>\n')
+                self.fh.write('    </Placemark>\n')
         self.fh.write('  </Folder>\n')
     
     def writeCaches(self):
         curtype = ''
         first=True
-        cur = cache901.db().cursor()
-        cur.execute('select cache_id,type,name,url_name,difficulty,terrain,url,lat,lon from caches where cache_id in (%s) order by type, name' % ",".join(map(lambda x: "%d" % x, self.cacheids)))
-        for row in cur:
-            kmlname = escape("%s - %s (%1.1f / %1.1f)" % (cache901.util.forceAscii(row['name']), cache901.util.forceAscii(row['url_name']), row['difficulty'], row['terrain']))
-            if row['type'] != curtype:
-                curtype = row['type']
+        qry = cache901.db().query(sadbobjects.Caches).order_by(sadbobjects.Caches.type).order_by(sadbobjects.Caches.name)
+        for cache in qry:
+            if cache.cache_id not in self.cacheids:
+                continue
+            kmlname = escape("%s - %s (%1.1f / %1.1f)" % (cache901.util.forceAscii(cache.name), cache901.util.forceAscii(cache.url_name), cache.difficulty, cache.terrain))
+            if cache.type != curtype:
+                curtype = cache.type
                 if not first: self.fh.write('  </Folder>\n\n')
                 self.fh.write('  <Folder>\n')
                 self.fh.write('    <name>%ss</name>\n' % escape(curtype.replace("Geocache|", "")))
                 first=False
             self.fh.write('    <Placemark>\n')
             self.fh.write('      <name>%s</name>\n' % kmlname)
-            self.fh.write('      <styleUrl>#%s</styleUrl>\n' % self.safeName(row['type']))
-            if not self.nodesc and row['url'] is not None and len(row['url']) > 0:
-                self.fh.write('      <description><![CDATA[<a href="%s">Full Cache Listing</a>]]></description>\n' % row['url'])
+            self.fh.write('      <styleUrl>#%s</styleUrl>\n' % self.safeName(cache.type))
+            if not self.nodesc and cache.url is not None and len(cache.url) > 0:
+                self.fh.write('      <description><![CDATA[<a href="%s">Full Cache Listing</a>]]></description>\n' % cache.url)
             self.fh.write('      <Point>\n')
             self.fh.write('        <extrude>1</extrude>\n')
-            self.fh.write('        <coordinates>%f,%f</coordinates>\n' % (row['lon'], row['lat']))
+            self.fh.write('        <coordinates>%f,%f</coordinates>\n' % (cache.lon, cache.lat))
             self.fh.write('      </Point>\n')
             self.fh.write('    </Placemark>\n')
         if not first: self.fh.write('  </Folder>\n\n')
