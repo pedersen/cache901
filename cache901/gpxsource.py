@@ -44,10 +44,11 @@ import cache901.options
 import cache901.ui
 import cache901.ui_xrc
 import cache901.validators
-import cache901.xml901
 
+from cache901.xml901 import parse
 from cache901.sadbobjects import *
-from sqlalchemy import func
+from cache901 import sadbobjects
+from sqlalchemy import func, and_
 
 class GPXSource(object):
     # Objects of this interface must be iterable. Furthermore, they must
@@ -264,7 +265,7 @@ class GeoCachingComSource(GPXSource):
         raise StopIteration
     
     def postCacheLog(self, logEntry):
-        isinstance(logEntry, cache901.dbobjects.Log)
+        isinstance(logEntry, cache901.sadbobjects.Logs)
         
         # prep timestamps for loading
         now = datetime.datetime.now()
@@ -279,7 +280,7 @@ class GeoCachingComSource(GPXSource):
         isinstance(logdate, datetime.datetime)
         
         # prep web access
-        dbocache = cache901.dbobjects.Cache(logEntry.cache_id)
+        dbocache = cache901.db().query(sadbobjects.Cache).get(logEntry.cache_id)
         cachename = '%s - %s' % (dbocache.name, dbocache.url_name)
         headers = {'User-agent' : self.useragent }
         self.wwwSetup()
@@ -353,41 +354,34 @@ def gpxSyncAll(callingwin):
     wpts = []
     popaccts = []
     imapaccts = []
-    cur.execute('select foldername from gpxfolders order by foldername')
-    for row in cur:
-        folders.append(row['foldername'])
-    cur.execute('select waypoint_name from watched_waypoints order by waypoint_name')
-    for row in cur:
-        wpts.append(row['waypoint_name'])
-    cur.execute('select emailid from emailsources where svrtype="pop"')
-    for row in cur:
-        popaccts.append(row['emailid'])
-    cur.execute('select emailid from emailsources where svrtype="imap"')
-    for row in cur:
-        imapaccts.append(row['emailid'])
+    for folder in dbsession.query(sadbobjects.GpxFolders).order_by(sadbobjects.GpxFolders.foldername):
+        folders.append(folder.foldername)
+    for wpt in dbsession.query(sadbobjects.WatchedWayPoints).order_by(sadbobjects.WatchedWayPoints.waypoint_name):
+        wpts.append(wpt.waypoint_name)
+    for pop in dbsession.query(sadbobjects.EmailSources).filter(sadbobjects.EmailSources.svrtype == 'pop'):
+        popaccts.append(pop.emailid)
+    for imap in dbsession.query(sadbobjects.EmailSources).filter(sadbobjects.EmailSources.svrtype == 'imap'):
+        imapaccts.append(imap.emailid)
         
-    # Build parser
-    parser = cache901.xml901.XMLParser()
-    
     # Synchronize folders
     for folder in folders:
         fld = FolderSource(folder)
         for gpxfile in fld:
-            parser.parse(gpxfile, False)
+            parse(gpxfile, False)
     
     # Synchronize POP3 sources
     for popid in popaccts:
-        email = cache901.dbobjects.Email(popid)
+        email = cache901.db().query(sadbobjects.EmailSources).get(popid)
         popsrc = PopSource(email.svrname, email.username, email.password, email.usessl)
         for gpxfile in popsrc:
-            parser.parse(gpxfile, False)
+            parse(gpxfile, False)
             
     # Synchronize IMAP4 sources
     for imapid in imapaccts:
-        email = cache901.dbobjects.Email(imapid)
+        email = cache901.db().query(sadbobjects.EmailSources).get(imapid)
         imapsrc = IMAPSource(email.svrname, email.username, email.password, email.usessl, email.deffolder)
         for gpxfile in imapsrc:
-            parser.parse(gpxfile, False)
+            parse(gpxfile, False)
             
     # Finally, perform all database maintenance
     cache901.db().maintdb()
@@ -426,11 +420,12 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnLoadImap, self.imap4SvrList)
         
     def OnAddImap(self, evt):
-        email = cache901.dbobjects.Email(cache901.dbobjects.minint)
+        email = sadbobjects.EmailSources()
         email.svrname = 'unknownhost.com'
         email.username = 'unknown'
         email.imap = True
-        email.Save()
+        cache901.db().add(email)
+        cache901.db().commit()
         self.loadImapAccounts()
         self.imap4SvrList.Select(self.imap4SvrList.FindItemData(0, email.emailid))
     
@@ -439,14 +434,15 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
             return
         eid = self.imap4SvrList.GetFirstSelected()
         if eid > -1:
-            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
-            email.Delete()
+            email = cache901.db().query(sadbobjects.EmailSources).get(self.imap4SvrList.GetItemData(eid))
+            cache901.db().delete(email)
+            cache901.db().commit()
             self.loadImapAccounts()
     
     def OnLoadImap(self, evt):
         eid = self.imap4SvrList.GetFirstSelected()
         if eid > -1:
-            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
+            email = cache901.db().query(sadbobjects.EmailSources).get(self.imap4SvrList.GetItemData(eid))
             self.btnRemImap4Svr.Enable()
             self.btnRefreshFolders.Enable()
             self.imap4Save.Enable()
@@ -465,23 +461,24 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def OnSaveImap(self, evt):
         eid = self.imap4SvrList.GetFirstSelected()
         if eid > -1:
-            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
+            email = cache901.db().query(sadbobjects.EmailSources).get(self.imap4SvrList.GetItemData(eid))
             email.svrname   = self.imap4ServerName.GetValue()
             email.username  = self.imap4Username.GetValue()
             email.password  = self.imap4Password.GetValue()
             email.deffolder = self.imap4Folder.GetItems()[self.imap4Folder.GetSelection()]
             email.usessl    = self.imap4UseSSL.GetValue()
-            email.Save()
+            cache901.db().commit()
             self.loadImapAccounts()
     
     def OnRefreshImapFolders(self, evt):
         eid = self.imap4SvrList.GetFirstSelected()
         if eid > -1:
-            email = cache901.dbobjects.Email(self.imap4SvrList.GetItemData(eid))
+            email = cache901.db().query(sadbobjects.EmailSources).get(self.imap4SvrList.GetItemData(eid))
             email.svrname   = self.imap4ServerName.GetValue()
             email.username  = self.imap4Username.GetValue()
             email.password  = self.imap4Password.GetValue()
             email.usessl    = self.imap4UseSSL.GetValue()
+            cache901.db().commit()
             cdef = self.imap4Folder.GetItems()[self.imap4Folder.GetSelection()]
             imapc = None
             try:
@@ -502,11 +499,9 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     
     def loadImapAccounts(self):
         self.imap4SvrList.DeleteAllItems()
-        cur = cache901.db().cursor()
-        cur.execute('select emailid, svruser || "@" || svrname as email from emailsources where svrtype="imap" order by email')
-        for row in cur:
-            eid = self.imap4SvrList.Append((row['email'], ))
-            self.imap4SvrList.SetItemData(eid, row['emailid'])
+        for email in cache901.db().query(sadbobjects.EmailSources).filter(sadbobjects.EmailSources.svrtype=='imap').order_by(sadbobjects.EmailSources.svruser, sadbobjects.EmailSources.svrname):
+            eid = self.imap4SvrList.Append(('%s@%s' % (email.svruser, email.svrname), ))
+            self.imap4SvrList.SetItemData(eid, email.emailid)
         self.btnRemImap4Svr.Disable()
         self.imap4ServerName.Disable()
         self.imap4Username.Disable()
@@ -517,10 +512,11 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         self.imap4Save.Disable()
     
     def OnAddPop(self, evt):
-        email = cache901.dbobjects.Email(cache901.dbobjects.minint)
+        email = sadbobjects.EmailSources()
         email.svrname = 'unknownhost.com'
         email.username = 'unknown'
-        email.Save()
+        cache901.db().add(email)
+        cache901.db().commit()
         self.loadPopAccounts()
         self.pop3Servers.Select(self.pop3Servers.FindItemData(0, email.emailid))
     
@@ -529,14 +525,15 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
             return
         eid = self.pop3Servers.GetFirstSelected()
         if eid > -1:
-            email = cache901.dbobjects.Email(self.pop3Servers.GetItemData(eid))
-            email.Delete()
+            email = cache901.db().query(sadbobjects.EmailSources).get(self.pop3Servers.GetItemData(eid))
+            cache901.db().delete(email)
+            cache901.db().commit()
             self.loadPopAccounts()
     
     def OnLoadPop(self, evt):
         eid = self.pop3Servers.GetFirstSelected()
         if eid > -1:
-            email = cache901.dbobjects.Email(self.pop3Servers.GetItemData(eid))
+            email = cache901.db().query(sadbobjects.EmailSources).get(self.pop3Servers.GetItemData(eid))
             self.pop3ServerName.SetValue(email.svrname)
             self.pop3ServerName.Enable()
             self.pop3Username.SetValue(email.username)
@@ -551,21 +548,19 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def OnSavePop(self, evt):
         eid = self.pop3Servers.GetFirstSelected()
         if eid > -1:
-            email = cache901.dbobjects.Email(self.pop3Servers.GetItemData(eid))
+            email = cache901.db().query(sadbobjects.EmailSources).get(self.pop3Servers.GetItemData(eid))
             email.svrname  = self.pop3ServerName.GetValue()
             email.username = self.pop3Username.GetValue()
             email.password = self.pop3Password.GetValue()
             email.usessl   = self.pop3UseSSL.GetValue()
-            email.Save()
+            cache901.db().commit()
             self.loadPopAccounts()
     
     def loadPopAccounts(self):
         self.pop3Servers.DeleteAllItems()
-        cur = cache901.db().cursor()
-        cur.execute('select emailid, svruser || "@" || svrname as email from emailsources where svrtype="pop" order by email')
-        for row in cur:
-            eid = self.pop3Servers.Append((row['email'], ))
-            self.pop3Servers.SetItemData(eid, row['emailid'])
+        for email in cache901.db().query(sadbobjects.EmailSources).filter(sadbobjects.EmailSources.svrtype=='pop').order_by(sadbobjects.EmailSources.svruser, sadbobjects.EmailSources.svrname):
+            eid = self.pop3Servers.Append(('%s@%s' % (email.svruser, email.svrname), ))
+            self.pop3Servers.SetItemData(eid, emailemailid)
         self.btnRemPop3Svr.Disable()
         self.pop3ServerName.Disable()
         self.pop3Username.Disable()
@@ -576,10 +571,12 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def OnAddWpt(self, evt):
         wpt = wx.GetTextFromUser('Enter the waypoint name:', 'Enter Waypoint Name').upper()
         if wpt != '':
-            cur=cache901.db().cursor()
-            cur.execute('delete from watched_waypoints where waypoint_name=?', (wpt, ))
-            cur.execute('insert into watched_waypoints(waypoint_name) values(?)', (wpt, ))
-            cache901.db().commit()
+            w = cache901.db().query(sadbobjects.WatchedWayPoints).get(wpt)
+            if not w:
+                w = sadbobjects.WatchedWayPoints()
+                w.waypoint_name = wpt
+                cache901.db().add(w)
+                cache901.db().commit(w)
             self.loadWpts()
     
     def OnRemWpt(self, evt):
@@ -588,25 +585,26 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         wptid = self.geoWpts.GetFirstSelected()
         if wptid > -1:
             fname = self.geoWpts.GetItemText(wptid)
-            cur = cache901.db().cursor()
-            cur.execute('delete from watched_waypoints where waypoint_name=?', (fname, ))
-            cache901.db().commit()
+            w = cache901.db().query(sadbobjects.WatchedWayPoints).get(fname)
+            if w:
+                cache901.db().delete(w)
+                cache901.db().commit()
             self.loadWpts()
     
     def loadWpts(self):
         self.geoWpts.DeleteAllItems()
-        cur = cache901.db().cursor()
-        cur.execute('select waypoint_name from watched_waypoints order by waypoint_name')
-        for row in cur:
-            self.geoWpts.Append((row['waypoint_name'], ))
+        for wpt in cache901.db().query(sadbobjects.WatchedWayPoints).order_by(sadbobjects.WatchedWayPoints.waypoint_name):
+            self.geoWpts.Append((wpt.waypoint_name, ))
     
     def OnAddFolder(self, evt):
         dirpath = wx.DirSelector('Add Watched Folder')
         if dirpath != "":
-            cur = cache901.db().cursor()
-            cur.execute('delete from gpxfolders where foldername=?', (dirpath, ))
-            cur.execute('insert into gpxfolders(foldername) values(?)', (dirpath, ))
-            cache901.db().commit()
+            f = cache901.db().query(sadbobjects.GpxFolders).get(dirpath)
+            if not f:
+                f = sadbobjects.GpxFolders()
+                f.foldername = dirpath
+                cache901.db().add(f)
+                cache901.db().commit()
             self.loadFolders()
     
     def OnRemFolder(self, evt):
@@ -615,17 +613,16 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         fid = self.folderNames.GetFirstSelected()
         if fid > -1:
             fname = self.folderNames.GetItemText(fid)
-            cur = cache901.db().cursor()
-            cur.execute('delete from gpxfolders where foldername=?', (fname, ))
-            cache901.db().commit()
+            f = cache901.db().query(sadbobjects.GpxFolders).get(fname)
+            if f:
+                cache901.db().delete(f)
+                cache901.db().commit()
             self.loadFolders()
     
     def loadFolders(self):
         self.folderNames.DeleteAllItems()
-        cur = cache901.db().cursor()
-        cur.execute('select foldername from gpxfolders order by foldername')
-        for row in cur:
-            self.folderNames.Append((row['foldername'], ))
+        for folder in cache901.db().query(sadbobjects.GpxFolders).order_by(sadbobjects.GpxFolders.foldername):
+            self.folderNames.Append((folder.foldername, ))
     
     def forWingIde(self):
         isinstance(self.tabs, wx.Notebook)
@@ -678,15 +675,14 @@ class LogUploadTable(wx.grid.PyGridTableBase):
         self.accounts = []
         self.logs = []
         self.caches = {}
-        cur = cache901.db().cursor()
-        cur.execute('select accountid from accounts order by ispremium desc, isteam desc')
-        for row in cur:
-            self.accounts.append(cache901.dbobjects.Account(row['accountid']))
-        cur.execute('select id from logs where finder in (select username from accounts) and my_log_uploaded=0 order by date asc')
-        for row in cur:
-            self.logs.append(cache901.dbobjects.Log(row['id']))
-            cid = self.logs[-1].cache_id
-            self.caches[cid] = cache901.dbobjects.Cache(cid)
+        self.accounts = cache901.db().query(sadbobjects.Accounts). \
+            order_by(sadbobjects.Accounts.ispremium.desc(), sadbobjects.Accounts.isteam.desc()).all()
+        for log in cache901.db().query(sadbobjects.Logs).filter(and_(
+            sadbobjects.Logs.my_log_uploaded == 0,
+            sadbobjects.Logs.finder.in_(cache901.db().query(sadbobjects.Accounts.username)))):
+            self.logs.append(logs)
+            cid = log.cache.cache_id
+            self.caches[cid] = log.cache
         self.uploads = map(lambda x: map(lambda y: False, self.accounts), self.logs)
         self.marks = map(lambda x: False, self.logs)
         self.centercell = wx.grid.GridCellAttr()

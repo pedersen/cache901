@@ -118,7 +118,6 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.statesList.DeleteAllItems()
         self.statesList.DeleteAllColumns()
         self.statesList.InsertColumn(0, "State / Province", width=self.w)
-        self.cur.execute("select distinct state from caches order by state")
         for state in cache901.db().query(sadbobjects.Caches.state.distinct().label('state')):
             self.statesList.Append((state.state, ))
         
@@ -126,7 +125,6 @@ class SearchBox(cache901.ui_xrc.xrcSearchUI):
         self.savedSearches.DeleteAllItems()
         self.savedSearches.DeleteAllColumns()
         self.savedSearches.InsertColumn(0, "Search Name", width = self.w)
-        self.cur.execute("SELECT DISTINCT name FROM searches ORDER BY name")
         for search in cache901.db().query(sadbobjects.Searches.name.distinct().label('name')):
             self.savedSearches.Append((search.name, ))
     
