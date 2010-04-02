@@ -831,13 +831,11 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             self.currNotes.SetValue("")
             self.ld_cache.note.note = ""
-            self.ld_cache.note.Save()
             cache901.db().commit()
 
 
     def OnSaveNotes(self, evt):
         self.ld_cache.note.note = self.currNotes.GetValue()
-        self.ld_cache.note.Save()
         cache901.db().commit()
 
 
@@ -862,7 +860,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                 cache901.notify('Copying file %s to %s' % (fname, fulldest))
                 shutil.copyfile(fname, fulldest)
                 self.ld_cache.photolist.names.append(dest)
-            self.ld_cache.photolist.Save()
             cache901.db().commit()
         self.updPhotoList()
         self.updStatus()
@@ -903,7 +900,6 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             fname = os.sep.join([cache901.cfg().dbpath, self.ld_cache.photolist.names[idx]])
             os.unlink(fname)
             del self.ld_cache.photolist.names[idx]
-            self.ld_cache.photolist.Save()
             cache901.db().commit()
             self.updPhotoList()
 

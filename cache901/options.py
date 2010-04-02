@@ -212,6 +212,9 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         else:
             lid = -999999
         wpt = cache901.db().query(sadbobjects.Locations).get(lid)
+        if wpt is None:
+            wpt = sadbobjects.Locations()
+            cache901.db().add(wpt)
         wpt.name = self.locName.GetValue()
         wpt.loc_type = 2
         if len(wpt.name) != 0:
@@ -359,10 +362,12 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
         day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
+        if not day:
+            return
         
         iid = self.availCaches.GetFirstSelected()
         while iid != -1:
-            day.caches.append(cache901.db().query(saobjects.Cache).get(self.availCaches.GetItemData(iid)))
+            day.caches.append(cache901.db().query(sadbobjects.Caches).get(self.availCaches.GetItemData(iid)))
             iid = self.availCaches.GetNextSelected(iid)
         cache901.db().commit()
         self.OnLoadCacheDay(evt)
@@ -381,7 +386,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         delme.reverse()
         for idx in delme:
             del day.caches[idx]
-        day.Save()
+        cache901.db().commit()
         self.OnLoadCacheDay(evt)
     
     def OnLoadCacheDay(self, evt):

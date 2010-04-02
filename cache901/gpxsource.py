@@ -337,7 +337,7 @@ def gpxSyncAll(callingwin):
                     savedentry = uplog.log_entry
                     if loguploadtable.marks[logidx]:
                         uplog.my_log_uploaded = True
-                        uplog.Save()
+                        cache901.db().commit()
                     elif loguploadtable.uploads[logidx][acctidx]:
                         if acct is None:
                             acct = GeoCachingComSource(dbacct.username, dbacct.password)
@@ -346,7 +346,7 @@ def gpxSyncAll(callingwin):
                         acct.postCacheLog(uplog)
                         uplog.log_entry = savedentry
                         uplog.my_log_uploaded = True
-                        uplog.Save()
+                        cache901.db().commit()
                 del acct
     
     # Next, gather gpx sources lists

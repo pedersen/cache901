@@ -233,7 +233,7 @@ class CacheDayNames(DeclarativeBase):
     __tablename__ =  'cacheday_names'
     dayname = Column(UnicodeText(), primary_key=True)
 
-    caches = relation('CacheDay', order_by='CacheDay.cache_order', backref=backref('cachedayname'))
+    caches = relation('CacheDay', order_by='CacheDay.cache_order')
     
     def reindex(self):
         idx = 1
