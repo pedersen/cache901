@@ -341,7 +341,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         item = self.CacheSearchMenu.Append(-1, 'Clear Search')
         self.Bind(wx.EVT_MENU, self.OnSearch, item)
         self.CacheSearchMenu.AppendSeparator()
-        for i in cache901.db().query(sadbobjects.Searches):
+        for i in cache901.db().query(sadbobjects.Searches.name.distinct().label('name')):
             item = self.CacheSearchMenu.Append(-1, i.name)
             self.Bind(wx.EVT_MENU, self.OnSearch, item)
         self.CacheSearchMenu.AppendSeparator()
