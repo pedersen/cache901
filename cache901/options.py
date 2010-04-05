@@ -367,13 +367,16 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
         
         iid = self.availCaches.GetFirstSelected()
         while iid != -1:
-            day.caches.append(cache901.db().query(sadbobjects.Caches).get(self.availCaches.GetItemData(iid)))
+            waypoint = sadbobjects.CacheDay()
+            cache = cache901.db().query(sadbobjects.Caches).get(self.availCaches.GetItemData(iid))
+            waypoint.cache_id = cache.cache_id
+            waypoint.cache_type = 1
+            day.caches.append(waypoint)
             iid = self.availCaches.GetNextSelected(iid)
         cache901.db().commit()
         self.OnLoadCacheDay(evt)
     
     def OnRemCache(self, evt):
-        # TODO: Delete the cache from the cache day, but don't delete the cache
         iid = self.cacheDays.GetFirstSelected()
         dname = self.cacheDays.GetItemText(iid)
         day = cache901.db().query(sadbobjects.CacheDayNames).get(dname)
@@ -385,7 +388,7 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
             iid = self.cachesForDay.GetNextSelected(iid)
         delme.reverse()
         for idx in delme:
-            del day.caches[idx]
+            cache901.db().delete(day.caches[idx])
         cache901.db().commit()
         self.OnLoadCacheDay(evt)
     

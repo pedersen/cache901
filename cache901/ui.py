@@ -588,19 +588,18 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         return usernames
 
     def importSpecificFile(self, path, maintdb=True):
-        parser = cache901.xml901.XMLParser()
         if path.lower().endswith('.zip'):
             cache901.notify('Examining %s for gpx files' % path)
             zfile = zipfile.ZipFile(path)
             gpxziplist = filter(lambda x: x.lower().endswith('.gpx'), zfile.namelist())
             for gpxname in gpxziplist:
                 cache901.notify('Processing %s%s%s' % (path, os.sep, gpxname))
-                parser.parse(zfile.read(gpxname), False)
+                cache901.xml901.parse(zfile.read(gpxname), False)
                 cache901.notify('Completed processing %s%s%s' % (path, os.sep, gpxname))
         elif path.lower().endswith('.gpx'):
             cache901.notify('Processing %s' % path)
             infile = open(path)
-            parser.parse(infile, False)
+            cache901.xml901.parse(infile, False)
             cache901.notify('Completed processing %s' % path)
         else:
             cache901.notify('Unable to process file %s' % path)
@@ -830,12 +829,15 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnClearNotes(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             self.currNotes.SetValue("")
-            self.ld_cache.note.note = ""
+            if len(self.ld_cache.notes) > 0:
+                cache901.db().delete(self.ld_cache.notes[0])
             cache901.db().commit()
 
 
     def OnSaveNotes(self, evt):
-        self.ld_cache.note.note = self.currNotes.GetValue()
+        if len(self.ld_cache.notes) == 0:
+            self.ld_cache.notes.append(sadbobjects.Notes()) 
+        self.ld_cache.notes[0].note = self.currNotes.GetValue()
         cache901.db().commit()
 
 
@@ -859,7 +861,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                 fulldest = os.sep.join([cache901.cfg().dbpath, dest])
                 cache901.notify('Copying file %s to %s' % (fname, fulldest))
                 shutil.copyfile(fname, fulldest)
-                self.ld_cache.photolist.names.append(dest)
+                photo = sadbobjects.Photos()
+                photo.photofile = dest
+                self.ld_cache.photos.append(photo)
             cache901.db().commit()
         self.updPhotoList()
         self.updStatus()
@@ -867,7 +871,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
 
     def OnSwitchPhoto(self, evt):
         idx = evt.GetImage()
-        fname = os.sep.join([cache901.cfg().dbpath, self.ld_cache.photolist.names[idx]])
+        fname = os.sep.join([cache901.cfg().dbpath, self.ld_cache.photos[idx].photofile])
         img = wx.Image(fname)
         
         # Get photo size and scale it
@@ -897,9 +901,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
     def OnRemovePhoto(self, evt):
         if wx.MessageBox("This operation cannot be undone!\nContinue?", "Warning: About To Remove Data", wx.YES_NO) == wx.YES:
             idx = self.photoList.GetFirstSelected()
-            fname = os.sep.join([cache901.cfg().dbpath, self.ld_cache.photolist.names[idx]])
+            fname = os.sep.join([cache901.cfg().dbpath, self.ld_cache.photos[idx].photofile])
             os.unlink(fname)
-            del self.ld_cache.photolist.names[idx]
+            cache901.db().delete(self.ld_cache.photos[idx])
             cache901.db().commit()
             self.updPhotoList()
 
@@ -1050,22 +1054,29 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             mtext =  wx.GetTextFromUser('New Cache Day Name', 'New Cache Day Name', parent = self)
             if mtext.strip() != '':
                 day = sadbobjects.CacheDayNames()
-                day.name = mtext
+                day.dayname = mtext
                 cache901.db().add(day)
                 cache901.db().commit()
             else:
                 day = None
                 wx.MessageBox('Cowardly refusing to create a day name with just spaces in it', 'Bad Cache Day Name', wx.ICON_EXCLAMATION)
                 return
-        else:
-            day = cache901.db().query(sadbobjects.CacheDayNames).get(mtext)
+        day = cache901.db().query(sadbobjects.CacheDayNames).get(mtext)
         if day is not None:
+            waypoint = sadbobjects.CacheDay()
+            day.caches.append(waypoint)
+            cache901.db().add(waypoint)
             iid = self.caches.GetFirstSelected()
             if iid != -1:
-                day.caches.append(cache901.db().query(sadbobjects.Caches).get(self.caches.GetItemData(iid)))
+                cache = cache901.db().query(sadbobjects.Caches).get(self.caches.GetItemData(iid))
+                waypoint.cache_id = cache.cache_id
+                waypoint.cache_type = 1
             else:
-                day.caches.append(cache901.db().query(sadbobjects.Locations).get(self.points.GetItemData(self.points.GetFirstSelected())))
-            cache901.db().commit()
+                cache = cache901.db().query(sadbobjects.Locations).get(self.points.GetItemData(self.points.GetFirstSelected()))
+                waypoint.cache_id = cache.cache_id
+                waypoint.cache_type = 2
+            day.reindex()
+        cache901.db().commit()
         self.updSearchMenu()
         for item in self.updCacheDayMenus(self.mnuAddCurrentToCacheDay):
             self.Bind(wx.EVT_MENU, self.OnAddToCacheDay, item)
@@ -1168,7 +1179,9 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         newdbname = filter(lambda x:x.isalnum() or x in ['_', '-'] or x.isspace(), newdb)
         if newdbname != '':
             newdb = os.sep.join([cache901.cfg().dbpath, "%s.sqlite" % (newdbname)])
-            cache901.db().open(newdb)
+            cache901.cfg().dbfile = newdb
+            cache901.sadbobjects.DBSession = None
+            cache901.db()
             self.buildDbMenu()
             self.loadData()
             self.updStatus()
@@ -1181,7 +1194,8 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         item = self.mnuSwitchDb.FindItemById(evt.GetId())
         isinstance(item, wx.MenuItem)
         dbname = os.sep.join([cache901.cfg().dbpath, "%s.sqlite" % (item.GetItemLabel())])
-        cache901.db().open(dbname)
+        cache901.cfg().dbfile = dbname
+        cache901.sadbobjects.DBSession = None
         self.loadData()
         dbname = cache901.cfg().dbfilebase
         for item in self.mnuSwitchDb.GetMenuItems():

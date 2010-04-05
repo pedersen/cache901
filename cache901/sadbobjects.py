@@ -101,10 +101,17 @@ def scrub():
 
 def delAllCaches():
     cache901.notify("Emptying all caches and waypoints from the database")
-    for i in DBSession.query(Caches):
-        DBSession.delete(i)
-    for i in DBSession.query(Locations).filter(Locations.loc_type == 1):
-        DBSession.delete(i)
+    DBSession.query(Caches).delete()
+    DBSession.query(Locations).filter(Locations.loc_type == 1).delete()
+    DBSession.query(Logs).delete()
+    DBSession.query(AltCoords).delete()
+    DBSession.query(Attributes).delete()
+    DBSession.query(Hints).delete()
+    DBSession.query(Notes).delete()
+    DBSession.query(Photos).delete()
+    DBSession.query(TravelBugs).delete()
+    DBSession.query(CacheDayNames).delete()
+    DBSession.query(CacheDay).delete()
     DBSession.commit()
 
 
@@ -233,7 +240,7 @@ class CacheDayNames(DeclarativeBase):
     __tablename__ =  'cacheday_names'
     dayname = Column(UnicodeText(), primary_key=True)
 
-    caches = relation('CacheDay', order_by='CacheDay.cache_order')
+    caches = relation('CacheDay', order_by='CacheDay.cache_order', cascade='all,delete-orphan')
     
     def reindex(self):
         idx = 1
@@ -275,6 +282,28 @@ class WatchedWayPoints(DeclarativeBase):
     waypoint_name = Column(Unicode(), primary_key=True)
 
 
+class Hints(DeclarativeBase):
+    __tablename__ = 'hints'
+    cache_id = Column(Integer, ForeignKey('caches.cache_id'), primary_key=True)
+    hint = Column(Unicode(), primary_key=False)
+
+class Notes(DeclarativeBase):
+    __tablename__ = 'notes'
+    cache_id = Column(Integer, ForeignKey('caches.cache_id'), primary_key=True)
+    note = Column(Unicode(), primary_key=False)
+
+class Photos(DeclarativeBase):
+    __tablename__ = 'photos'
+    cache_id = Column(Integer, ForeignKey('caches.cache_id'), primary_key=True)
+    photofile = Column(Unicode(), primary_key=True)
+    
+class TravelBugs(DeclarativeBase):
+    __tablename__ = 'travelbugs'
+    id = Column(Integer, primary_key=True)
+    cache_id = Column(Integer, ForeignKey('caches.cache_id'), primary_key=False)
+    name = Column(Unicode(), primary_key=False)
+    ref = Column(Unicode(), primary_key=False)
+
 class Caches(DeclarativeBase):
     __tablename__ =  'caches'
     cache_id = Column(Integer, primary_key=True)
@@ -303,9 +332,13 @@ class Caches(DeclarativeBase):
     long_desc_html = Column(Integer, primary_key=False)
     hidden = Column(Integer, primary_key=False)
 
-    logs = relation(Logs, order_by=Logs.date.desc(), backref=backref('cache'))
-    alt_coords = relation('AltCoords', order_by='AltCoords.sequence_num', backref=backref('cache'))
-    attributes = relation('Attributes', backref=backref('cache'))
+    logs = relation(Logs, order_by=Logs.date.desc(), backref=backref('cache'), cascade='all,delete-orphan')
+    alt_coords = relation('AltCoords', order_by='AltCoords.sequence_num', backref=backref('cache'), cascade='all,delete-orphan')
+    attributes = relation('Attributes', backref=backref('cache'), cascade='all,delete-orphan')
+    hint = relation(Hints, backref=backref('cache'), cascade='all,delete-orphan')
+    notes = relation(Notes, backref=backref('cache'), cascade='all,delete-orphan')
+    photos = relation(Photos, backref=backref('cache'), cascade='all,delete-orphan')
+    travelbugs = relation(TravelBugs, backref=backref('cache'), cascade='all,delete-orphan')
     
 
 class Locations(DeclarativeBase):
@@ -353,39 +386,6 @@ class CacheDay(DeclarativeBase):
     
     cache=property(_get_cache)
 
-
-class Hints(DeclarativeBase):
-    __tablename__ = 'hints'
-    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
-    hint = Column(Unicode(), primary_key=False)
-        
-    cache = relation(Caches, backref=backref('hint'))
-
-
-class Notes(DeclarativeBase):
-    __tablename__ = 'notes'
-    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
-    note = Column(Unicode(), primary_key=False)
-        
-    cache = relation(Caches, backref=backref('notes'))
-
-
-class Photos(DeclarativeBase):
-    __tablename__ = 'photos'
-    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=True)
-    photofile = Column(Unicode(), primary_key=True)
-        
-    cache = relation(Caches, backref=backref('photos'))
-
-    
-class TravelBugs(DeclarativeBase):
-    __tablename__ = 'travelbugs'
-    id = Column(Integer, primary_key=True)
-    cache_id = Column(Integer, ForeignKey(Caches.cache_id), primary_key=False)
-    name = Column(Unicode(), primary_key=False)
-    ref = Column(Unicode(), primary_key=False)
-        
-    cache = relation(Caches, backref=backref('travelbugs'))
 
 
 Index(u'alt_coords_cid_seq', AltCoords.cache_id, AltCoords.sequence_num, unique=False)

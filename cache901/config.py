@@ -291,6 +291,7 @@ class Config(object):
                 pth = 'sqlite:///' + pth
             return pth
     
+    # TODO: Fix for Windows
     def getDbFileBase(self):
         self.config.SetPath('/PerMachine')
         if not self.config.HasEntry('LastOpenedDb'):

@@ -47,7 +47,7 @@ def Cache901ExceptionHandler(exctype, val, tb):
 class Cache901App(wx.App):
     def OnInit(self):
         cache901.updating = True
-        sys.excepthook = Cache901ExceptionHandler
+        #sys.excepthook = Cache901ExceptionHandler
         wx.InitAllImageHandlers()
         geoicons = cache901.ui.geoicons()
         splash = cache901.ui_xrc.xrcsplash(None)
