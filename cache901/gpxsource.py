@@ -136,7 +136,7 @@ class PopSource(GPXSource):
 
 class IMAPSource(GPXSource):
     def __init__(self, host, user, password, ssl=False, folder='INBOX'):
-        if ssl:
+        if not ssl:
             self.imap4 = imaplib.IMAP4(host)
         else:
             self.imap4 = imaplib.IMAP4_SSL(host)
@@ -165,6 +165,10 @@ class IMAPSource(GPXSource):
                     for part in msg.get_payload():
                         isinstance(part, email.message.Message)
                         fname = part.get_filename('').lower()
+                        if fname == '':
+                            for header in part.values():
+                                if 'name' in header:
+                                    fname = header[header.find('name')+5:]
                         if fname.endswith('.gpx'):
                             cache901.notify('Found gpx file, processing')
                             return part.get_payload(decode=True)
@@ -178,7 +182,7 @@ class IMAPSource(GPXSource):
                                 self.count = self.count - 1
                                 foundgpx = True
                     if not foundgpx:
-                        self.imap4.store(self.msgnums[self.count], '-FLAGS', '(\\SEEN)')
+                        self.imap4.store(self.msgnums[self.count-1], '-FLAGS', '(\\SEEN)')
                 else:
                     self.imap4.store(self.msgnums[self.count], '-FLAGS', '(\\SEEN)')
             else:
@@ -372,16 +376,19 @@ def gpxSyncAll(callingwin):
     # Synchronize POP3 sources
     for popid in popaccts:
         email = cache901.db().query(sadbobjects.EmailSources).get(popid)
-        popsrc = PopSource(email.svrname, email.username, email.password, email.usessl)
+        popsrc = PopSource(email.svrname, email.svruser, email.svrpass, email.usessl)
         for gpxfile in popsrc:
             parse(gpxfile, False)
+    cache901.notify('Completed syncing pop3 accounts')
             
     # Synchronize IMAP4 sources
     for imapid in imapaccts:
         email = cache901.db().query(sadbobjects.EmailSources).get(imapid)
-        imapsrc = IMAPSource(email.svrname, email.username, email.password, email.usessl, email.deffolder)
+        cache901.notify('Syncing imap:%s@%s' % (email.svruser, email.svrname))
+        imapsrc = IMAPSource(email.svrname, email.svruser, email.svrpass, email.usessl, email.deffolder)
         for gpxfile in imapsrc:
             parse(gpxfile, False)
+    cache901.notify('Completed syncing imap accounts')
             
     # Finally, perform all database maintenance
     cache901.db().maintdb()
@@ -422,12 +429,16 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def OnAddImap(self, evt):
         email = sadbobjects.EmailSources()
         email.svrname = 'unknownhost.com'
-        email.username = 'unknown'
-        email.imap = True
+        email.svrpass = 'unknown'
+        email.svrtype = 'imap'
+        email.svruser = 'unknown user'
+        email.usessl = False
         cache901.db().add(email)
+        cache901.db().flush()
+        eid = email.emailid
         cache901.db().commit()
         self.loadImapAccounts()
-        self.imap4SvrList.Select(self.imap4SvrList.FindItemData(0, email.emailid))
+        self.imap4SvrList.Select(self.imap4SvrList.FindItemData(0, eid))
     
     def OnRemImap(self, evt):
         if wx.MessageBox('Warning! This operation cannot be undone!', 'Really Delete?', wx.YES_NO) == wx.NO:
@@ -452,9 +463,10 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
             self.imap4Folder.Enable()
             self.imap4UseSSL.Enable()
             self.imap4ServerName.SetValue(email.svrname)
-            self.imap4Username.SetValue(email.username)
-            self.imap4Password.SetValue(email.password)
-            self.imap4Folder.SetItems([email.deffolder])
+            self.imap4Username.SetValue(email.svruser)
+            self.imap4Password.SetValue(email.svrpass)
+            if email.deffolder:
+                self.imap4Folder.SetItems([email.deffolder])
             self.imap4Folder.SetSelection(0)
             self.imap4UseSSL.SetValue(email.usessl)
     
@@ -463,9 +475,10 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         if eid > -1:
             email = cache901.db().query(sadbobjects.EmailSources).get(self.imap4SvrList.GetItemData(eid))
             email.svrname   = self.imap4ServerName.GetValue()
-            email.username  = self.imap4Username.GetValue()
-            email.password  = self.imap4Password.GetValue()
-            email.deffolder = self.imap4Folder.GetItems()[self.imap4Folder.GetSelection()]
+            email.svruser   = self.imap4Username.GetValue()
+            email.svrpass   = self.imap4Password.GetValue()
+            if self.imap4Folder.GetSelection() >= 0:
+                email.deffolder = self.imap4Folder.GetItems()[self.imap4Folder.GetSelection()]
             email.usessl    = self.imap4UseSSL.GetValue()
             cache901.db().commit()
             self.loadImapAccounts()
@@ -475,11 +488,15 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         if eid > -1:
             email = cache901.db().query(sadbobjects.EmailSources).get(self.imap4SvrList.GetItemData(eid))
             email.svrname   = self.imap4ServerName.GetValue()
-            email.username  = self.imap4Username.GetValue()
-            email.password  = self.imap4Password.GetValue()
+            email.svruser   = self.imap4Username.GetValue()
+            email.svrpass   = self.imap4Password.GetValue()
             email.usessl    = self.imap4UseSSL.GetValue()
             cache901.db().commit()
-            cdef = self.imap4Folder.GetItems()[self.imap4Folder.GetSelection()]
+            cdefnum = self.imap4Folder.GetSelection()
+            if cdefnum >= 0:
+                cdef = self.imap4Folder.GetItems()[cdefnum]
+            else:
+                cdef='Bad:Folder:Name'
             imapc = None
             try:
                 if email.usessl: imapc = imaplib.IMAP4_SSL(email.svrname)
@@ -488,7 +505,7 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
                 wx.MessageBox(str(e), 'Invalid Hostname')
                 return
             try:
-                imapc.login(email.username, email.password)
+                imapc.login(email.svruser, email.svrpass)
             except Exception, e:
                 wx.MessageBox(str(e), 'Invalid User/Password')
                 return
@@ -514,11 +531,17 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
     def OnAddPop(self, evt):
         email = sadbobjects.EmailSources()
         email.svrname = 'unknownhost.com'
-        email.username = 'unknown'
+        email.svruser = 'unknown'
+        email.svrtype = 'pop'
+        email.svruser = ''
+        email.svrpass = ''
+        email.usessl = False
         cache901.db().add(email)
+        cache901.db().flush()
+        eid = email.emailid
         cache901.db().commit()
         self.loadPopAccounts()
-        self.pop3Servers.Select(self.pop3Servers.FindItemData(0, email.emailid))
+        self.pop3Servers.Select(self.pop3Servers.FindItemData(0, eid))
     
     def OnRemPop(self, evt):
         if wx.MessageBox('Warning! This operation cannot be undone!', 'Really Delete?', wx.YES_NO) == wx.NO:
@@ -536,9 +559,9 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
             email = cache901.db().query(sadbobjects.EmailSources).get(self.pop3Servers.GetItemData(eid))
             self.pop3ServerName.SetValue(email.svrname)
             self.pop3ServerName.Enable()
-            self.pop3Username.SetValue(email.username)
+            self.pop3Username.SetValue(email.svruser)
             self.pop3Username.Enable()
-            self.pop3Password.SetValue(email.password)
+            self.pop3Password.SetValue(email.svrpass)
             self.pop3Password.Enable()
             self.pop3UseSSL.SetValue(email.usessl)
             self.pop3UseSSL.Enable()
@@ -550,8 +573,8 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         if eid > -1:
             email = cache901.db().query(sadbobjects.EmailSources).get(self.pop3Servers.GetItemData(eid))
             email.svrname  = self.pop3ServerName.GetValue()
-            email.username = self.pop3Username.GetValue()
-            email.password = self.pop3Password.GetValue()
+            email.svruser  = self.pop3Username.GetValue()
+            email.svrpass  = self.pop3Password.GetValue()
             email.usessl   = self.pop3UseSSL.GetValue()
             cache901.db().commit()
             self.loadPopAccounts()
@@ -560,7 +583,7 @@ class GPXSourceUI(cache901.ui_xrc.xrcGPXSourcesUI):
         self.pop3Servers.DeleteAllItems()
         for email in cache901.db().query(sadbobjects.EmailSources).filter(sadbobjects.EmailSources.svrtype=='pop').order_by(sadbobjects.EmailSources.svruser, sadbobjects.EmailSources.svrname):
             eid = self.pop3Servers.Append(('%s@%s' % (email.svruser, email.svrname), ))
-            self.pop3Servers.SetItemData(eid, emailemailid)
+            self.pop3Servers.SetItemData(eid, email.emailid)
         self.btnRemPop3Svr.Disable()
         self.pop3ServerName.Disable()
         self.pop3Username.Disable()

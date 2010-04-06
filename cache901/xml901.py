@@ -43,6 +43,7 @@ def parse(data, maint=True):
             cache = cache901.db().query(Caches).get(cache_id)
             if not cache:
                 cache = Caches()
+                cache901.db().add(cache)
             cache.cache_id = cache_id
             cache.available = (cachedata.get('available').lower() == 'true')
             cache.archived = (cachedata.get('archived').lower() == 'true')
@@ -66,19 +67,19 @@ def parse(data, maint=True):
                     hint = cache901.db().query(Hints).get(cache_id)
                     if not hint:
                         hint = Hints()
-                        cache901.db().add(hint)
                         cache.hint.append(hint)
-                    cache.hint[0].hint = node.text
+                    hint.hint = node.text
+                    hint.cache_id = cache.cache_id
                 elif node.tag.endswith('}travelbugs'):
                     for bugnode in node.findall('{http://www.groundspeak.com/cache/1/0}travelbug'):
                         ref = bugnode.get('ref')
                         bug = cache901.db().query(TravelBugs).filter(TravelBugs.ref == ref).first()
                         if not bug:
                             bug = TravelBugs()
-                            cache901.db().add(bug)
-                        bug.cache_id = cache_id
+                            cache.travelbugs.append(bug)
                         bug.ref = ref
                         bug.id = int(bugnode.get('id'))
+                        bug.cache_id = cache.cache_id
                         bug.name = bugnode.find('{http://www.groundspeak.com/cache/1/0}name').text
                 elif node.tag.endswith('}logs'):
                     for lognode in node.findall('{http://www.groundspeak.com/cache/1/0}log'):
@@ -86,9 +87,9 @@ def parse(data, maint=True):
                         log = cache901.db().query(Logs).get(logid)
                         if not log:
                             log = Logs()
-                            cache901.db().add(log)
+                            cache.logs.append(log)
                         log.id = logid
-                        log.cache_id = cache_id
+                        log.cache_id = cache.cache_id
                         logfindernode = lognode.find('{http://www.groundspeak.com/cache/1/0}finder')
                         log.finder_id = logfindernode.get('id')
                         log.finder = logfindernode.text
@@ -104,7 +105,6 @@ def parse(data, maint=True):
                             log.date -= time.altzone
                         else:
                             log.date -= time.timezone
-                        
         else:
             cache = Locations()
             cache.loc_type = 1

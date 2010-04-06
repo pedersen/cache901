@@ -256,13 +256,13 @@ class Categories(DeclarativeBase):
 
 class EmailSources(DeclarativeBase):
     __tablename__ = 'emailsources'
-    emailid = Column(Integer, primary_key=True)
-    svrtype = Column(Unicode(), primary_key=False)
-    svrname = Column(Unicode(), primary_key=False)
-    svruser = Column(Unicode(), primary_key=False)
-    svrpass = Column(Unicode(), primary_key=False)
-    usessl = Column(Integer, primary_key=False)
-    deffolder = Column(Unicode(), primary_key=False)
+    emailid = Column(Integer, primary_key=True, autoincrement=True)
+    svrtype = Column(Unicode())
+    svrname = Column(Unicode())
+    svruser = Column(Unicode())
+    svrpass = Column(Unicode())
+    usessl = Column(Integer)
+    deffolder = Column(Unicode())
 
 
 class GpxFolders(DeclarativeBase):
