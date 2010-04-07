@@ -65,15 +65,20 @@ else:
     datafiles = []
 
 setup(name='Cache901',
-        version="0.6.1",
+        version="0.7.0",
         description='Paperless Geocaching Tool',
         author='Michael Pedersen',
         author_email='m.pedersen@icelus.org ',
         url='http://www.cache901.org/',
-        scripts=['geocache901',],
+        entry_points = {
+            'gui_scripts': [
+                'geocache901 = cache901.app:psycomain'
+                ]
+            },
         packages=['cache901', ],
         package_data={'cache901' : ['shield.ico', ]},
         install_requires=dependencies,
+        zip_safe=False,
         # Combined options for py2app and py2exe
         options = {
             "py2exe": {
@@ -87,7 +92,7 @@ setup(name='Cache901',
         # py2exe options below here
         data_files = datafiles,
         windows=[{
-            'script' : 'geocache901',
+            'script' : 'geocache901.py',
             'icon_resources' : [(1, os.sep.join(['cache901', 'shield.ico']))]
         }],
         # py2app options below here

@@ -47,7 +47,7 @@ def Cache901ExceptionHandler(exctype, val, tb):
 class Cache901App(wx.App):
     def OnInit(self):
         cache901.updating = True
-        #sys.excepthook = Cache901ExceptionHandler
+        sys.excepthook = Cache901ExceptionHandler
         wx.InitAllImageHandlers()
         geoicons = cache901.ui.geoicons()
         splash = cache901.ui_xrc.xrcsplash(None)
@@ -82,11 +82,20 @@ class Cache901App(wx.App):
         return 0
 
 def main():
-    app = Cache901App(redirect=False, useBestVisual=True)
-    app.MainLoop()
-
-if __name__ == '__main__':
     if not hasattr(sys, "frozen") and 'wx' not in sys.modules and 'wxPython' not in sys.modules:
         import wxversion
         wxversion.ensureMinimal("2.8")
+
+    app = Cache901App(redirect=False, useBestVisual=True)
+    app.MainLoop()
+
+def psycomain():
+    try:
+        import psyco
+        psyco.full()
+    except ImportError:
+        pass
+    main()
+    
+if __name__ == '__main__':
     main()
