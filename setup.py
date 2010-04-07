@@ -57,7 +57,7 @@ except ImportError, e:
 
 dependencies = ['pyserial', 'gpsbabel', 'wxPython-common>=2.8', 'sqlalchemy<=0.5.9', 'sqlalchemy-migrate', 'pysqlite']
 if sys.platform == "win32":
-    dependencies.append('pywin32')
+    #dependencies.append('pywin32')
     datafiles = [('cache901', [os.sep.join(['cache901', 'shield.ico']), os.sep.join(['osfiles', 'gpsbabel.exe']), os.sep.join(['osfiles', 'libexpat.dll'])],) ]
 elif sys.platform == "darwin":
     datafiles = []

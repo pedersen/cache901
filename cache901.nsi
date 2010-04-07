@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Cache 901"
-!define PRODUCT_VERSION "0.6.1"
+!define PRODUCT_VERSION "0.7"
 !define PRODUCT_PUBLISHER "Cache 901"
 !define PRODUCT_WEB_SITE "http://www.cache901.org/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\geocache901.exe"
@@ -52,7 +52,7 @@ var ICONS_GROUP
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "Cache901-0.6.1Setup.exe"
+OutFile "Cache901-0.7Setup.exe"
 InstallDir "$PROGRAMFILES\Cache 901"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -67,6 +67,7 @@ Section "MainSection" SEC01
   ; Begin: Generate from "ls dist"
   File "dist\MSVCR71.dll"
   File "dist\_ctypes.pyd"
+  File "dist\_elementtree.pyd"
   File "dist\_hashlib.pyd"
   File "dist\_sqlite3.pyd"
   File "dist\_socket.pyd"
@@ -86,7 +87,9 @@ Section "MainSection" SEC01
   File "dist\select.pyd"
   File "dist\sqlite3.dll"
   File "dist\unicodedata.pyd"
+  File "dist\version.dll"
   File "dist\w9xpopen.exe"
+  File "dist\win32api.pyd"
   File "dist\win32event.pyd"
   File "dist\win32file.pyd"
   File "dist\win32pipe.pyd"
