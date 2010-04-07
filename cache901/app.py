@@ -86,6 +86,8 @@ def main():
         import wxversion
         wxversion.ensureMinimal("2.8")
 
+    from warnings import simplefilter
+    simplefilter('ignore')
     app = Cache901App(redirect=False, useBestVisual=True)
     app.MainLoop()
 
