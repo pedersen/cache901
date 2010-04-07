@@ -1090,7 +1090,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         itemid = evt.GetId()
         item = self.GetMenuBar().FindItemById(itemid)
         mtext = item.GetLabel()
-        day = cache901.db().query(sadbobjects.CacheDay).get(mtext)
+        day = cache901.db().query(sadbobjects.CacheDayNames).get(mtext)
         gpx = cache901.util.CacheDayToGPX(day)
         cfg = cache901.cfg()
         cache901.notify('Sending Cache Day "%s" to GPS' % (mtext, ))

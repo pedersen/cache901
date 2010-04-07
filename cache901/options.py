@@ -298,8 +298,9 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def OnAddCacheDay(self, evt):
         newname = wx.GetTextFromUser('New Cache Day:', 'Enter The Name', parent=self)
         if newname != '':
-            day = sadbobjects.CacheDayNames(newname)
-            sadbobjects.DBSession.add(newname)
+            day = sadbobjects.CacheDayNames()
+            day.dayname = newname
+            sadbobjects.DBSession.add(day)
             cache901.db().commit()
             self.listCacheDays()
     

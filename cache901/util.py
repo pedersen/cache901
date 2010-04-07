@@ -289,11 +289,11 @@ def CacheDayToGPX(cacheday):
     route.name = cacheday.dayname
     for wptdata in cacheday.caches:
         wpt = gpsbabel.GPXWaypoint()
-        wpt.lat = wptdata.lat
-        wpt.lon = wptdata.lon
-        wpt.cmt = wptdata.name
-        wpt.desc = wptdata.name
-        wpt.name = wptdata.name
+        wpt.lat = wptdata.cache.lat
+        wpt.lon = wptdata.cache.lon
+        wpt.cmt = wptdata.cache.name
+        wpt.desc = wptdata.cache.name
+        wpt.name = wptdata.cache.name
         route.rtepts.append(wpt)
         gpx.wpts.append(wpt)
     gpx.rtes.append(route)
