@@ -284,7 +284,7 @@ class GeoCachingComSource(GPXSource):
         isinstance(logdate, datetime.datetime)
         
         # prep web access
-        dbocache = cache901.db().query(sadbobjects.Cache).get(logEntry.cache_id)
+        dbocache = cache901.db().query(sadbobjects.Caches).get(logEntry.cache_id)
         cachename = '%s - %s' % (dbocache.name, dbocache.url_name)
         headers = {'User-agent' : self.useragent }
         self.wwwSetup()
@@ -703,7 +703,7 @@ class LogUploadTable(wx.grid.PyGridTableBase):
         for log in cache901.db().query(sadbobjects.Logs).filter(and_(
             sadbobjects.Logs.my_log_uploaded == 0,
             sadbobjects.Logs.finder.in_(cache901.db().query(sadbobjects.Accounts.username)))):
-            self.logs.append(logs)
+            self.logs.append(log)
             cid = log.cache.cache_id
             self.caches[cid] = log.cache
         self.uploads = map(lambda x: map(lambda y: False, self.accounts), self.logs)

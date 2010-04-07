@@ -355,10 +355,10 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
         self.wptlist = {}
         if len(wpt_params.keys()) == 0:
             wpt_params['searchpat'] = self.search.GetValue()
-        for row in cache901.util.getWaypoints(wpt_params):
-            wpt_id = self.points.Append((row[1], row[2]))
-            self.points.SetItemData(wpt_id, row[0])
-            self.wptlist[row[0]] = (row[1], row[2])
+        for wpt in cache901.util.getWaypoints(wpt_params):
+            wpt_id = self.points.Append((wpt.name, wpt.desc))
+            self.points.SetItemData(wpt_id, wpt.wpt_id)
+            self.wptlist[wpt.wpt_id] = wpt_id
             
 
     def loadData(self, params={}, wpt_params={}):
@@ -476,7 +476,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
             self.caches.Select(iid, 0)
             iid = self.caches.GetFirstSelected()
         self.clearAllGui()
-        self.ld_cache = cache901.sadbobjects.Locations().get(evt.GetData())
+        self.ld_cache = cache901.db().query(sadbobjects.Locations).get(evt.GetData())
         self.cacheName.SetLabel(self.ld_cache.name)
         self.waypointLink.Label = self.ld_cache.name
         self.waypointLink.Refresh()
@@ -921,6 +921,7 @@ class Cache901UI(cache901.ui_xrc.xrcCache901UI, wx.FileDropTarget, listmix.Colum
                 
     def OnLogCache(self, evt):
         log = sadbobjects.Logs()
+        self.ld_cache.logs.append(log)
         log.cache_id = self.ld_cache.cache_id
         log.my_log = True
         log.date = time.mktime(datetime.datetime.now().timetuple())

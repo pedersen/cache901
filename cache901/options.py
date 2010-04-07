@@ -129,11 +129,14 @@ class OptionsUI(cache901.ui_xrc.xrcOptionsUI):
     def OnAddAccount(self, evt):
         acct = cache901.sadbobjects.Accounts()
         acct.username = 'unknown'
+        acct.password = ''
+        acct.ispremium = False
+        acct.isteam = False
         acct.sitename = self.acctType.GetItems()[0]
         cache901.db().add(acct)
         cache901.db().commit()
         self.loadAccounts()
-        self.accountNames.Select(self.accountNames.FindItemData(0, acct.acctid))
+        self.accountNames.Select(self.accountNames.FindItemData(0, acct.accountid))
     
     def OnRemAccount(self, evt):
         acctid = self.accountNames.GetFirstSelected()
