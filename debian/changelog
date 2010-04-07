@@ -1,3 +1,22 @@
+cache901 (0.7-1) unstable; urgency=low
+
+  * Major internal conversion from home grown ORM to SQLAlchemy
+  * Enlarged quick search window (ticket 73)
+  * Added Zip support for Imports, included Zip where we say GPX (ticket 95)
+  * Provide way to remove all caches in database (ticket 97)
+  * Added config class (ticket 104)
+  * Provided method to backup databases from within Cache901 (ticket 46)
+  * Added ability to have multiple database files (ticket 17)
+  * Requiring button click to run quick search (ticket 60)
+  * Hide Owner when Placed By is Owner (ticket 90)
+  * Added count of trackables in main tab (ticket 88)
+  * Added ability to reorder columns (ticket 6)
+  * Added KML export (ticket 28)
+  * Added TomTom POI export (ticket 27)
+  
+ -- Michael J. Pedersen <m.pedersen@icelus.org> Tue, 07 Apr 2010 00:20:00 -0500
+  
+
 cache901 (0.6.1-2) unstable; urgency=low
 
   * Fixed issue when starting Cache901 in a location that has a gpsbabel
