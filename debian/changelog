@@ -1,3 +1,9 @@
+cache901 (0.7.1-1) unstable; urgency=low
+
+  * Fixed case of missing place to store database
+
+ -- Michael J. Pedersen <m.pedersen@icelus.org>  Tue, 08 Apr 2010 00:03:00 -0500
+  
 cache901 (0.7-1) unstable; urgency=low
 
   * Major internal conversion from home grown ORM to SQLAlchemy
@@ -14,7 +20,7 @@ cache901 (0.7-1) unstable; urgency=low
   * Added KML export (ticket 28)
   * Added TomTom POI export (ticket 27)
   
- -- Michael J. Pedersen <m.pedersen@icelus.org> Tue, 07 Apr 2010 00:20:00 -0500
+ -- Michael J. Pedersen <m.pedersen@icelus.org>  Tue, 07 Apr 2010 00:20:00 -0500
   
 
 cache901 (0.6.1-2) unstable; urgency=low

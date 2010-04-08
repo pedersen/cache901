@@ -65,7 +65,7 @@ else:
     datafiles = []
 
 setup(name='Cache901',
-        version="0.7.0",
+        version="0.7.1",
         description='Paperless Geocaching Tool',
         author='Michael Pedersen',
         author_email='m.pedersen@icelus.org ',
