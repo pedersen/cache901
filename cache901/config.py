@@ -283,6 +283,8 @@ class Config(object):
         
     def getDbFile(self):
         self.config.SetPath('/PerMachine')
+        if not os.path.isdir(self.dbpath):
+            os.makedirs(self.dbpath)
         if not self.config.HasEntry('LastOpenedDb'):
             return 'sqlite:///' + os.sep.join([self.dbpath, '%s.sqlite' % (cache901.appname)])
         else:
